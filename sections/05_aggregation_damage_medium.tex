@@ -1,0 +1,120 @@
+% ============================================================
+% Section 5: Aggregation Damage Ratio (Medium length for TKDE)
+% Target: ~1.5 pages
+% ============================================================
+
+\section{Aggregation Damage Analysis}
+\label{sec:adr}
+
+When aggregation \textit{harms} classification ($\kappa < 1$), we need metrics to quantify the damage and identify protective architectures.
+
+\subsection{Aggregation Damage Ratio}
+
+\begin{definition}[Aggregation Damage Ratio]
+For a GNN model, we define:
+\begin{equation}
+    \text{ADR} = 1 - \frac{\text{Acc}_{\text{GNN}}}{\text{Acc}_{\text{MLP}}}
+\end{equation}
+ADR $> 0$ indicates aggregation destroys information; ADR $< 0$ indicates enhancement.
+\end{definition}
+
+\begin{observation}[ADR Peaks at Mid-Homophily]
+ADR follows an inverted U-shape, peaking at $h = 0.5$ where label mixing is maximum and $\kappa = \rho^2 k$ is minimized (since $\rho = 2h-1 = 0$).
+\end{observation}
+
+\begin{table}[t]
+\centering
+\caption{ADR by Model Type at $h=0.5$ (CSBM Synthetic)}
+\label{tab:adr}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Model} & \textbf{Aggregation} & \textbf{ADR} & \textbf{vs GCN} \\
+\midrule
+GCN & Replace & +0.189 & 1.00$\times$ \\
+GAT & Replace + Attn & +0.053 & 0.28$\times$ \\
+GraphSAGE & Concat & +0.001 & \textbf{0.005$\times$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key Finding} (Table~\ref{tab:adr}): GraphSAGE (concat) achieves $\sim$189$\times$ lower ADR than GCN at $h=0.5$. On real data, this ratio is $\sim$20$\times$.
+
+\subsection{Why Concatenation Helps}
+
+\begin{theorem}[Information Preservation]
+\label{thm:concat}
+For concatenated representation $Z = (X, \tilde{X})$ where $\tilde{X}$ is the aggregated representation:
+\begin{equation}
+    I(Y; X, \tilde{X}) \geq I(Y; X)
+\end{equation}
+Equality holds only if $\tilde{X}$ provides no additional information given $X$.
+\end{theorem}
+
+\begin{proof}
+By the chain rule of mutual information:
+\begin{equation}
+    I(Y; X, \tilde{X}) = I(Y; X) + I(Y; \tilde{X} | X) \geq I(Y; X)
+\end{equation}
+since mutual information is non-negative.
+\end{proof}
+
+\textbf{Practical Implication}: Concatenation-based architectures (GraphSAGE, GCN-Concat) \textbf{theoretically cannot lose} original feature information under an optimal classifier. In the worst case where aggregation is pure noise, the model can learn to ignore $\tilde{X}$ and rely solely on $X$.
+
+\subsection{Replace vs.\ Concat: Theoretical Analysis}
+
+Consider the aggregated representation under GCN (replace) vs.\ GraphSAGE (concat):
+\begin{align}
+    Z_{\text{GCN}} &= \sigma(W \cdot \tilde{X}) \quad &\text{(replace)} \\
+    Z_{\text{SAGE}} &= \sigma(W_1 X + W_2 \tilde{X}) \quad &\text{(concat)}
+\end{align}
+
+For GCN, if $\mathcal{D}(\tilde{X}) < \mathcal{D}(X)$ (i.e., $\kappa < 1$), information is irreversibly lost. For GraphSAGE, the model can set $W_2 \approx 0$ to preserve $\mathcal{D}(X)$.
+
+\begin{table}[t]
+\centering
+\caption{U-Shape Amplitude by Architecture}
+\label{tab:ushape_amplitude}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Model & Type & U-Shape Amplitude \\
+\midrule
+GCN & Replace & 19.35\% \\
+GAT & Replace + Attention & 7.29\% \\
+GraphSAGE & Concat & \textbf{0.75\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Result} (Table~\ref{tab:ushape_amplitude}): GraphSAGE shows minimal U-shape (0.75\% amplitude vs 19.35\% for GCN), confirming that concatenation protects against aggregation damage.
+
+\subsection{Practical Recommendation}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Architecture Selection Guideline]
+When homophily is uncertain ($0.3 < h < 0.7$), prefer \textbf{concatenation-based architectures} to minimize aggregation damage risk:
+\begin{itemize}
+    \item GraphSAGE with mean aggregation
+    \item GCN with skip connections
+    \item APPNP with initial residual
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{ADR in Real Datasets}
+
+\begin{table}[t]
+\centering
+\caption{ADR on Real Datasets}
+\label{tab:adr_real}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Dataset & $h$ & GCN ADR & SAGE ADR & Ratio \\
+\midrule
+Cora & 0.81 & $-0.126$ & $-0.102$ & --- \\
+CiteSeer & 0.74 & $-0.027$ & $-0.018$ & --- \\
+Actor & 0.22 & $+0.069$ & $+0.003$ & 23$\times$ \\
+Chameleon & 0.24 & $-0.203$ & $-0.010$ & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On heterophilic datasets where GCN shows positive ADR (damage), GraphSAGE maintains near-zero ADR, confirming its robustness to structure quality variation.
