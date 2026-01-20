@@ -1,0 +1,282 @@
+{
+  "Texas": {
+    "global_match_rate": 0.12727272727272726,
+    "strong_pattern_match_rate": 0.15294117647058825,
+    "random_baseline": 0.2,
+    "pattern_direction_score": -0.07272727272727275,
+    "total_nodes": 110,
+    "strong_pattern_nodes": 85,
+    "pattern_accuracies": {
+      "0": {
+        "accuracy": 0.05,
+        "total_nodes": 20,
+        "correct": 1
+      },
+      "4": {
+        "accuracy": 0.0,
+        "total_nodes": 12,
+        "correct": 0
+      },
+      "3": {
+        "accuracy": 0.24489795918367346,
+        "total_nodes": 49,
+        "correct": 12
+      },
+      "2": {
+        "accuracy": 0.034482758620689655,
+        "total_nodes": 29,
+        "correct": 1
+      }
+    }
+  },
+  "Wisconsin": {
+    "global_match_rate": 0.18823529411764706,
+    "strong_pattern_match_rate": 0.17037037037037037,
+    "random_baseline": 0.2,
+    "pattern_direction_score": -0.011764705882352955,
+    "total_nodes": 170,
+    "strong_pattern_nodes": 135,
+    "pattern_accuracies": {
+      "1": {
+        "accuracy": 0.26666666666666666,
+        "total_nodes": 60,
+        "correct": 16
+      },
+      "3": {
+        "accuracy": 0.05,
+        "total_nodes": 20,
+        "correct": 1
+      },
+      "2": {
+        "accuracy": 0.1780821917808219,
+        "total_nodes": 73,
+        "correct": 13
+      },
+      "4": {
+        "accuracy": 0.1,
+        "total_nodes": 10,
+        "correct": 1
+      },
+      "0": {
+        "accuracy": 0.14285714285714285,
+        "total_nodes": 7,
+        "correct": 1
+      }
+    }
+  },
+  "Cornell": {
+    "global_match_rate": 0.19791666666666666,
+    "strong_pattern_match_rate": 0.18823529411764706,
+    "random_baseline": 0.2,
+    "pattern_direction_score": -0.0020833333333333537,
+    "total_nodes": 96,
+    "strong_pattern_nodes": 85,
+    "pattern_accuracies": {
+      "4": {
+        "accuracy": 0.2857142857142857,
+        "total_nodes": 7,
+        "correct": 2
+      },
+      "2": {
+        "accuracy": 0.0,
+        "total_nodes": 21,
+        "correct": 0
+      },
+      "3": {
+        "accuracy": 0.25925925925925924,
+        "total_nodes": 54,
+        "correct": 14
+      },
+      "0": {
+        "accuracy": 0.125,
+        "total_nodes": 8,
+        "correct": 1
+      },
+      "1": {
+        "accuracy": 0.3333333333333333,
+        "total_nodes": 6,
+        "correct": 2
+      }
+    }
+  },
+  "Squirrel": {
+    "global_match_rate": 0.241876562199577,
+    "strong_pattern_match_rate": 0.22409435551811288,
+    "random_baseline": 0.2,
+    "pattern_direction_score": 0.041876562199577,
+    "total_nodes": 5201,
+    "strong_pattern_nodes": 1187,
+    "pattern_accuracies": {
+      "3": {
+        "accuracy": 0.26453488372093026,
+        "total_nodes": 1376,
+        "correct": 364
+      },
+      "1": {
+        "accuracy": 0.19573643410852712,
+        "total_nodes": 516,
+        "correct": 101
+      },
+      "4": {
+        "accuracy": 0.2129032258064516,
+        "total_nodes": 1705,
+        "correct": 363
+      },
+      "0": {
+        "accuracy": 0.2837150127226463,
+        "total_nodes": 786,
+        "correct": 223
+      },
+      "2": {
+        "accuracy": 0.2530562347188264,
+        "total_nodes": 818,
+        "correct": 207
+      }
+    }
+  },
+  "Chameleon": {
+    "global_match_rate": 0.25296442687747034,
+    "strong_pattern_match_rate": 0.2524698133918771,
+    "random_baseline": 0.2,
+    "pattern_direction_score": 0.05296442687747033,
+    "total_nodes": 2277,
+    "strong_pattern_nodes": 911,
+    "pattern_accuracies": {
+      "0": {
+        "accuracy": 0.2332089552238806,
+        "total_nodes": 536,
+        "correct": 125
+      },
+      "4": {
+        "accuracy": 0.18128654970760233,
+        "total_nodes": 855,
+        "correct": 155
+      },
+      "3": {
+        "accuracy": 0.3972602739726027,
+        "total_nodes": 292,
+        "correct": 116
+      },
+      "2": {
+        "accuracy": 0.3209302325581395,
+        "total_nodes": 430,
+        "correct": 138
+      },
+      "1": {
+        "accuracy": 0.25609756097560976,
+        "total_nodes": 164,
+        "correct": 42
+      }
+    }
+  },
+  "Cora": {
+    "global_match_rate": 0.8633677991137371,
+    "strong_pattern_match_rate": 0.9203834931221342,
+    "random_baseline": 0.14285714285714285,
+    "pattern_direction_score": 0.7205106562565942,
+    "total_nodes": 2708,
+    "strong_pattern_nodes": 2399,
+    "pattern_accuracies": {
+      "3": {
+        "accuracy": 0.9096774193548387,
+        "total_nodes": 775,
+        "correct": 705
+      },
+      "4": {
+        "accuracy": 0.9088607594936708,
+        "total_nodes": 395,
+        "correct": 359
+      },
+      "0": {
+        "accuracy": 0.6666666666666666,
+        "total_nodes": 456,
+        "correct": 304
+      },
+      "2": {
+        "accuracy": 0.9280742459396751,
+        "total_nodes": 431,
+        "correct": 400
+      },
+      "1": {
+        "accuracy": 0.8260869565217391,
+        "total_nodes": 230,
+        "correct": 190
+      },
+      "5": {
+        "accuracy": 0.8981132075471698,
+        "total_nodes": 265,
+        "correct": 238
+      },
+      "6": {
+        "accuracy": 0.9102564102564102,
+        "total_nodes": 156,
+        "correct": 142
+      }
+    }
+  },
+  "CiteSeer": {
+    "global_match_rate": 0.7328453796889296,
+    "strong_pattern_match_rate": 0.7846047635484984,
+    "random_baseline": 0.16666666666666666,
+    "pattern_direction_score": 0.566178713022263,
+    "total_nodes": 3279,
+    "strong_pattern_nodes": 2897,
+    "pattern_accuracies": {
+      "3": {
+        "accuracy": 0.8033794162826421,
+        "total_nodes": 651,
+        "correct": 523
+      },
+      "1": {
+        "accuracy": 0.6813559322033899,
+        "total_nodes": 590,
+        "correct": 402
+      },
+      "5": {
+        "accuracy": 0.8537117903930131,
+        "total_nodes": 458,
+        "correct": 391
+      },
+      "4": {
+        "accuracy": 0.8090277777777778,
+        "total_nodes": 576,
+        "correct": 466
+      },
+      "2": {
+        "accuracy": 0.7108938547486033,
+        "total_nodes": 716,
+        "correct": 509
+      },
+      "0": {
+        "accuracy": 0.3888888888888889,
+        "total_nodes": 288,
+        "correct": 112
+      }
+    }
+  },
+  "PubMed": {
+    "global_match_rate": 0.8188872546533448,
+    "strong_pattern_match_rate": 0.8404163520655809,
+    "random_baseline": 0.3333333333333333,
+    "pattern_direction_score": 0.48555392132001146,
+    "total_nodes": 19717,
+    "strong_pattern_nodes": 18542,
+    "pattern_accuracies": {
+      "1": {
+        "accuracy": 0.8276069921639542,
+        "total_nodes": 8295,
+        "correct": 6865
+      },
+      "0": {
+        "accuracy": 0.7485436893203884,
+        "total_nodes": 4120,
+        "correct": 3084
+      },
+      "2": {
+        "accuracy": 0.8486715968227883,
+        "total_nodes": 7302,
+        "correct": 6197
+      }
+    }
+  }
+}

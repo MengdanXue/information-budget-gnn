@@ -1,0 +1,194 @@
+{
+  "experiment": "CSBM Deviation Analysis",
+  "date": "2026-01-20 23:41:49",
+  "description": "Quantifies how real graphs deviate from idealized CSBM assumptions",
+  "metrics_explanation": {
+    "clustering_coefficient": "CSBM predicts 0; high values indicate triangle-rich graphs",
+    "degree_gini": "CSBM (Poisson) predicts ~0.3; higher indicates power-law-like",
+    "feature_gaussianity": "CSBM assumes Gaussian; score from K-S test (higher=more Gaussian)",
+    "edge_density_variance": "CSBM assumes uniform p_in/p_out; high variance violates this",
+    "csbm_deviation_score": "Composite score (lower = closer to CSBM)"
+  },
+  "datasets": {
+    "Cora": {
+      "dataset": "Cora",
+      "n_nodes": 2708,
+      "n_edges": 10556,
+      "n_features": 1433,
+      "n_classes": 7,
+      "homophily": 0.8099658961727927,
+      "clustering_coefficient": 0.24067329850193736,
+      "degree_gini": 0.40513939022827117,
+      "feature_gaussianity": 9.51118473852597e-225,
+      "edge_density_variance": 1.7036029680896647,
+      "deviation_components": {
+        "clustering": 0.8022443283397912,
+        "degree_gini": 0.2628484755706779,
+        "feature_non_gaussian": 1.0,
+        "edge_variance": 1.7036029680896647
+      },
+      "csbm_deviation_score": 0.9421739430000335,
+      "deviation_level": "High"
+    },
+    "CiteSeer": {
+      "dataset": "CiteSeer",
+      "n_nodes": 3327,
+      "n_edges": 9104,
+      "n_features": 3703,
+      "n_classes": 6,
+      "homophily": 0.7355008787346221,
+      "clustering_coefficient": 0.14147102442629098,
+      "degree_gini": 0.4352008922948454,
+      "feature_gaussianity": 1.946794947835597e-244,
+      "edge_density_variance": 1.2455403414936275,
+      "deviation_components": {
+        "clustering": 0.47157008142096996,
+        "degree_gini": 0.33800223073711344,
+        "feature_non_gaussian": 1.0,
+        "edge_variance": 1.2455403414936275
+      },
+      "csbm_deviation_score": 0.7637781634129277,
+      "deviation_level": "High"
+    },
+    "PubMed": {
+      "dataset": "PubMed",
+      "n_nodes": 19717,
+      "n_edges": 88648,
+      "n_features": 500,
+      "n_classes": 3,
+      "homophily": 0.8023869686851367,
+      "clustering_coefficient": 0.060175209437523615,
+      "degree_gini": 0.6037477158511861,
+      "feature_gaussianity": 5.697793262093336e-50,
+      "edge_density_variance": 0.7719436654483521,
+      "deviation_components": {
+        "clustering": 0.20058403145841205,
+        "degree_gini": 0.7593692896279653,
+        "feature_non_gaussian": 1.0,
+        "edge_variance": 0.7719436654483521
+      },
+      "csbm_deviation_score": 0.6829742466336824,
+      "deviation_level": "High"
+    },
+    "Texas": {
+      "dataset": "Texas",
+      "n_nodes": 183,
+      "n_edges": 325,
+      "n_features": 1703,
+      "n_classes": 5,
+      "homophily": 0.1076923076923077,
+      "clustering_coefficient": 0.19792619211031173,
+      "degree_gini": 0.3674306645735217,
+      "feature_gaussianity": 5.6560031903915504e-36,
+      "edge_density_variance": 1.1098310547256627,
+      "deviation_components": {
+        "clustering": 0.6597539737010392,
+        "degree_gini": 0.16857666143380426,
+        "feature_non_gaussian": 1.0,
+        "edge_variance": 1.1098310547256627
+      },
+      "csbm_deviation_score": 0.7345404224651265,
+      "deviation_level": "High"
+    },
+    "Wisconsin": {
+      "dataset": "Wisconsin",
+      "n_nodes": 251,
+      "n_edges": 515,
+      "n_features": 1703,
+      "n_classes": 5,
+      "homophily": 0.19611650485436893,
+      "clustering_coefficient": 0.2076791942617057,
+      "degree_gini": 0.38199470432480154,
+      "feature_gaussianity": 1.4418652586655433e-40,
+      "edge_density_variance": 0.7671319042734247,
+      "deviation_components": {
+        "clustering": 0.6922639808723523,
+        "degree_gini": 0.20498676081200387,
+        "feature_non_gaussian": 1.0,
+        "edge_variance": 0.7671319042734247
+      },
+      "csbm_deviation_score": 0.6660956614894452,
+      "deviation_level": "High"
+    },
+    "Cornell": {
+      "dataset": "Cornell",
+      "n_nodes": 183,
+      "n_edges": 298,
+      "n_features": 1703,
+      "n_classes": 5,
+      "homophily": 0.13087248322147652,
+      "clustering_coefficient": 0.16708048040169962,
+      "degree_gini": 0.33588159473754375,
+      "feature_gaussianity": 2.589534377780262e-28,
+      "edge_density_variance": 0.7323084148395272,
+      "deviation_components": {
+        "clustering": 0.5569349346723321,
+        "degree_gini": 0.08970398684385941,
+        "feature_non_gaussian": 1.0,
+        "edge_variance": 0.7323084148395272
+      },
+      "csbm_deviation_score": 0.5947368340889297,
+      "deviation_level": "High"
+    },
+    "Chameleon": {
+      "dataset": "Chameleon",
+      "n_nodes": 2277,
+      "n_edges": 36101,
+      "n_features": 2325,
+      "n_classes": 5,
+      "homophily": 0.23500734051688318,
+      "clustering_coefficient": 0.48135057608791054,
+      "degree_gini": 0.6591030424416273,
+      "feature_gaussianity": 1.647495465003826e-244,
+      "edge_density_variance": 0.4742299078742053,
+      "deviation_components": {
+        "clustering": 1.6045019202930353,
+        "degree_gini": 0.8977576061040683,
+        "feature_non_gaussian": 1.0,
+        "edge_variance": 0.4742299078742053
+      },
+      "csbm_deviation_score": 0.9941223585678273,
+      "deviation_level": "High"
+    },
+    "Squirrel": {
+      "dataset": "Squirrel",
+      "n_nodes": 5201,
+      "n_edges": 217073,
+      "n_features": 2089,
+      "n_classes": 5,
+      "homophily": 0.2239430974833351,
+      "clustering_coefficient": 0.42220398192429237,
+      "degree_gini": 0.7993559736736178,
+      "feature_gaussianity": 1.6936921902123246e-244,
+      "edge_density_variance": 0.4105496878595895,
+      "deviation_components": {
+        "clustering": 1.4073466064143079,
+        "degree_gini": 1.2483899341840443,
+        "feature_non_gaussian": 1.0,
+        "edge_variance": 0.4105496878595895
+      },
+      "csbm_deviation_score": 1.0165715571144853,
+      "deviation_level": "High"
+    },
+    "Actor": {
+      "dataset": "Actor",
+      "n_nodes": 7600,
+      "n_edges": 30019,
+      "n_features": 932,
+      "n_classes": 5,
+      "homophily": 0.21876145108098205,
+      "clustering_coefficient": 0.08019255113574128,
+      "degree_gini": 0.6134304385344198,
+      "feature_gaussianity": 3.203110990543564e-244,
+      "edge_density_variance": 0.06249162768050517,
+      "deviation_components": {
+        "clustering": 0.2673085037858043,
+        "degree_gini": 0.7835760963360495,
+        "feature_non_gaussian": 1.0,
+        "edge_variance": 0.06249162768050517
+      },
+      "csbm_deviation_score": 0.5283440569505897,
+      "deviation_level": "High"
+    }
+  }
+}

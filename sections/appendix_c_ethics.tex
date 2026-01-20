@@ -1,0 +1,82 @@
+\section*{Appendix C: Ethics Statement and Broader Impacts}
+
+\subsection*{C.1 Data Sources and Availability}
+
+All datasets used in this work are publicly available:
+
+\begin{itemize}
+\item \textbf{Elliptic Bitcoin}~\cite{weber2019anti}: Publicly released for research. No personally identifiable information; transactions are anonymized.
+\item \textbf{Amazon Fraud}~\cite{mcauley2015amazon}: Public Amazon product co-purchase data with synthetic fraud labels.
+\item \textbf{YelpChi}~\cite{rayana2015yelp}: Publicly available Yelp review dataset with spam labels from Yelp's filter.
+\item \textbf{DGraphFin}~\cite{huang2022dgraph}: Public benchmark released through PyTorch Geometric. Features are anonymized.
+\item \textbf{Citation networks} (Cora, Citeseer, Pubmed): Standard public benchmarks.
+\item \textbf{Heterophily benchmarks} (Texas, Wisconsin, Cornell): Standard public benchmarks.
+\end{itemize}
+
+\textbf{No private data}: This work does not use any proprietary or non-public data. All experiments can be reproduced using publicly available datasets.
+
+\subsection*{C.2 Ethical Considerations}
+
+\textbf{Potential benefits}:
+\begin{itemize}
+\item Improved fraud detection protects consumers and financial institutions
+\item The FSD framework provides interpretable guidance for model selection, reducing arbitrary choices
+\item Transparent $\rho_{\text{FS}}$ metric enables practitioners to understand \textit{why} certain methods work
+\end{itemize}
+
+\textbf{Potential risks}:
+\begin{itemize}
+\item \textbf{False positives}: Fraud detection models may incorrectly flag legitimate users, causing inconvenience or financial harm
+\item \textbf{Adversarial adaptation}: Fraudsters may adapt behavior to evade detection; regular model retraining is essential
+\item \textbf{Dual-use}: Techniques for detecting fraud could theoretically be reversed to improve evasion strategies
+\end{itemize}
+
+\textbf{Mitigation strategies}:
+\begin{itemize}
+\item Model predictions should supplement, not replace, human expert review
+\item Regular fairness audits across user demographics
+\item Provide recourse mechanisms for users incorrectly flagged as fraudulent
+\item Monitor model performance drift over time
+\end{itemize}
+
+\subsection*{C.3 Reproducibility Statement}
+
+To ensure reproducibility:
+
+\begin{enumerate}
+\item \textbf{Code}: Complete implementation released under MIT license at \texttt{https://github.com/MengdanXue/trust-regions-gnn}
+\item \textbf{Hyperparameters}: All training details provided in Appendix B
+\item \textbf{Random seeds}: 5-seed experiments use seeds 42, 123, 456, 789, 1024
+\item \textbf{Statistical tests}: Paired t-tests with p-values reported for all comparisons
+\item \textbf{Hardware}: NVIDIA RTX 3090 (24GB VRAM), PyTorch 2.0, PyG 2.3, CUDA 11.8
+\end{enumerate}
+
+\subsection*{C.4 Computational Resources}
+
+\textbf{Training costs}:
+\begin{itemize}
+\item Single model training: 1-10 minutes per dataset (RTX 3090)
+\item Full experiment suite (all models, all datasets, 5 seeds): $\sim$8 hours
+\item $\rho_{\text{FS}}$ computation: 2-5 minutes per dataset
+\item Estimated carbon footprint: $<$5 kg CO$_2$ equivalent (minimal compared to large-scale pretraining)
+\end{itemize}
+
+\subsection*{C.5 Limitations}
+
+We acknowledge the following limitations:
+
+\begin{enumerate}
+\item \textbf{Dataset coverage}: Four financial fraud datasets may not cover all real-world fraud scenarios
+\item \textbf{Simplified theory}: Theorem~\ref{thm:optimal_regime} provides qualitative guidance but not precise thresholds
+\item \textbf{Static graphs}: Our analysis assumes static graphs; extension to dynamic/temporal graphs requires additional work
+\item \textbf{Scalability}: NAA's 3$\times$ computational overhead may be prohibitive for billion-scale graphs
+\item \textbf{Feature requirements}: NAA assumes meaningful numerical features; may not apply to categorical-only domains
+\end{enumerate}
+
+\subsection*{C.6 Author Contributions}
+
+[REDACTED FOR DOUBLE-BLIND REVIEW]
+
+\subsection*{C.7 Conflicts of Interest}
+
+The authors declare no financial or commercial relationships that could constitute a conflict of interest.

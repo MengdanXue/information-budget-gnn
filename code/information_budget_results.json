@@ -1,0 +1,231 @@
+{
+    "experiment": "information_budget_causal",
+    "description": "Proving GNN_max_gain <= (1 - MLP_accuracy)",
+    "edge_shuffle": [
+        {
+            "dataset": "Cora",
+            "original_h": 0.81,
+            "shuffled_h": 0.17,
+            "original_gcn": 0.883,
+            "shuffled_gcn": 0.409,
+            "original_mlp": 0.757,
+            "shuffled_mlp": 0.757,
+            "original_gcn_adv": 0.126,
+            "shuffled_gcn_adv": -0.348,
+            "structure_contribution": 0.474
+        },
+        {
+            "dataset": "CiteSeer",
+            "original_h": 0.736,
+            "shuffled_h": 0.19,
+            "original_gcn": 0.756,
+            "shuffled_gcn": 0.405,
+            "original_mlp": 0.729,
+            "shuffled_mlp": 0.729,
+            "original_gcn_adv": 0.028,
+            "shuffled_gcn_adv": -0.323,
+            "structure_contribution": 0.351
+        },
+        {
+            "dataset": "PubMed",
+            "original_h": 0.802,
+            "shuffled_h": 0.37,
+            "original_gcn": 0.875,
+            "shuffled_gcn": 0.701,
+            "original_mlp": 0.874,
+            "shuffled_mlp": 0.874,
+            "original_gcn_adv": 0.001,
+            "shuffled_gcn_adv": -0.174,
+            "structure_contribution": 0.174
+        }
+    ],
+    "feature_degradation": [
+        {
+            "noise_level": 0.0,
+            "mlp_acc": 0.757,
+            "gcn_acc": 0.883,
+            "gcn_adv": 0.126,
+            "theoretical_max_gain": 0.243,
+            "within_budget": true
+        },
+        {
+            "noise_level": 0.1,
+            "mlp_acc": 0.754,
+            "gcn_acc": 0.881,
+            "gcn_adv": 0.127,
+            "theoretical_max_gain": 0.246,
+            "within_budget": true
+        },
+        {
+            "noise_level": 0.2,
+            "mlp_acc": 0.744,
+            "gcn_acc": 0.881,
+            "gcn_adv": 0.137,
+            "theoretical_max_gain": 0.256,
+            "within_budget": true
+        },
+        {
+            "noise_level": 0.3,
+            "mlp_acc": 0.737,
+            "gcn_acc": 0.879,
+            "gcn_adv": 0.142,
+            "theoretical_max_gain": 0.263,
+            "within_budget": true
+        },
+        {
+            "noise_level": 0.4,
+            "mlp_acc": 0.713,
+            "gcn_acc": 0.879,
+            "gcn_adv": 0.166,
+            "theoretical_max_gain": 0.287,
+            "within_budget": true
+        },
+        {
+            "noise_level": 0.5,
+            "mlp_acc": 0.663,
+            "gcn_acc": 0.873,
+            "gcn_adv": 0.211,
+            "theoretical_max_gain": 0.337,
+            "within_budget": true
+        },
+        {
+            "noise_level": 0.6,
+            "mlp_acc": 0.604,
+            "gcn_acc": 0.869,
+            "gcn_adv": 0.264,
+            "theoretical_max_gain": 0.396,
+            "within_budget": true
+        },
+        {
+            "noise_level": 0.7,
+            "mlp_acc": 0.475,
+            "gcn_acc": 0.863,
+            "gcn_adv": 0.388,
+            "theoretical_max_gain": 0.525,
+            "within_budget": true
+        },
+        {
+            "noise_level": 0.8,
+            "mlp_acc": 0.338,
+            "gcn_acc": 0.847,
+            "gcn_adv": 0.509,
+            "theoretical_max_gain": 0.662,
+            "within_budget": true
+        }
+    ],
+    "same_h_different_mlp": [
+        {
+            "dataset1": "Cora",
+            "dataset2": "PubMed",
+            "h1": 0.81,
+            "h2": 0.802,
+            "mlp1": 0.757,
+            "mlp2": 0.874,
+            "gcn_adv1": 0.126,
+            "gcn_adv2": 0.0,
+            "h_diff": 0.008,
+            "mlp_diff": 0.117,
+            "supports_hypothesis": true
+        },
+        {
+            "dataset1": "Cora",
+            "dataset2": "Coauthor-CS",
+            "h1": 0.81,
+            "h2": 0.808,
+            "mlp1": 0.757,
+            "mlp2": 0.944,
+            "gcn_adv1": 0.126,
+            "gcn_adv2": -0.004,
+            "h_diff": 0.002,
+            "mlp_diff": 0.187,
+            "supports_hypothesis": true
+        },
+        {
+            "dataset1": "Cora",
+            "dataset2": "Amazon-Photo",
+            "h1": 0.81,
+            "h2": 0.827,
+            "mlp1": 0.757,
+            "mlp2": 0.92,
+            "gcn_adv1": 0.126,
+            "gcn_adv2": 0.018,
+            "h_diff": 0.017,
+            "mlp_diff": 0.162,
+            "supports_hypothesis": true
+        },
+        {
+            "dataset1": "CiteSeer",
+            "dataset2": "PubMed",
+            "h1": 0.736,
+            "h2": 0.802,
+            "mlp1": 0.729,
+            "mlp2": 0.874,
+            "gcn_adv1": 0.028,
+            "gcn_adv2": 0.0,
+            "h_diff": 0.067,
+            "mlp_diff": 0.146,
+            "supports_hypothesis": true
+        },
+        {
+            "dataset1": "CiteSeer",
+            "dataset2": "Coauthor-CS",
+            "h1": 0.736,
+            "h2": 0.808,
+            "mlp1": 0.729,
+            "mlp2": 0.944,
+            "gcn_adv1": 0.028,
+            "gcn_adv2": -0.004,
+            "h_diff": 0.073,
+            "mlp_diff": 0.215,
+            "supports_hypothesis": true
+        },
+        {
+            "dataset1": "CiteSeer",
+            "dataset2": "Amazon-Photo",
+            "h1": 0.736,
+            "h2": 0.827,
+            "mlp1": 0.729,
+            "mlp2": 0.92,
+            "gcn_adv1": 0.028,
+            "gcn_adv2": 0.018,
+            "h_diff": 0.092,
+            "mlp_diff": 0.191,
+            "supports_hypothesis": true
+        },
+        {
+            "dataset1": "Coauthor-CS",
+            "dataset2": "Amazon-Computers",
+            "h1": 0.808,
+            "h2": 0.777,
+            "mlp1": 0.944,
+            "mlp2": 0.827,
+            "gcn_adv1": -0.004,
+            "gcn_adv2": 0.072,
+            "h_diff": 0.031,
+            "mlp_diff": 0.117,
+            "supports_hypothesis": true
+        }
+    ],
+    "key_findings": {
+        "edge_shuffle": {
+            "conclusion": "CONFIRMED: Structure provides significant advantage",
+            "evidence": "Shuffling edges destroys GCN advantage (Cora: +12.6% to -34.8%)",
+            "average_structure_contribution": 0.333
+        },
+        "feature_degradation": {
+            "conclusion": "CONFIRMED: GNN gain bounded by (1 - MLP_acc)",
+            "evidence": "All 9 noise levels satisfy budget constraint",
+            "violations": 0
+        },
+        "same_h_different_mlp": {
+            "conclusion": "CONFIRMED: MLP accuracy (not h) determines GNN advantage",
+            "evidence": "7/7 pairs support hypothesis (100%)",
+            "key_pair": "Cora vs Coauthor-CS: same h=0.81, but GCN_adv differs by 13%"
+        }
+    },
+    "summary": {
+        "hypothesis": "GNN_max_gain <= (1 - MLP_accuracy)",
+        "verdict": "STRONGLY SUPPORTED",
+        "key_insight": "GNN can only improve upon what MLP cannot explain"
+    }
+}

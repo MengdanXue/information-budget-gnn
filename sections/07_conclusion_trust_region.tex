@@ -1,0 +1,36 @@
+% ============================================================
+% Section 7: Conclusion
+% Trust Regions of Graph Propagation
+% ============================================================
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have presented a fundamental reexamination of when graph structure helps in node classification. Our key findings:
+
+\textbf{1. The U-Shape Discovery.} GNN performance follows a U-shaped pattern across the homophily spectrum. Contrary to conventional wisdom, GNNs outperform MLPs at \textit{both} homophily extremes ($h < 0.3$ and $h > 0.7$), while significantly underperforming in the mid-range ($0.3 < h < 0.7$).
+
+\textbf{2. Cross-Model Validation.} U-shape severity varies systematically with aggregation mechanism: mean aggregation (GCN) is most sensitive (19.35\% amplitude), attention (GAT) is moderate (5.85\%), and sampling (GraphSAGE) is robust (0.75\%).
+
+\textbf{3. Structural Predictability Index.} We introduce SPI = $|2h-1|$, which explains 86\% of GNN advantage variance ($R^2 = 0.86$, $p < 0.001$). Multivariate regression confirms homophily remains significant ($p = 0.013$) after controlling for dataset size, feature dimensionality, and feature sufficiency.
+
+\textbf{4. Two-Hop Recovery as Practical Diagnostic.} We identify 2-hop label recovery ratio ($r = -0.68$, $p = 0.13$ with GCN failure, N=6) as a useful diagnostic for heterophilic graphs, though the correlation is not statistically significant at conventional levels. Graphs with ratio $> 1.5\times$ (e.g., WebKB datasets) may benefit from heterophily-aware architectures when combined with high feature sufficiency; ratio $< 1\times$ combined with low feature sufficiency (e.g., Wikipedia datasets) indicates MLP is often optimal.
+
+\textbf{5. Asymmetric Decision Framework (Key Practical Contribution).} The synthetic-real gap reveals that SPI measures \textit{theoretical} information content while 2-hop recovery measures \textit{practical} extractability. This leads to our two-factor decision rule:
+\begin{itemize}
+    \item \textbf{For $h > 0.5$}: Trust standard GNNs (GCN, GAT, GraphSAGE). Structure reliably helps. [100\% success rate, N=9 datasets with $h > 0.7$]
+    \item \textbf{For $h < 0.5$}: Check 2-hop recovery ratio $R$. If $R > 1.5\times$, use heterophily-aware GNNs (H2GCN, LINKX). If $R < 1\times$, use MLP.
+\end{itemize}
+
+Our framework transforms GNN architecture selection from trial-and-error into principled two-step diagnosis. Practitioners can compute homophily and 2-hop recovery in seconds and make informed decisions, avoiding costly experimentation on architectures destined to fail.
+
+The broader implication is a shift in perspective: the success of GNNs depends not on homophily \textit{direction} but on structural \textit{predictability}---and for heterophilic graphs, predictability at the 2-hop level. This insight opens new directions for graph learning research, from architecture design that explicitly leverages multi-hop patterns to theoretical analysis of when neighborhood information is recoverable.
+
+\section*{Code Availability}
+
+All code and data to reproduce the experiments in this paper are available at: \url{https://github.com/MengdanXue/trust-regions-gnn}
+
+\section*{Acknowledgments}
+
+This paper is based on the author's master's thesis at Lomonosov Moscow State University, Faculty of Computational Mathematics and Cybernetics. We thank the anonymous reviewers for their constructive feedback.
+

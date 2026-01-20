@@ -1,0 +1,106 @@
+\section{Related Work}
+\label{sec:related}
+
+Our Feature-Structure Disentanglement framework builds on four research areas: graph neural networks, attention mechanisms, heterophily-aware methods, and GNN applications in financial fraud detection.
+
+\subsection{Graph Neural Networks}
+
+\textbf{Spectral approaches}: GCN~\cite{kipf2017gcn} introduced efficient graph convolution via localized spectral filters with symmetric normalization ($\tilde{D}^{-1/2}\tilde{A}\tilde{D}^{-1/2}$). SGC~\cite{wu2019sgc} simplified GCN by removing nonlinearities between layers, trading expressiveness for computational efficiency. ChebNet~\cite{defferrard2016chebnet} used Chebyshev polynomials for flexible spectral filtering.
+
+\textbf{Spatial approaches}: GraphSAGE~\cite{hamilton2017graphsage} enabled inductive learning via neighborhood sampling, critical for large-scale financial networks where new nodes continuously emerge. GIN~\cite{xu2019gin} proved that GNNs with injective aggregation can match Weisfeiler-Lehman test expressiveness, providing theoretical foundations for graph classification. PNA~\cite{corso2020pna} combined multiple aggregators (mean, max, sum, std) to improve expressiveness.
+
+\textbf{Scalability}: GraphSAINT~\cite{zeng2020graphsaint} introduced subgraph sampling for training on million-node graphs. Cluster-GCN~\cite{chiang2019clustergcn} partitioned graphs into dense subgraphs for efficient mini-batch training. These techniques enable GNN training on large financial networks.
+
+\textbf{Heterogeneous graphs}: HAN~\cite{wang2019han} introduced hierarchical attention for heterogeneous graphs with multiple node and edge types. HGT~\cite{hu2020hgt} generalized Transformers to heterogeneous graphs. Financial networks often contain multiple entity types (accounts, transactions, merchants), making heterogeneous GNNs relevant.
+
+\subsection{Attention Mechanisms in GNNs}
+
+\textbf{Graph Attention Networks}: GAT~\cite{velivckovic2018gat} introduced self-attention to graphs via additive attention mechanism: $e_{ij} = \text{LeakyReLU}(\mathbf{a}^T[\mathbf{Wh}_i \| \mathbf{Wh}_j])$. Multi-head attention aggregates information from different representation subspaces. However, GAT computes attention solely from learned representations, potentially losing numerical magnitude information.
+
+\textbf{Improved attention variants}: GATv2~\cite{brody2022gatv2} addressed GAT's static attention limitation by applying the nonlinearity after concatenation, achieving strictly more expressive dynamic attention. SuperGAT~\cite{kim2021supergat} added self-supervised edge prediction to improve attention learning. AGNN~\cite{thekumparampil2018agnn} used attention purely for propagation without feature transformation.
+
+\textbf{Graph Transformers}: Dwivedi and Bresson~\cite{dwivedi2021graphtransformer} applied full Transformer attention to graphs with positional encodings. Graphormer~\cite{ying2021graphormer} achieved state-of-the-art on molecular prediction benchmarks. SAN~\cite{kreuzer2021san} combined learned positional encodings with sparse attention. However, the O($N^2$) complexity limits applicability to large financial graphs.
+
+\textbf{Attention limitations}: Knyazev et al.~\cite{knyazev2019attention_limits} showed that learned attention may not always outperform uniform attention, especially on homophilic graphs. This motivates our explicit numerical similarity term to provide stable attention signal.
+
+\subsection{Numerical Feature Processing in Neural Networks}
+
+\textbf{Feature normalization}: Standard approaches (z-score, min-max) equalize all features to similar ranges but may discard magnitude information. For financial features spanning multiple orders of magnitude (\$1 to \$1M), this can lose critical predictive signals.
+
+\textbf{Log-scale representations}: Log transformation is widely used in economics for modeling prices and quantities~\cite{wooldridge2016economics}. In deep learning, log-scaling helps with skewed distributions~\cite{bengio2012practical}. Our log-scale normalization ($\tilde{x} = \text{sign}(x) \cdot \log(1+|x|)$) preserves relative magnitude differences while compressing dynamic range.
+
+\textbf{Numerical reasoning}: NALU~\cite{trask2018nalu} designed neural modules for arithmetic operations (add, multiply, count). NumGNN~\cite{wang2021numgnn} incorporated numerical constraints for knowledge graph reasoning. NAA differs by targeting continuous financial features rather than discrete counts.
+
+\textbf{Feature-wise attention}: Squeeze-and-Excitation~\cite{hu2018senet} learns channel importance for CNNs. Tabular learning methods like TabNet~\cite{arik2021tabnet} use attention for feature selection. Our feature importance weighting applies similar principles to graph node features.
+
+\subsection{Heterophily-Aware GNN Methods}
+
+Standard GNNs assume \textit{homophily}: connected nodes tend to share labels. This assumption fails on many real-world graphs, leading to the development of heterophily-aware methods.
+
+\textbf{H2GCN}~\cite{zhu2020beyond}: Identifies three key designs for heterophilous graphs: (1) ego-neighbor separation, (2) higher-order neighborhoods, and (3) intermediate representations. H2GCN explicitly aggregates from 1-hop and 2-hop neighbors separately, allowing the model to leverage same-label nodes at distance 2.
+
+\textbf{MixHop}~\cite{abu2019mixhop}: Concatenates representations from different hop distances before transformation, enabling the model to learn which distances are most informative for each node.
+
+\textbf{FAGCN}~\cite{bo2021fagcn}: Introduces low-frequency and high-frequency filters, with learnable weights to adaptively combine them. This allows the model to perform both smoothing and sharpening on the graph signal.
+
+\textbf{GPR-GNN}~\cite{chien2021gprgnn}: Uses generalized PageRank with learnable coefficients, enabling adaptive multi-hop aggregation.
+
+\textbf{LINKX}~\cite{luan2022linkx}: Decouples node features from graph structure entirely, processing them through separate MLPs before combining. This represents an extreme form of disentanglement, effective when $\rho_{\text{FS}} \ll 0$ and any aggregation causes severe dilution.
+
+\textbf{NodeFormer}~\cite{wu2023nodeformer}: Introduces efficient all-pair attention via kernelized softmax, enabling Transformer-style global attention on large graphs with O($N$) complexity.
+
+\textbf{Connection to FSD}: From our Feature-Structure Disentanglement perspective, heterophily-aware methods address the regime where $\rho_{\text{FS}} < 0$ (structural neighbors are feature-dissimilar). H2GCN's ego-neighbor separation is an implicit form of disentanglement---by keeping ego and neighbor representations separate, it prevents feature information from being corrupted by structurally-adjacent but feature-dissimilar nodes. Our framework provides a unified view: NAA explicitly incorporates feature similarity ($e_{ij}^{\text{feat}}$), while H2GCN implicitly achieves similar effects through architectural separation.
+
+\subsection{Relationship to Over-smoothing}
+
+Over-smoothing refers to the phenomenon where node representations converge to indistinguishable values as GNN depth increases~\cite{li2018deeper,oono2020graph}. Li et al.~\cite{li2018deeper} showed that repeated graph convolutions cause representations to converge to a subspace spanned by low-frequency eigenvectors. Oono and Suzuki~\cite{oono2020graph} analyzed this through random matrix theory, proving exponential convergence as layer count grows. Subsequent work proposed remedies including skip connections~\cite{li2019deepgcns}, DropEdge~\cite{rong2020dropedge}, and normalization techniques~\cite{zhao2020pairnorm}.
+
+\textbf{Distinction from Aggregation Dilution}: While related, our notion of Aggregation Dilution ($\delta_{\text{agg}}$) is fundamentally different from over-smoothing in three critical aspects:
+
+\textbf{(1) Layer depth requirement}: Over-smoothing is a \textit{multi-layer} phenomenon requiring $L \geq 2$ layers. As Li et al. note, ``representations become more similar as the number of layers increases''~\cite{li2018deeper}. In contrast, $\delta_{\text{agg}}$ occurs \textit{at the first layer} ($L=1$), diagnosing information loss during a single aggregation step. Even with $L=1$, when $\rho_{\text{FS}} < 0$, aggregating dissimilar neighbor features dilutes the ego node's information.
+
+\textbf{(2) Focus of analysis}: Over-smoothing measures \textit{representation convergence}---how similar the learned embeddings $\mathbf{h}_i^{(L)}$ become across nodes as $L$ increases. Metrics include pairwise cosine similarity or distance to the global mean~\cite{chen2020measuring}. Aggregation Dilution measures \textit{feature similarity} between structurally-connected nodes in the \textit{input space} $\mathcal{X}$, quantified by Feature-Structure Alignment $\rho_{\text{FS}}$. High $|\rho_{\text{FS}}|$ indicates whether structure aligns with feature space, independent of learned representations.
+
+\textbf{(3) Diagnostic vs. progressive degradation}: Over-smoothing is a \textit{progressive} issue worsening with depth. $\delta_{\text{agg}}$ is a \textit{diagnostic} measure of input feature-structure (mis)alignment, detectable before any training occurs. By computing $\rho_{\text{FS}}$ on raw features, we can predict whether standard aggregation will dilute ego information, guiding architectural choices (e.g., ego-neighbor separation when $\rho_{\text{FS}} < 0$).
+
+\textbf{Complementary perspectives}: Over-smoothing addresses representation dynamics during training across layers. Aggregation Dilution addresses input space alignment before training. Both can occur: a graph with $\rho_{\text{FS}} < 0$ suffers from $\delta_{\text{agg}}$ at $L=1$, and if additional layers are added, over-smoothing may further degrade performance. Our FSD framework provides principled guidance for the former; over-smoothing techniques (skip connections, normalization) address the latter.
+
+\subsection{GNNs for Financial Applications}
+
+\textbf{Cryptocurrency fraud detection}: Weber et al.~\cite{weber2019anti} introduced the Elliptic Bitcoin dataset with 203K nodes and temporal structure, demonstrating RF/GCN baselines. Pareja et al.~\cite{pareja2020evolvegcn} proposed EvolveGCN for dynamic graph learning with RNN-based weight evolution. Alarab et al.~\cite{alarab2020bitcoin_gnn} compared GNN architectures on Bitcoin transaction graphs. These works use standard normalization without explicit magnitude preservation.
+
+\textbf{Credit card fraud}: Liu et al.~\cite{liu2021gat_fraud} applied GraphSAGE with imbalanced learning to payment networks. Ma et al.~\cite{ma2021pickandchoose} proposed Pick-and-Choose for heterogeneous financial fraud detection. Wang et al.~\cite{wang2021credit_gnn} combined graph embeddings with XGBoost for card transaction fraud.
+
+\textbf{Credit risk and default prediction}: Zhang et al.~\cite{zhang2020credit_embedding} applied DeepWalk to credit networks, using embeddings for downstream classifiers. Zhou et al.~\cite{zhou2022temporal_credit} incorporated temporal dynamics with GCN for corporate default prediction. Cheng et al.~\cite{cheng2020credit_heterogeneous} used heterogeneous GNNs for loan default prediction.
+
+\textbf{Anti-money laundering (AML)}: Weber et al.~\cite{weber2019aml} applied GNNs to transaction monitoring graphs. Johannessen et al.~\cite{johannessen2023aml_gnn} compared GNN architectures for suspicious activity detection in banking networks.
+
+\textbf{Recent advances (2024)}: The field has seen rapid development in generalized anomaly detection and explainability. ARC~\cite{liu2024arc} proposes a ``generalist'' anomaly detector that adapts to cross-domain graph anomalies through multi-dataset pre-training. VecAug~\cite{zhang2024vecaug} addresses camouflaged fraud through vector-wise augmentation of fraud queues, specifically targeting adversarial label manipulation. SEFraud~\cite{yang2024sefraud} integrates self-explainability into fraud detection, providing human-interpretable rationales alongside predictions. The recent comprehensive survey by Liu et al.~\cite{liu2025graphanomalysurvey} provides a taxonomy of deep graph anomaly detection methods, situating FSD within the broader landscape. Our work differs by providing \textit{diagnostic} metrics ($\rho_{\text{FS}}$, $\delta_{\text{agg}}$) that explain \textit{when} specific methods succeed or fail, rather than proposing yet another architecture.
+
+\textbf{Stock and market prediction}: Feng et al.~\cite{feng2019stock_gnn} modeled stock correlations with GNNs for time-series forecasting. Chen et al.~\cite{chen2018stock_lstm_gnn} combined LSTM with relational modeling for stock movement prediction.
+
+\subsection{Class Imbalance in Fraud Detection}
+
+Financial fraud datasets exhibit severe class imbalance (often $<$5\% positive class). Standard approaches include:
+\begin{itemize}
+\item \textbf{Loss reweighting}: Inverse frequency weighting~\cite{king2001imbalanced} adjusts loss by class frequency.
+\item \textbf{Sampling strategies}: SMOTE~\cite{chawla2002smote} generates synthetic minority samples. GraphSMOTE~\cite{zhao2021graphsmote} extends SMOTE to graph data.
+\item \textbf{Threshold optimization}: Moving classification threshold based on class distribution~\cite{zou2016threshold}.
+\item \textbf{Focal loss}: Down-weights easy negatives to focus on hard examples~\cite{lin2017focal}.
+\end{itemize}
+
+These techniques are complementary to NAA and can be combined for improved performance.
+
+\subsection{Gap and Our Contribution}
+
+Existing work has addressed heterophily and numerical features as \textit{separate} challenges. Heterophily-aware methods (H2GCN, MixHop) focus on label disagreement among neighbors but do not explicitly model feature similarity. Numerical processing methods handle feature scales but do not consider the alignment between features and graph structure.
+
+\textbf{Our FSD framework unifies these perspectives}:
+\begin{enumerate}
+\item \textbf{Formal disentanglement}: We define structural similarity and feature similarity as orthogonal signals, with Feature-Structure Alignment ($\rho_{\text{FS}}$) quantifying their relationship
+\item \textbf{Theoretical analysis}: We prove conditions under which different aggregation strategies are optimal (Theorem~\ref{thm:optimal_regime})
+\item \textbf{Unified view}: We show that existing methods (GCN, GAT, H2GCN, NAA) are special cases of FSD with different $\lambda$ values
+\item \textbf{Practical instantiation}: NAA provides an FSD implementation optimized for high-dimensional numerical features in financial graphs
+\end{enumerate}
+
+This unified framework explains \textit{why} H2GCN excels on heterophilous graphs ($\rho_{\text{FS}} < 0$) while NAA excels on feature-rich graphs ($\rho_{\text{FS}} > 0$, high dimension), providing actionable guidance for practitioners.

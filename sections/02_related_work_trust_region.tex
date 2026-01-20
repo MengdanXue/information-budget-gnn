@@ -1,0 +1,61 @@
+% ============================================================
+% Section 2: Related Work
+% Trust Regions of Graph Propagation
+% ============================================================
+
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Graph Neural Networks and Message Passing}
+
+Modern GNNs follow the message passing paradigm~\cite{gilmer2017mpnn, wu2021comprehensive}, where node representations are updated by aggregating information from neighbors. GCN~\cite{kipf2017gcn} uses mean aggregation with spectral normalization. GAT~\cite{velivckovic2018gat} introduces attention mechanisms to weight neighbor contributions. GraphSAGE~\cite{hamilton2017graphsage} employs sampling-based aggregation for scalability. These architectures implicitly assume that neighbor aggregation improves node representations---an assumption we challenge in this work.
+
+\subsection{Homophily and Heterophily in Graphs}
+
+The homophily principle~\cite{mcpherson2001homophily} posits that connected nodes tend to share similar attributes. Edge homophily $h$ measures the fraction of edges connecting same-class nodes:
+\begin{equation}
+    h = \frac{|\{(u,v) \in E : y_u = y_v\}|}{|E|}
+\end{equation}
+
+Recent work has challenged whether low homophily necessarily harms GNNs. Zhu et al.~\cite{zhu2020beyond} introduced ``good'' vs ``bad'' heterophily, showing some heterophilic graphs are easily handled. Lim et al.~\cite{lim2021large} proposed LINKX and new large-scale benchmarks for non-homophilous graphs. Platonov et al.~\cite{platonov2023heterophilous} critically re-evaluated heterophilic benchmarks. Ma et al.~\cite{ma2022isgnn} questioned whether homophily is truly necessary for GNN success.
+
+Our work differs by proposing \textit{structural predictability} rather than homophily direction as the key factor. We show that \textit{both} high and low homophily extremes enable GNN success, while the mid-range causes failure---a U-shaped pattern not previously documented.
+
+\subsection{Heterophily-Aware GNN Architectures}
+
+Numerous architectures have been proposed for heterophilic graphs~\cite{zheng2022graphsurvey}. H2GCN~\cite{zhu2020beyond} separates ego and neighbor embeddings. FAGCN~\cite{bo2021fagcn} uses signed attention to handle heterophily. GPR-GNN~\cite{chien2021gprgnn} learns adaptive polynomial filters. Geom-GCN~\cite{pei2020geomgcn} uses geometric aggregation in latent space. AM-GCN~\cite{wang2020amgcn} adaptively combines topology and feature channels. Recent advances include ACM-GCN~\cite{luan2022acmgcn} for adaptive channel mixing and GloGNN~\cite{li2022glognn} for discovering global homophily patterns.
+
+These methods focus on \textit{designing new architectures} for heterophily. Our contribution is orthogonal: we provide a \textit{diagnostic framework} for deciding \textit{when to use} graph structure at all, regardless of architecture.
+
+\subsection{GNN Performance Analysis}
+
+Recent work uses theoretical tools to study GNN behavior under varying homophily. Wu et al.~\cite{wu2019sgc} showed GCN's aggregation acts as low-pass filtering, connecting spectral theory to homophily. Yan et al.~\cite{yan2022twophase} connected heterophily to over-smoothing. BernNet~\cite{he2022bernnet} learns arbitrary spectral filters. Recent surveys~\cite{gnnfraudsurvey2024, eswa2023fraudsurvey} comprehensively review GNN applications in fraud detection.
+
+\subsection{Our Position}
+
+We unify these perspectives through the Trust Region framework:
+\begin{itemize}
+    \item \textbf{vs Architecture Design}: We diagnose \textit{when} to use GNNs, not \textit{which} GNN to use.
+    \item \textbf{vs Homophily Analysis}: We reframe from ``high/low h'' to ``predictable/unpredictable structure.''
+    \item \textbf{vs Double Descent}: We study performance across h-spectrum, not model capacity.
+\end{itemize}
+
+Table~\ref{tab:related_comparison} summarizes the key differences.
+
+\begin{table}[t]
+\centering
+\caption{Comparison with Related Work}
+\label{tab:related_comparison}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Work} & \textbf{Focus} & \textbf{Key Question} \\
+\midrule
+H2GCN~\cite{zhu2020beyond} & Architecture & How to handle heterophily? \\
+LINKX~\cite{lim2021large} & Scalability & How to scale to large graphs? \\
+GPR-GNN~\cite{chien2021gprgnn} & Spectral & How to learn filters? \\
+FAGCN~\cite{bo2021fagcn} & Architecture & How to use signed attention? \\
+Platonov~\cite{platonov2023heterophilous} & Benchmark & Are benchmarks reliable? \\
+\textbf{Ours} & \textbf{Diagnosis} & \textbf{When does structure help?} \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,59 @@
+{
+  "zone_analysis": {
+    "Low h (< 0.3)": {
+      "synthetic_accuracy": 50.0,
+      "real_accuracy": 0.0,
+      "gap": null
+    },
+    "Mid h (0.3-0.7)": {
+      "synthetic_accuracy": 100.0,
+      "real_accuracy": 50.0,
+      "gap": 50.0
+    },
+    "High h (> 0.7)": {
+      "synthetic_accuracy": 100.0,
+      "real_accuracy": 100.0,
+      "gap": 0.0
+    }
+  },
+  "factors": {
+    "heterogeneous_edge_semantics": {
+      "description": "Real graphs have multiple edge types with different meanings",
+      "example": "In citation networks, edges can mean \"similar topic\" or \"disagreement\"",
+      "affected_datasets": [
+        "Texas",
+        "Wisconsin",
+        "Cornell"
+      ],
+      "estimated_impact": 0.35
+    },
+    "label_noise": {
+      "description": "Real labels are noisy and may not reflect true communities",
+      "example": "WebKB datasets have subjective page categories",
+      "affected_datasets": [
+        "Squirrel",
+        "Chameleon"
+      ],
+      "estimated_impact": 0.25
+    },
+    "feature_label_misalignment": {
+      "description": "Features may be highly predictive without structure",
+      "example": "When features alone achieve 80%+, structure adds noise",
+      "affected_datasets": [
+        "Texas",
+        "Wisconsin"
+      ],
+      "estimated_impact": 0.25
+    },
+    "degree_distribution": {
+      "description": "Power-law degrees cause aggregation to be dominated by hubs",
+      "example": "High-degree nodes dilute neighbor signals",
+      "affected_datasets": [
+        "Roman-empire"
+      ],
+      "estimated_impact": 0.15
+    }
+  },
+  "figure_path": "D:\\Users\\11919\\Documents\\\u6bd5\u4e1a\u8bba\u6587\\paper\\code\\figures\\synthetic_real_gap.png",
+  "key_finding": "Asymmetric gap: SPI achieves 100% accuracy on high-h but 0% on low-h real datasets"
+}

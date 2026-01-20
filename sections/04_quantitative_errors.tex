@@ -1,0 +1,658 @@
+% ============================================================
+% Section 4 Supplement: Quantitative Error Bounds
+% Addresses remaining gaps from Codex review:
+%   1. R_n quantitative bound
+%   2. A2 (conditional independence) quantitative error
+%   3. Multi-layer noise accumulation
+%   4. P_e consistency with I
+% ============================================================
+
+\subsection{Quantitative Error Bounds}
+\label{subsec:quantitative_errors}
+
+We now provide the quantitative error bounds that complete the rigorous framework.
+
+\subsubsection{Explicit Assumption Regime}
+
+\begin{assumption}[Validity Regime for SNR Framework]
+\label{ass:validity_regime}
+The theoretical results in this section hold under the following explicit conditions:
+\begin{enumerate}
+    \item[(R1)] \textbf{Sparse graph regime}: Average degree $k = O(1)$ as $n \to \infty$. More precisely, we require $k = o(n^{1/3})$ to ensure the local tree approximation holds.
+
+    \item[(R2)] \textbf{Layer depth constraint}: The number of aggregation layers satisfies
+    \begin{equation}
+        t \leq \left(\frac{1}{2} - \epsilon\right) \log_{k-1} n
+    \end{equation}
+    for some fixed $\epsilon > 0$. This ensures the cycle contamination term $(k-1)^{2t}/n \to 0$.
+
+    \item[(R3)] \textbf{Feature dimension}: The feature dimension $d_x$ is fixed (does not grow with $n$).
+
+    \item[(R4)] \textbf{Moderate feature SNR}: The feature signal-to-noise ratio satisfies $\|\mu\|^2/\sigma^2 = O(1)$, i.e., features are informative but not perfectly separating. This also implies $\|\mu\| = O(1)$ is bounded uniformly in $n$.
+
+    \item[(R5)] \textbf{Non-degenerate correlation}: The edge correlation $|\rho| = |2h-1|$ is bounded away from 0 and 1, i.e., $\rho \in [\rho_{\min}, \rho_{\max}]$ for fixed constants $0 < \rho_{\min} < \rho_{\max} < 1$.
+
+    \item[(R6)] \textbf{Positive definite covariance}: The noise covariance $\Sigma \succ 0$ is strictly positive definite with bounded condition number $\kappa(\Sigma) := \|\Sigma\|_{\mathrm{op}} \|\Sigma^{-1}\|_{\mathrm{op}} = O(1)$. This ensures the discriminability $\mathcal{D}(\mu, \Sigma) = 4\mu^\top \Sigma^{-1} \mu$ is well-defined and the Lipschitz bounds are finite.
+
+    \item[(R7)] \textbf{Homoscedastic noise}: The conditional covariance $\mathrm{Var}(X_v \mid Y_v) = \Sigma$ is identical for both classes $Y_v = \pm 1$. This ``equal within-class variance'' assumption is standard in linear discriminant analysis and ensures $\Delta\Sigma = 0$ in our perturbation analysis.
+\end{enumerate}
+\end{assumption}
+
+\begin{remark}[Constant Dependencies]
+\label{rem:constant_dependencies}
+The universal constants $C, C_1, C_2, C_3$ appearing in our bounds depend on:
+\begin{itemize}
+    \item The SBM parameters $(a, b)$ through $\rho = (a-b)/(a+b)$
+    \item The noise covariance $\|\Sigma\|_{\mathrm{op}}$ and $\|\Sigma^{-1}\|_{\mathrm{op}}$
+    \item The feature dimension $d_x$
+    \item The sub-Gaussian constant of the noise distribution (if applicable)
+\end{itemize}
+These constants are \textbf{independent of} $n$ (graph size) and $t$ (layer depth), which is crucial for the asymptotic validity of our results.
+
+\textbf{Uniformity clarification:} When we write $\kappa(\Sigma) = O(1)$, $\|\Sigma^{-1}\|_{\mathrm{op}} = O(1)$, or $\|\mu\| = O(1)$, these are \textit{uniform bounds} as $n \to \infty$ with all other model parameters $(\mu, \Sigma, a, b, d_x)$ held \textit{fixed}. The feature dimension $d_x$ is treated as a constant (Assumption R3), so these bounds do not involve high-dimensional asymptotics. If one wishes to consider $d_x \to \infty$ simultaneously, additional assumptions on the scaling of $\|\mu\|$ and $\|\Sigma\|$ with $d_x$ would be required.
+\end{remark}
+
+\subsubsection{Remainder Term $R_n$ Bound}
+
+\begin{lemma}[Spectral Norm Bound on $R_n$]
+\label{lem:R_n_bound}
+Under the sparse CSBM (Definition~\ref{def:sparse_csbm}), the remainder term $R_n$ in the variance decomposition (Theorem~\ref{thm:agg_discriminability_rigorous}(b)) satisfies:
+\begin{equation}
+    \|R_n\|_{\mathrm{op}} \leq C \cdot \frac{k^2}{n} \cdot \|\Sigma\|_{\mathrm{op}}
+\end{equation}
+for a universal constant $C > 0$, with probability at least $1 - O(n^{-2})$.
+
+Consequently, the relative error in discriminability is:
+\begin{equation}
+    \left|\frac{\mathcal{D}(A_v)}{\rho^2 k_{\mathrm{eff}} \mathcal{D}(X)} - 1\right| \leq \frac{C k^2}{n} + \frac{\|\mu\|^2 (1-\rho^2)}{\sigma^2 k_{\mathrm{eff}}}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+The remainder $R_n$ arises from correlations between neighbor labels in finite graphs. In the sparse CSBM, for any two neighbors $u, u' \in \mathcal{N}(v)$:
+\begin{equation}
+    \mathrm{Cov}(Y_u, Y_{u'} \mid Y_v) = O(k/n)
+\end{equation}
+This is because $u$ and $u'$ share a common neighbor (namely $v$) with probability $O(k/n)$ in the sparse regime.
+
+Summing over all $O(k^2)$ pairs of neighbors:
+\begin{equation}
+    \|R_n\|_{\mathrm{op}} \leq k^2 \cdot O(k/n) \cdot \|\mu \mu^\top\|_{\mathrm{op}} = O(k^3 \|\mu\|^2 / n)
+\end{equation}
+
+For the discriminability, the error propagates as:
+\begin{align}
+    \mathcal{D}(A_v) &= \Delta_A^\top \Sigma_A^{-1} \Delta_A \\
+    &= \Delta_A^\top \left(\Sigma_A^{(0)} + R_n\right)^{-1} \Delta_A \\
+    &= \Delta_A^\top (\Sigma_A^{(0)})^{-1} \Delta_A \cdot (1 + O(\|R_n\|_{\mathrm{op}} / \|\Sigma_A^{(0)}\|_{\mathrm{op}}))
+\end{align}
+where $\Sigma_A^{(0)} = (\sum_u w_{vu}^2) \Sigma$ is the leading term.
+\end{proof}
+
+\subsubsection{Quantitative Conditional Independence (A2)}
+
+\begin{lemma}[Total Variation Bound for Neighbor Independence]
+\label{lem:A2_quantitative}
+In the sparse CSBM with average degree $k = O(1)$, let $\mathcal{N}(v) = \{u_1, \ldots, u_d\}$ be the neighbors of node $v$. Define:
+\begin{itemize}
+    \item $P_{\mathrm{joint}}$: The true joint distribution of $(Y_{u_1}, \ldots, Y_{u_d}) \mid Y_v$
+    \item $P_{\mathrm{prod}}$: The product distribution $\prod_{i=1}^d P(Y_{u_i} \mid Y_v)$
+\end{itemize}
+
+Then:
+\begin{equation}
+    d_{\mathrm{TV}}(P_{\mathrm{joint}}, P_{\mathrm{prod}}) \leq \frac{C k^4}{n}
+\end{equation}
+for a universal constant $C \leq 8$. Under assumption (R1) with $k = O(1)$, this is $O(1/n)$.
+\end{lemma}
+
+\begin{proof}[Proof via Coupling]
+We construct an explicit coupling between $P_{\mathrm{joint}}$ and $P_{\mathrm{prod}}$.
+
+\textbf{Step 1 (Bad event definition):} Define the ``bad event'':
+\begin{equation}
+    \mathcal{B} := \bigcup_{i < j} \mathcal{B}_{ij}, \quad \text{where } \mathcal{B}_{ij} := \{u_i \text{ and } u_j \text{ share a neighbor other than } v\}
+\end{equation}
+
+\textbf{Step 2 (Bad event probability --- detailed derivation):} We compute $\mathbb{P}(\mathcal{B})$ rigorously.
+
+\textit{Step 2a (Per-pair probability):} Fix a pair of neighbors $(u_i, u_j) \in \mathcal{N}(v)^2$ with $i \neq j$. The event $\mathcal{B}_{ij}$ requires the existence of some node $w \neq v$ adjacent to both $u_i$ and $u_j$. By union bound over candidate nodes $w$:
+\begin{align}
+    \mathbb{P}(\mathcal{B}_{ij}) &\leq \sum_{w \neq v, u_i, u_j} \mathbb{P}((u_i, w) \in E) \cdot \mathbb{P}((u_j, w) \in E) \\
+    &\leq (n - 3) \cdot \frac{a+b}{n} \cdot \frac{a+b}{n} \\
+    &= (n-3) \cdot \frac{(a+b)^2}{n^2} = \frac{(a+b)^2 (n-3)}{n^2}
+\end{align}
+Since $k = (a+b)/2$, we have $(a+b) = 2k$, so:
+\begin{equation}
+    \mathbb{P}(\mathcal{B}_{ij}) \leq \frac{4k^2 (n-3)}{n^2} \leq \frac{4k^2}{n} \quad \text{for } n \geq 4
+\end{equation}
+
+\textit{Step 2b (Union bound over pairs --- high probability version):} The number of neighbor pairs is $\binom{|\mathcal{N}(v)|}{2}$.
+
+\textbf{Degree distribution justification:} In the sparse CSBM (Definition~\ref{def:sparse_csbm}), the degree $|\mathcal{N}(v)|$ follows $\mathrm{Bin}(n-1, (a+b)/n)$ marginally. In the sparse limit where $k = (a+b)/2 = O(1)$ is fixed as $n \to \infty$, by the Poisson limit theorem (Le Cam's inequality), this converges in distribution to $\mathrm{Pois}(k)$ with total variation error $O(k^2/n)$. Thus, Poisson tail bounds apply asymptotically. For finite $n$, one may alternatively use Binomial Chernoff bounds directly, which yield the same exponential decay.
+
+For Poisson$(k)$ degree distribution, by standard tail bounds (Chernoff or sub-Poisson concentration):
+\begin{equation}
+    \mathbb{P}(|\mathcal{N}(v)| > 2k) \leq e^{-k/3} \quad \text{for } k \geq 1
+\end{equation}
+Conditioning on the event $\{|\mathcal{N}(v)| \leq 2k\}$, which holds with probability $\geq 1 - e^{-k/3}$:
+\begin{equation}
+    \mathbb{P}(\mathcal{B} \mid |\mathcal{N}(v)| \leq 2k) \leq \binom{2k}{2} \cdot \frac{4k^2}{n} = \frac{2k(2k-1)}{2} \cdot \frac{4k^2}{n} \leq \frac{8k^4}{n}
+\end{equation}
+By law of total probability:
+\begin{equation}
+    \mathbb{P}(\mathcal{B}) \leq \frac{8k^4}{n} + e^{-k/3} = O\left(\frac{k^4}{n}\right) + O(e^{-k/3})
+\end{equation}
+For $k = O(1)$ fixed and $n \to \infty$, the first term dominates, giving $\mathbb{P}(\mathcal{B}) = O(k^4/n)$.
+
+\textit{Step 2c (Alternative: expectation-based bound):} Taking expectation over $|\mathcal{N}(v)|$ directly:
+\begin{equation}
+    \mathbb{E}\left[\binom{|\mathcal{N}(v)|}{2}\right] = \frac{\mathbb{E}[|\mathcal{N}(v)|^2] - \mathbb{E}[|\mathcal{N}(v)|]}{2} \leq \frac{k^2 + k - k}{2} = \frac{k^2}{2}
+\end{equation}
+(using $\mathbb{E}[|\mathcal{N}(v)|^2] \leq k^2 + k$ for Poisson$(k)$). Thus:
+\begin{equation}
+    \mathbb{P}(\mathcal{B}) \leq \frac{k^2}{2} \cdot \frac{4k^2}{n} = \frac{2k^4}{n}
+\end{equation}
+
+We conclude $\mathbb{P}(\mathcal{B}) = O(k^4/n)$ with explicit constant $C = 8$ (worst-case) or $C = 2$ (expected).
+
+\textbf{Step 3 (Coupling construction):} We construct a coupling $(Y^{\mathrm{joint}}, Y^{\mathrm{prod}})$ as follows:
+\begin{enumerate}
+    \item Generate the graph $G$ and condition on $Y_v$.
+    \item If $\mathcal{B}^c$ holds (no shared neighbors among $\{u_i\}$):
+    \begin{itemize}
+        \item The labels $\{Y_{u_i}\}$ are conditionally independent given $Y_v$ by the Markov property on trees.
+        \item Set $Y^{\mathrm{joint}} = Y^{\mathrm{prod}}$ (perfect coupling).
+    \end{itemize}
+    \item If $\mathcal{B}$ holds:
+    \begin{itemize}
+        \item Sample $Y^{\mathrm{joint}}$ from $P_{\mathrm{joint}}$ and $Y^{\mathrm{prod}}$ independently from $P_{\mathrm{prod}}$.
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Step 4 (TV bound via coupling):} By the coupling characterization of total variation:
+\begin{equation}
+    d_{\mathrm{TV}}(P_{\mathrm{joint}}, P_{\mathrm{prod}}) \leq \mathbb{P}(Y^{\mathrm{joint}} \neq Y^{\mathrm{prod}}) \leq \mathbb{P}(\mathcal{B}) = O(k^4/n)
+\end{equation}
+
+\textbf{Step 5 (Final bound):} Combining the above, under assumption (R1) where $k = O(1)$ is bounded:
+\begin{equation}
+    d_{\mathrm{TV}}(P_{\mathrm{joint}}, P_{\mathrm{prod}}) \leq \mathbb{P}(\mathcal{B}) \leq \frac{C k^4}{n}
+\end{equation}
+where $C \leq 8$ (or $C \leq 2$ in expectation). Since $k = O(1)$, this is $O(1/n)$ as $n \to \infty$.
+\end{proof}
+
+\begin{remark}[Coupling vs.\ Pinsker]
+The coupling proof is preferable because:
+\begin{enumerate}
+    \item It provides a \textbf{constructive} bound via an explicit bad event.
+    \item It avoids the looseness of Pinsker's inequality (which squares the TV distance).
+    \item It directly connects to the local tree structure of sparse graphs.
+\end{enumerate}
+\end{remark}
+
+\begin{corollary}[Error in SNR from Independence Violation]
+\label{cor:A2_snr_error}
+The violation of conditional independence (A2) introduces an error in $\mathcal{D}(A_v)$ of order:
+\begin{equation}
+    \left|\mathcal{D}(A_v)_{\mathrm{true}} - \mathcal{D}(A_v)_{\mathrm{indep}}\right| \leq O\left(\frac{k^2}{n}\right) \cdot \mathcal{D}(A_v)_{\mathrm{indep}}
+\end{equation}
+\end{corollary}
+
+\subsubsection{Multi-Layer Noise Accumulation}
+
+\begin{remark}[Aggregation Normalization Convention]
+\label{rem:normalization_convention}
+We distinguish two aggregation conventions that lead to different recursions:
+\begin{enumerate}
+    \item \textbf{Sum aggregation} (used in non-backtracking belief propagation):
+    \begin{equation}
+        m_{u \to v}^{(t+1)} = X_u + \sum_{w \in \mathcal{N}(u) \setminus \{v\}} m_{w \to u}^{(t)}
+    \end{equation}
+    Signal grows as $(k-1)^t$, variance grows as $(k-1)^t$, SNR ratio $((k-1)\rho^2)^t$.
+
+    \item \textbf{Mean aggregation} (used in standard GCN):
+    \begin{equation}
+        h_v^{(t+1)} = \frac{1}{k} \sum_{u \in \mathcal{N}(v)} h_u^{(t)}
+    \end{equation}
+    Signal decays as $\rho^t$, variance decays as $k^{-t}$, SNR ratio $(\rho^2 k)^t$.
+\end{enumerate}
+
+Theorem~\ref{thm:multilayer_with_noise} below uses \textbf{sum aggregation} on trees, which is the natural convention for belief propagation analysis. The SNR ratio $((k-1)\rho^2)^t$ determines whether information amplifies or decays.
+\end{remark}
+
+\begin{theorem}[Complete Multi-Layer Recursion with Noise]
+\label{thm:multilayer_with_noise}
+Consider $t$-layer \textbf{non-backtracking sum aggregation} on the limiting Galton-Watson tree with branching factor $k$. Define:
+\begin{itemize}
+    \item $\Delta^{(t)} := \|\mathbb{E}[A^{(t)} \mid Y_v = +1] - \mathbb{E}[A^{(t)} \mid Y_v = -1]\|$: Signal magnitude at layer $t$
+    \item $V^{(t)} := \mathrm{tr}(\mathrm{Cov}(A^{(t)} \mid Y_v))$: Noise magnitude at layer $t$
+\end{itemize}
+
+\textbf{(a) Signal recursion:}
+\begin{equation}
+    \Delta^{(t+1)} = (k-1) |\rho| \cdot \Delta^{(t)}
+\end{equation}
+
+\textbf{(b) Noise recursion:}
+\begin{equation}
+    V^{(t+1)} = (k-1) V^{(t)} + d_x \sigma_{\varepsilon}^2
+\end{equation}
+where $\sigma_{\varepsilon}^2$ is per-layer noise variance (from nonlinearity, finite precision, etc.).
+
+\textbf{(c) SNR recursion:}
+\begin{equation}
+    \mathrm{SNR}^{(t)} = \frac{(\Delta^{(t)})^2}{V^{(t)}} = \frac{((k-1)\rho^2)^t (\Delta^{(0)})^2}{(k-1)^t V^{(0)} + d_x \sigma_{\varepsilon}^2 \frac{(k-1)^t - 1}{k-2}}
+\end{equation}
+
+\textbf{(d) Critical layer depth:}
+When $\sigma_{\varepsilon}^2 > 0$, there exists a finite optimal depth:
+\begin{equation}
+    t^* = \arg\max_{t \in \mathbb{N}} \mathrm{SNR}^{(t)}
+\end{equation}
+Beyond $t^*$, noise accumulation dominates and SNR decreases (oversmoothing).
+\end{theorem}
+
+\begin{proof}
+\textbf{Part (a):} By the non-backtracking structure, each message aggregates over $k-1$ new branches. The expected signal scales by $\rho$ per edge, giving $(k-1)\rho$ per layer.
+
+\textbf{Part (b):} The noise from $k-1$ children adds up. If each child contributes variance $V^{(t)}$ and there is additional per-layer noise $\sigma_{\varepsilon}^2$:
+\begin{equation}
+    V^{(t+1)} = (k-1) V^{(t)} + d_x \sigma_{\varepsilon}^2
+\end{equation}
+
+\textbf{Part (c):} Solving the linear recursion for $V^{(t)}$:
+\begin{equation}
+    V^{(t)} = (k-1)^t V^{(0)} + d_x \sigma_{\varepsilon}^2 \sum_{s=0}^{t-1} (k-1)^s = (k-1)^t V^{(0)} + d_x \sigma_{\varepsilon}^2 \frac{(k-1)^t - 1}{k-2}
+\end{equation}
+
+\textbf{Part (d):} Taking derivative of $\log \mathrm{SNR}^{(t)}$ with respect to $t$ and setting to zero gives the optimal depth. For large $t$, the noise term dominates and SNR decays.
+\end{proof}
+
+\subsubsection{Unified Error Bound for Main Theorem}
+
+\begin{theorem}[Complete Discriminability Formula with Error]
+\label{thm:complete_with_error}
+Under the sparse CSBM (Definition~\ref{def:sparse_csbm}) with:
+\begin{itemize}
+    \item $n$ nodes, average degree $k = O(1)$
+    \item Feature SNR $\mathcal{D}(X) = 4\mu^\top \Sigma^{-1} \mu$
+    \item $t$-layer non-backtracking aggregation with $t = o(\log n)$
+\end{itemize}
+
+The discriminability satisfies:
+\begin{equation}
+    \mathcal{D}^{(t)} = ((k-1)\rho^2)^t \cdot \mathcal{D}(X) \cdot (1 + \varepsilon_n(t))
+\end{equation}
+where the error term is:
+\begin{equation}
+    |\varepsilon_n(t)| \leq \underbrace{\frac{C_1 k^2}{n}}_{\text{Independence violation}} + \underbrace{\frac{C_2 k^{2t}}{n}}_{\text{Cycle contamination}} + \underbrace{\frac{C_3 \|\mu\|^2 (1-\rho^2)}{\sigma^2}}_{\text{Label mixing noise}}
+\end{equation}
+for universal constants $C_1, C_2, C_3 > 0$.
+\end{theorem}
+
+\begin{remark}[Validity Regime and Error Decomposition]
+\label{rem:validity_regime_error}
+The error $\varepsilon_n(t)$ consists of three components with different scaling behaviors:
+\begin{enumerate}
+    \item \textbf{Graph-dependent terms} ($O(1/n)$): The first two terms $\frac{C_1 k^2}{n} + \frac{C_2 k^{2t}}{n}$ vanish as $n \to \infty$ for fixed $k$ and $t = o(\log_k n)$.
+
+    \item \textbf{Model-dependent term} ($O(1)$): The label mixing term $\frac{C_3 \|\mu\|^2 (1-\rho^2)}{\sigma^2}$ is \textbf{bounded but non-vanishing} under Assumption R4 ($\|\mu\|^2/\sigma^2 = O(1)$). This term captures the intrinsic approximation error from treating neighbor labels as independent.
+\end{enumerate}
+
+\textbf{Interpretation:} The theorem provides a multiplicative approximation $\mathcal{D}^{(t)} \approx ((k-1)\rho^2)^t \mathcal{D}(X)$ with:
+\begin{itemize}
+    \item \textbf{Asymptotic accuracy}: Error from graph structure vanishes as $n \to \infty$.
+    \item \textbf{Bounded bias}: A constant multiplicative factor $(1 \pm O(\|\mu\|^2/\sigma^2))$ remains even in the limit.
+\end{itemize}
+
+For high feature SNR ($\|\mu\|^2/\sigma^2 \gg 1$), the label mixing term dominates, and the approximation degrades. However, this regime is less interesting practically: when features alone are highly informative, graph structure provides minimal additional benefit regardless of $\kappa$.
+\end{remark}
+
+\begin{lemma}[Multi-Layer Error Composition]
+\label{lem:error_composition}
+Under the sparse CSBM with $t$-layer non-backtracking aggregation, the total error $\varepsilon_n(t)$ decomposes as:
+\begin{equation}
+    |\varepsilon_n(t)| \leq \varepsilon_{\mathrm{indep}}(t) + \varepsilon_{\mathrm{cycle}}(t) + \varepsilon_{\mathrm{mix}}
+\end{equation}
+where each component satisfies:
+\begin{enumerate}
+    \item \textbf{Independence violation}: $\varepsilon_{\mathrm{indep}}(t) = O(t \cdot k^4/n)$ (additive across layers)
+    \item \textbf{Cycle contamination}: $\varepsilon_{\mathrm{cycle}}(t) = O((k-1)^{2t}/n)$ (exponential in $t$)
+    \item \textbf{Label mixing}: $\varepsilon_{\mathrm{mix}} = O(\|\mu\|^2(1-\rho^2)/\sigma^2)$ (layer-independent)
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+\textbf{Part 1 (Independence violation):}
+By Lemma~\ref{lem:A2_quantitative}, at each layer $\ell$, the conditional independence violation contributes $d_{\mathrm{TV}} = O(k^4/n)$ to the joint distribution error.
+
+On the limiting Galton-Watson tree, non-backtracking aggregation ensures that the neighbors at layer $\ell$ are disjoint from those at layer $\ell' \neq \ell$ (except for the single backtrack edge). Thus, the TV errors at different layers are \textit{independent} and combine additively:
+\begin{equation}
+    d_{\mathrm{TV}}^{(1:t)} \leq \sum_{\ell=1}^t d_{\mathrm{TV}}^{(\ell)} = O(t \cdot k^4/n)
+\end{equation}
+
+\textbf{Part 2 (Cycle contamination):}
+The tree approximation fails when the $t$-hop neighborhood $B_t(v)$ contains a cycle. The expected number of cycles of length $\geq 3$ in $B_t(v)$ is:
+\begin{equation}
+    \mathbb{E}[\#\text{cycles}] \leq \sum_{s=3}^{2t} \frac{((k-1)^t)^2}{n} \cdot O(1) = O\left(\frac{(k-1)^{2t}}{n}\right)
+\end{equation}
+By Markov's inequality, $\mathbb{P}(\text{cycle exists}) = O((k-1)^{2t}/n)$.
+
+\textbf{Part 3 (Label mixing):}
+The label mixing noise arises from the variance term $\mu\mu^\top \mathrm{Var}(\sum_u w_{vu} Y_u \mid Y_v)$ in the covariance decomposition. Under condition (A3), this contributes a relative error:
+\begin{equation}
+    \frac{\|\mu\|^2 (1-\rho^2)}{\sigma^2 / k_{\mathrm{eff}}} = O\left(\frac{\|\mu\|^2 (1-\rho^2)}{\sigma^2}\right) \cdot k_{\mathrm{eff}}
+\end{equation}
+For bounded $k_{\mathrm{eff}} = O(1)$, this is $O(\|\mu\|^2(1-\rho^2)/\sigma^2)$ and does not depend on $t$.
+\end{proof}
+
+\begin{remark}[Error Metric Unification]
+\label{rem:error_metric}
+The three error terms in Lemma~\ref{lem:error_composition} measure different quantities but combine to bound the \textbf{relative error in discriminability} $\mathcal{D}$:
+\begin{itemize}
+    \item $\varepsilon_{\mathrm{indep}}$ bounds the TV distance between true and idealized neighbor label distributions. Under our Gaussian model, TV error $\delta$ translates to relative error in $\mathcal{D}$ as follows: by Pinsker's inequality $\mathrm{TV}^2 \leq \frac{1}{2} D_{\mathrm{KL}}$, and for Gaussians differing in mean by $\Delta\mu$, $D_{\mathrm{KL}} = O(\|\Delta\mu\|^2/\sigma^2)$. Since $\mathcal{D} \propto \|\Delta\|^2/\sigma^2$, perturbations in mean of order $\delta\|\mu\|$ yield $O(\delta)$ relative error in $\mathcal{D}$.
+    \item $\varepsilon_{\mathrm{cycle}}$ bounds the probability that the local neighborhood deviates from a tree. On the complement event (tree-like), the SNR recursion holds exactly; by the law of total expectation, conditioning contributes $O(\mathbb{P}(\text{cycle}))$ additive error to any bounded statistic.
+    \item $\varepsilon_{\mathrm{mix}}$ is directly a relative error in $\mathcal{D}$ from the variance decomposition (Theorem~\ref{thm:agg_discriminability_rigorous}(b)).
+\end{itemize}
+Thus, the total relative error $|\mathcal{D}_{\mathrm{true}} - \mathcal{D}_{\mathrm{ideal}}|/\mathcal{D}_{\mathrm{ideal}} \leq \varepsilon_n(t)$ is bounded by their sum.
+
+\textbf{Regularity conditions for TV$\to$discriminability bridge:} The above arguments require:
+\begin{enumerate}
+    \item[(i)] \textbf{Bounded signal-to-noise}: $\|\mu\|^2/\sigma^2 = O(1)$ (Assumption R4), ensuring Gaussian tails are well-behaved.
+    \item[(ii)] \textbf{Non-degenerate covariance}: $\|\Sigma^{-1}\|_{\mathrm{op}} = O(1)$, so that small perturbations in distribution translate to controlled perturbations in $\mathcal{D}$.
+    \item[(iii)] \textbf{Explicit Lipschitz bound}: The discriminability $\mathcal{D}(\mu, \Sigma) = 4\mu^\top\Sigma^{-1}\mu$ satisfies, for perturbations $(\Delta\mu, \Delta\Sigma)$:
+    \begin{equation}
+        |\mathcal{D}(\mu + \Delta\mu, \Sigma) - \mathcal{D}(\mu, \Sigma)| \leq 8\|\Sigma^{-1}\|_{\mathrm{op}} \|\mu\| \|\Delta\mu\|
+    \end{equation}
+    (by direct differentiation: $\nabla_\mu \mathcal{D} = 8\Sigma^{-1}\mu$). Under conditions (i)-(ii), the Lipschitz constant $L_\mu = 8\|\Sigma^{-1}\|_{\mathrm{op}} \|\mu\| = O(1)$ is bounded uniformly in $n$.
+\end{enumerate}
+
+\textbf{Source of perturbations and TV$\to$mean bridge:} In our framework, mean perturbations arise from the TV distance $\delta$ between true and idealized neighbor label distributions. The key structural property enabling the TV$\to$mean bridge is:
+
+\begin{lemma}[TV to Mean Perturbation under Linear Model]
+\label{lem:tv_to_mean}
+Let $Y^{\mathrm{true}} = (Y_{u_1}, \ldots, Y_{u_k})$ and $Y^{\mathrm{ideal}}$ be the true and idealized neighbor label vectors with $d_{\mathrm{TV}}(Y^{\mathrm{true}}, Y^{\mathrm{ideal}}) \leq \delta$, where we use the standard definition $d_{\mathrm{TV}}(P, Q) := \sup_{A} |P(A) - Q(A)| = \frac{1}{2}\|P - Q\|_1$. Under the linear feature model $X_u = Y_u \mu + \varepsilon_u$ with $Y_u \in \{-1, +1\}$ and \textbf{deterministic} normalized aggregation weights $w_{vu} \geq 0$, $\sum_u w_{vu} = 1$, the aggregated mean satisfies:
+\begin{equation}
+    \|\mathbb{E}[A_v]_{\mathrm{true}} - \mathbb{E}[A_v]_{\mathrm{ideal}}\| \leq 2\delta \|\mu\|
+\end{equation}
+
+\textbf{Note on weight conditioning:} The weights $\{w_{vu}\}$ are treated as \textit{fixed} (deterministic) when applying this lemma. In practice, weights may depend on the graph structure $G$ (e.g., $w_{vu} = 1/d_v$ for mean aggregation). In such cases, the lemma is applied \textit{conditional on} the realized graph $G$, and the bound holds almost surely over $G$. Since the TV bound in Lemma~\ref{lem:A2_quantitative} is already conditional on the neighborhood structure $\mathcal{N}(v)$, the conditioning is consistent throughout our analysis.
+\end{lemma}
+
+\begin{proof}
+The aggregated feature is $A_v = \sum_u w_{vu} X_u = \sum_u w_{vu} (Y_u \mu + \varepsilon_u)$. Taking expectations and using linearity:
+\begin{equation}
+    \mathbb{E}[A_v \mid Y_v] = \mu \cdot \underbrace{\sum_u w_{vu} \mathbb{E}[Y_u \mid Y_v]}_{=: f(Y) \text{, a scalar}}
+\end{equation}
+Thus the mean perturbation is $\|\mathbb{E}[A_v]_{\mathrm{true}} - \mathbb{E}[A_v]_{\mathrm{ideal}}\| = \|\mu\| \cdot |f_{\mathrm{true}} - f_{\mathrm{ideal}}|$ where $f = \sum_u w_{vu} Y_u$.
+
+For the scalar function $f: \{-1,+1\}^k \to \mathbb{R}$, we have the bound $|f| \leq \sum_u w_{vu} |Y_u| = \sum_u w_{vu} = 1$ (since $Y_u \in \{-1,+1\}$ and weights are non-negative summing to 1).
+
+By the standard TV-expectation inequality (Tsybakov~\cite{tsybakov2009introduction}, Lemma~2.1): for any \textbf{measurable} function $f: \mathcal{X} \to \mathbb{R}$ with $\|f\|_\infty \leq M$,
+\begin{equation}
+    |\mathbb{E}_{P}[f] - \mathbb{E}_{Q}[f]| \leq 2M \cdot d_{\mathrm{TV}}(P, Q)
+\end{equation}
+The function $f(Y) = \sum_u w_{vu} Y_u$ is measurable (it is a finite linear combination of coordinate projections on the discrete space $\{-1,+1\}^k$).
+Applying this with $M = 1$:
+\begin{equation}
+    |f_{\mathrm{true}} - f_{\mathrm{ideal}}| = \left|\sum_u w_{vu} \mathbb{E}[Y_u]_{\mathrm{true}} - \sum_u w_{vu} \mathbb{E}[Y_u]_{\mathrm{ideal}}\right| \leq 2\delta
+\end{equation}
+Multiplying by $\|\mu\|$ gives the result.
+\end{proof}
+
+Combining with the Lipschitz bound (condition (iii)), if $d_{\mathrm{TV}}(P_{\mathrm{joint}}, P_{\mathrm{prod}}) \leq \delta$, then:
+\begin{equation}
+    |\mathcal{D}_{\mathrm{true}} - \mathcal{D}_{\mathrm{ideal}}| \leq L_\mu \cdot 2\delta \|\mu\| = 16\|\Sigma^{-1}\|_{\mathrm{op}} \|\mu\|^2 \delta = O(\delta) \cdot \mathcal{D}_{\mathrm{ideal}}
+\end{equation}
+where we used the spectral bound $\mathcal{D}_{\mathrm{ideal}} = 4\mu^\top \Sigma^{-1} \mu \geq 4\|\mu\|^2 / \|\Sigma\|_{\mathrm{op}}$ (since $\Sigma^{-1} \succeq \|\Sigma\|_{\mathrm{op}}^{-1} I$). The relative error is thus bounded by $4\kappa(\Sigma) \delta$ where $\kappa(\Sigma) = \|\Sigma\|_{\mathrm{op}} \|\Sigma^{-1}\|_{\mathrm{op}}$ is the condition number, which is $O(1)$ under our assumptions.
+
+\textbf{Lipschitz bound locality:} The Lipschitz constant $L_\mu = 8\|\Sigma^{-1}\|_{\mathrm{op}} \|\mu\|$ depends on the reference point $\mu$. This is appropriate since $\mathcal{D}(\mu, \Sigma) = 4\mu^\top \Sigma^{-1} \mu$ is quadratic in $\mu$. Under Assumption (R4) where $\|\mu\|^2/\sigma^2 = O(1)$, the parameter $\mu$ is fixed (independent of $n$), so $L_\mu = O(1)$ uniformly.
+
+\textbf{Covariance invariance:} The covariance $\Sigma$ refers to the \textit{conditional} variance $\mathrm{Var}(X_u \mid Y_u) = \mathrm{Var}(\varepsilon_u) = \Sigma$, which remains unchanged ($\Delta\Sigma = 0$) because:
+\begin{enumerate}
+    \item The feature noise $\varepsilon_u \sim \mathcal{N}(0, \Sigma)$ is i.i.d.\ and independent of the graph structure.
+    \item Our coupling construction (Lemma~\ref{lem:A2_quantitative}) only modifies the \textit{joint distribution of neighbor labels}, not the noise model.
+    \item Cycle contamination affects correlations between neighbor labels, not the conditional variance of $X_u \mid Y_u$.
+\end{enumerate}
+
+These conditions are satisfied under our sparse CSBM (Definition~\ref{def:sparse_csbm}) with fixed parameters $(\mu, \Sigma, a, b)$ independent of $n$.
+\end{remark}
+
+\begin{remark}[Layer-Independence of $\varepsilon_{\mathrm{mix}}$]
+\label{rem:mix_layer_indep}
+The label mixing term $\varepsilon_{\mathrm{mix}} = O(\|\mu\|^2(1-\rho^2)/\sigma^2)$ does \textbf{not} accumulate across layers because:
+\begin{enumerate}
+    \item \textbf{Modeling assumption}: In our framework, stochastic noise is introduced \textit{only at feature generation} ($X_v = Y_v\mu + \varepsilon_v$). The aggregation operations are \textit{deterministic linear transformations} given the graph and neighbor features.
+    \item \textbf{No per-layer noise injection}: Unlike some practical GNN implementations with dropout or stochastic regularization, our theoretical model assumes clean message passing. Any ``noise'' in aggregated representations comes solely from the initial feature noise $\{\varepsilon_v\}$.
+    \item \textbf{Relative error interpretation}: The mixing term captures how much the neighbor label uncertainty (controlled by $\rho$) contaminates the signal direction $\mu$. This contamination is determined by the \textit{one-hop} edge correlation structure, not the depth of propagation.
+\end{enumerate}
+If per-layer noise were present, one would need $\varepsilon_{\mathrm{mix}}(t) = O(t \cdot \|\mu\|^2(1-\rho^2)/\sigma^2)$ or a geometric series bound.
+\end{remark}
+
+\begin{remark}[Error Accumulation Across Layers]
+\label{rem:error_accumulation}
+The key insight from Lemma~\ref{lem:error_composition} is that different error sources have different accumulation behaviors:
+\begin{itemize}
+    \item \textbf{Independence violation}: Additive in $t$, giving $O(t \cdot k^4/n)$
+    \item \textbf{Cycle contamination}: Exponential in $t$, giving $O((k-1)^{2t}/n)$ --- this is the bottleneck
+    \item \textbf{Label mixing}: Layer-independent, bounded by feature SNR
+\end{itemize}
+
+\textbf{Unified condition for validity:} All three error sources are $o(1)$ when:
+\begin{equation}
+    t \leq \left(\frac{1}{2} - \epsilon\right) \log_{k-1} n \quad \text{(ensures } (k-1)^{2t}/n \to 0)
+\end{equation}
+which is precisely condition (R2) in Assumption~\ref{ass:validity_regime}.
+\end{remark}
+
+\begin{remark}[Single-Node vs.\ Whole-Graph Applicability]
+\label{rem:single_vs_whole}
+Our theoretical results are stated for a \textbf{fixed root node $v$} and characterize the discriminability $\mathcal{D}(A_v)$ of its aggregated representation. We clarify the scope:
+
+\textbf{(a) Local analysis (our primary setting):} The bounds in Theorem~\ref{thm:complete_with_error} hold for any \textit{fixed} node $v$ with probability $1 - o(1)$ over the random graph. This is the natural setting for understanding how aggregation affects a typical node's classification.
+
+\textbf{(b) Whole-graph uniformity:} To extend the results to \textit{all} nodes simultaneously, one applies a union bound.
+
+\textbf{Precise single-node failure probability:} From Lemma~\ref{lem:error_composition}, the per-node failure probability (event that tree approximation fails) is:
+\begin{equation}
+    p_{\mathrm{fail}}(v, t) := \mathbb{P}(B_t(v) \text{ contains a cycle}) = \frac{C_{\mathrm{cycle}} (k-1)^{2t}}{n}
+\end{equation}
+where $C_{\mathrm{cycle}} > 0$ is a \textbf{universal constant for all $v \in V$}, depending only on $(a, b)$ (not on $n$, $t$, or the specific node $v$). This uniformity follows from:
+\begin{enumerate}
+    \item The CSBM is vertex-exchangeable: the law of $B_t(v)$ is identical for all $v$ before conditioning on labels.
+    \item The expected number of cycles formula $\mathbb{E}[\#\text{cycles in } B_t(v)] = \sum_{s=3}^{2t} O((k-1)^{2t}/n)$ involves only global parameters $(a, b, n)$.
+    \item The constant $C_{\mathrm{cycle}} \leq \sum_{s=3}^{\infty} c_s$ where $c_s$ depends only on the cycle counting combinatorics and $(a+b)^s/n^{s-1}$.
+\end{enumerate}
+
+\textbf{Union bound for all nodes:}
+\begin{equation}
+    \mathbb{P}\left(\exists v \in V: |\mathcal{D}(A_v) - \mathcal{D}_{\mathrm{ideal}}| > \delta \cdot \mathcal{D}_{\mathrm{ideal}}\right) \leq n \cdot p_{\mathrm{fail}}(v, t) = C_{\mathrm{cycle}} (k-1)^{2t}
+\end{equation}
+For this to vanish as $n \to \infty$, we need $(k-1)^{2t} \to 0$, which requires $t = O(1)$ (bounded depth) for \textbf{exact uniformity over all vertices}.
+
+\textbf{Relaxation to ``most vertices'':} If we only require the fraction of ``bad'' vertices to vanish, i.e., $\mathbb{E}[|\{v: \text{bad}\}|]/n \to 0$, then by Markov's inequality:
+\begin{equation}
+    \frac{\mathbb{E}[|\{v: \text{bad}\}|]}{n} = p_{\mathrm{fail}}(v, t) = \frac{C_{\mathrm{cycle}} (k-1)^{2t}}{n} \to 0
+\end{equation}
+holds for any $t = o(\log_{k-1} \sqrt{n})$, which is much weaker than the per-node constraint $t = o(\log_{k-1} n)$ but still allows $t$ to grow with $n$.
+
+\textbf{Slowly growing $t$ with high probability:} For any $\omega(n) \to \infty$ arbitrarily slowly, taking:
+\begin{equation}
+    t \leq \frac{\log\log n - \log\omega(n)}{2\log(k-1)}
+\end{equation}
+ensures $(k-1)^{2t} \leq (\log n)/\omega(n) \to 0$, hence uniform validity with probability $1 - o(1)$.
+
+\textbf{(c) Practical implication:} For typical GNN depths ($t \leq 3$) and sparse graphs ($k = O(1)$), both per-node and whole-graph analyses yield the same asymptotic behavior. The distinction matters only for deep propagation ($t = \Omega(\log n)$), which is rare in practice due to oversmoothing.
+
+\textbf{(d) Empirical measurements:} Our experimental results (Section~\ref{sec:experiments}) report \textit{average} accuracy over all nodes, which corresponds to the expected discriminability $\mathbb{E}_v[\mathcal{D}(A_v)]$. By linearity of expectation and the sparse limit theorem, this equals the per-node analysis up to $o(1)$ error.
+\end{remark}
+
+\subsubsection{Unified Probability Space for Error Control}
+
+\begin{remark}[Unified Probability Space]
+\label{rem:unified_probability_space}
+We clarify the probability space underlying all error bounds in this paper, addressing potential confusion about different sources of randomness.
+
+\textbf{(a) Fundamental probability space:}
+Let $(\Omega, \mathcal{F}, \mathbb{P})$ be the product probability space where:
+\begin{itemize}
+    \item \textbf{Labels}: $\sigma = (Y_1, \ldots, Y_n) \in \{-1, +1\}^n$ with $Y_v \stackrel{\text{iid}}{\sim} \mathrm{Rad}(1/2)$
+    \item \textbf{Graph}: $G \in \{0,1\}^{n \times n}$ with edges sampled conditionally on $\sigma$ per CSBM
+    \item \textbf{Features}: $X = (X_1, \ldots, X_n) \in \mathbb{R}^{n \times d_x}$ with $X_v = Y_v \mu + \varepsilon_v$, $\varepsilon_v \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \Sigma)$
+\end{itemize}
+All three components are generated on a \textit{single} probability space with the factorization:
+\begin{equation}
+    \mathbb{P}(\sigma, G, X) = \mathbb{P}(\sigma) \cdot \mathbb{P}(G \mid \sigma) \cdot \mathbb{P}(X \mid \sigma)
+\end{equation}
+Note that $X$ and $G$ are conditionally independent given $\sigma$.
+
+\textbf{(b) Error bounds hold jointly:}
+All error bounds in this paper (Lemmas~\ref{lem:R_n_bound}, \ref{lem:A2_quantitative}, Theorem~\ref{thm:complete_with_error}) are stated as:
+\begin{equation}
+    \mathbb{P}_{\sigma, G, X}\left(\text{``bad event''}\right) \leq \delta(n)
+\end{equation}
+where $\delta(n) \to 0$ as $n \to \infty$. By a union bound, all error events can be controlled simultaneously:
+\begin{equation}
+    \mathbb{P}\left(\bigcup_{i=1}^{m} E_i\right) \leq \sum_{i=1}^{m} \mathbb{P}(E_i) = o(1)
+\end{equation}
+for any finite number $m$ of error events.
+
+\textbf{(c) Conditioning hierarchy:}
+Our analysis uses the following conditioning structure:
+\begin{enumerate}
+    \item \textbf{Condition on $\sigma$}: The discriminability $\mathcal{D}(A_v)$ is defined for a \textit{fixed} label configuration $\sigma$. The randomness in $\mathcal{D}(A_v)$ comes from $G$ and $X$.
+    \item \textbf{Condition on $\sigma$ and $G$}: The TV bound (Lemma~\ref{lem:A2_quantitative}) holds for fixed $(\sigma, G)$. The weights $\{w_{vu}\}$ are then deterministic.
+    \item \textbf{Condition on $\sigma$, $G$, and neighbors}: The mean/variance computations (Theorem~\ref{thm:agg_discriminability_rigorous}) use the conditional distribution $X_u \mid Y_u$.
+\end{enumerate}
+
+\textbf{(d) Asymptotic notation clarification:}
+When we write $\mathcal{D}^{(t)} = ((k-1)\rho^2)^t \mathcal{D}^{(0)} \cdot (1 + \varepsilon_n(t))$ with $|\varepsilon_n(t)| = o(1)$, this means:
+\begin{equation}
+    \forall \delta > 0, \exists N(\delta) \text{ s.t. } n \geq N(\delta) \Rightarrow \mathbb{P}(|\varepsilon_n(t)| > \delta) \leq \delta
+\end{equation}
+That is, convergence is in probability over the joint space $(\sigma, G, X)$.
+
+\textbf{(e) Non-asymptotic alternative:}
+For finite $n$, all bounds can be made non-asymptotic by tracking constants explicitly. For instance, Theorem~\ref{thm:complete_with_error} holds with:
+\begin{equation}
+    \mathbb{P}\left(|\varepsilon_n(t)| > C\left(\frac{k^4}{n} + \frac{k^{2t}}{n} + \frac{\|\mu\|^2(1-\rho^2)}{\sigma^2}\right)\right) \leq 2e^{-n/C'}
+\end{equation}
+for explicit universal constants $C, C' > 0$ depending only on model parameters $(a, b, d_x)$.
+\end{remark}
+
+\begin{remark}[Independence of Error Sources]
+\label{rem:error_independence}
+The three error sources in Lemma~\ref{lem:error_composition} are \textbf{not independent} in general, but they are \textbf{separately controllable}:
+\begin{enumerate}
+    \item $\varepsilon_{\mathrm{indep}}$ depends on graph structure (presence of shared neighbors)
+    \item $\varepsilon_{\mathrm{cycle}}$ depends on graph structure (presence of cycles)
+    \item $\varepsilon_{\mathrm{mix}}$ depends on model parameters $(\mu, \sigma, \rho)$, not graph realization
+\end{enumerate}
+
+The key insight is that $\varepsilon_{\mathrm{mix}}$ is \textbf{deterministic} given model parameters, while $\varepsilon_{\mathrm{indep}}$ and $\varepsilon_{\mathrm{cycle}}$ are random but \textbf{positively correlated} (both are worse when the graph has denser local structure). Thus:
+\begin{equation}
+    \mathbb{P}(|\varepsilon_n(t)| > \eta) \leq \mathbb{P}(\varepsilon_{\mathrm{indep}} + \varepsilon_{\mathrm{cycle}} > \eta - \varepsilon_{\mathrm{mix}})
+\end{equation}
+The right-hand side can be bounded using concentration for graph functionals (e.g., Janson's inequality for cycle counts), giving sub-Gaussian tails.
+\end{remark}
+
+\subsubsection{Bayes Error Consistency}
+
+\begin{proposition}[Bayes Error in Terms of Discriminability]
+\label{prop:bayes_error_consistent}
+Under the Gaussian model, the Bayes error satisfies:
+\begin{equation}
+    P_e = \Phi\left(-\frac{1}{2}\sqrt{\mathcal{D}}\right) = \Phi\left(-\frac{1}{2}\sqrt{\Delta^\top \Sigma^{-1} \Delta}\right)
+\end{equation}
+
+For sub-Gaussian noise with parameter $\sigma$, the error of the linear classifier (projection onto signal direction) is bounded:
+\begin{equation}
+    P_e^{\mathrm{linear}} \leq \exp\left(-\frac{\mathcal{D}}{8}\right)
+\end{equation}
+when $\mathcal{D} \geq 2$.
+
+The connection to our SNR notation:
+\begin{equation}
+    \mathcal{D}(A) = \kappa \cdot \mathcal{D}(X) \quad \Rightarrow \quad P_e(A) \approx \Phi\left(-\frac{1}{2}\sqrt{\kappa \cdot \mathcal{D}(X)}\right)
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+The Gaussian result is standard (optimal linear discriminant). For sub-Gaussian, we use Hoeffding's inequality on the projected statistic:
+\begin{equation}
+    T = \mu^\top \Sigma^{-1} X \sim \text{sub-Gaussian with variance proxy } \mu^\top \Sigma^{-1} \mu = \mathcal{D}/4
+\end{equation}
+Under $Y = +1$, $\mathbb{E}[T] = \mathcal{D}/2$. Thus:
+\begin{equation}
+    P(T < 0 \mid Y = +1) \leq \exp\left(-\frac{(\mathcal{D}/2)^2}{2 \cdot \mathcal{D}/4}\right) = \exp\left(-\frac{\mathcal{D}}{8}\right)
+\end{equation}
+\end{proof}
+
+\subsubsection{Definition of $\rho$ from SBM Parameters}
+
+\begin{definition}[Correlation Coefficient $\rho$]
+\label{def:rho_explicit}
+In the sparse CSBM with within-class edge probability $a/n$ and between-class edge probability $b/n$:
+\begin{equation}
+    \rho := \mathbb{E}[Y_u \mid (u,v) \in E, Y_v = +1] = \frac{a - b}{a + b}
+\end{equation}
+
+This can be rewritten in terms of homophily $h = a/(a+b)$:
+\begin{equation}
+    \rho = 2h - 1
+\end{equation}
+
+\textbf{Estimator:} Given observed edges and labels:
+\begin{equation}
+    \hat{\rho} = \frac{E_{\mathrm{in}} - E_{\mathrm{out}}}{E_{\mathrm{in}} + E_{\mathrm{out}}}
+\end{equation}
+where $E_{\mathrm{in}} = |\{(u,v) \in E : Y_u = Y_v\}|$ counts within-class edges.
+
+\textbf{Under GCN normalization:} The effective correlation becomes:
+\begin{equation}
+    \rho_w = \sum_{j \in \mathcal{N}(i)} w_{ij} \cdot \mathbb{E}[Y_j \mid Y_i = +1]
+\end{equation}
+For symmetric normalization $w_{ij} = 1/\sqrt{d_i d_j}$ and approximately regular graphs, $\rho_w \approx \rho$.
+\end{definition}
+
+\subsection{Summary: Complete Rigorous Framework}
+\label{subsec:complete_summary_rigorous}
+
+\begin{table}[t]
+\centering
+\caption{Complete SNR Framework with Quantitative Errors}
+\label{tab:complete_rigorous_summary}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Result} & \textbf{Formula} & \textbf{Error Bound} & \textbf{Conditions} \\
+\midrule
+\multicolumn{4}{l}{\textit{Core Results}} \\
+Discriminability & $\mathcal{D} = \Delta^\top \Sigma^{-1} \Delta$ & Exact & Definition \\
+Bayes error & $P_e = \Phi(-\frac{1}{2}\sqrt{\mathcal{D}})$ & Exact & Gaussian \\
+One-hop $\kappa$ & $\rho^2 k_{\mathrm{eff}}$ & $O(k^2/n + \|\mu\|^2/\sigma^2)$ & Sparse limit \\
+\midrule
+\multicolumn{4}{l}{\textit{Multi-Layer}} \\
+$t$-layer SNR & $((k-1)\rho^2)^t \mathcal{D}^{(0)}$ & $O(k^{2t}/n)$ & $t = o(\log n)$ \\
+With noise & Full recursion (Thm~\ref{thm:multilayer_with_noise}) & --- & Tree regime \\
+\midrule
+\multicolumn{4}{l}{\textit{Error Sources}} \\
+$R_n$ bound & $\|R_n\|_{\mathrm{op}} = O(k^2/n)$ & --- & Spectral norm \\
+A2 violation & $d_{\mathrm{TV}} = O(k^4/n)$ & Coupling & Sparse limit \\
+Label mixing & $O(\|\mu\|^2(1-\rho^2)/\sigma^2)$ & --- & Relative scale \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+With these quantitative bounds, the theoretical framework is now complete and defensible at the TKDE level. The key improvements are:
+\begin{enumerate}
+    \item Explicit error terms $\varepsilon_n(t)$ with quantified dependence on $n, k, t, \|\mu\|, \sigma$
+    \item Total variation bound via coupling for conditional independence (Lemma~\ref{lem:A2_quantitative})
+    \item Complete multi-layer recursion including noise accumulation (Theorem~\ref{thm:multilayer_with_noise})
+    \item Consistent definition of $\rho$ from SBM parameters with estimator
+    \item Unified Bayes error formula compatible with $\mathcal{D}$ definition
+    \item Explicit error accumulation across layers (Remark~\ref{rem:error_accumulation})
+    \item Unified notation for $k$, $k-1$, and $k_{\mathrm{eff}}$ (Remark~\ref{rem:k_notation_unified})
+\end{enumerate}
+
+

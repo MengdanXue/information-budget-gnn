@@ -1,0 +1,93 @@
+% ============================================================
+% Main Document: The Information Budget of Graph Neural Networks
+% Target: IEEE TKDE
+% ============================================================
+
+\documentclass[10pt,journal,compsoc]{IEEEtran}
+
+% Packages
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{tcolorbox}
+
+% Define theorem-like environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{corollary}{Corollary}
+\newtheorem{observation}{Observation}
+\newtheorem{justification}{Justification}
+\newtheorem{lemma}{Lemma}
+\newtheorem{assumption}{Assumption}
+\newtheorem{example}{Example}
+
+% IEEE TKDE specific
+\newcommand\MYhyperrefoptions{bookmarks=true,bookmarksnumbered=true,
+pdfpagemode={UseOutlines},plainpages=false,pdfpagelabels=true,
+colorlinks=true,linkcolor={black},citecolor={black},urlcolor={black},
+pdftitle={The Information Budget of Graph Neural Networks},
+pdfsubject={Graph Neural Networks, Node Classification},
+pdfauthor={Mengdan Xue},
+pdfkeywords={Graph Neural Networks, Information Budget, Aggregation Damage, Heterophily}}
+
+% Title
+\title{The Information Budget of Graph Neural Networks: When Features Are Enough}
+
+% Author
+\author{Mengdan~Xue
+\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem M. Xue is with the Faculty of Computational Mathematics and Cybernetics, Lomonosov Moscow State University, Moscow, Russia.\protect\\
+E-mail: 17326961775@163.com}
+\thanks{Manuscript received XXX; revised XXX.}}
+
+% Keywords
+\IEEEtitleabstractindextext{
+\begin{abstract}
+Graph Neural Networks (GNNs) exhibit inconsistent performance across datasets: sometimes improving over feature-only methods (MLPs) by 20\%+, other times underperforming by similar margins. We develop a rigorous information-theoretic framework that explains this phenomenon through the \textbf{Signal-to-Noise Ratio (SNR)} dynamics of message passing.
+
+Our central theoretical contribution is the \textbf{Aggregation SNR Ratio} theorem: under the sparse Contextual Stochastic Block Model (CSBM) with Gaussian features, one-hop mean aggregation changes the discriminability (squared Mahalanobis distance) by a factor $\kappa = \rho^2 k$, where $\rho = 2h-1$ is the edge correlation and $k$ is the average degree. This yields a sharp threshold $|\rho| = 1/\sqrt{k}$ (equivalently $h \in (0.34, 0.66)$ for $k=10$) below which aggregation \textit{reduces} classification performance. We establish quantitative error bounds: the independence violation contributes $O(k^4/n)$ via coupling arguments, cycle contamination adds $O((k-1)^{2t}/n)$ for $t$-layer propagation, and the multi-layer SNR follows $\mathcal{D}^{(t)} = ((k-1)\rho^2)^t \mathcal{D}^{(0)}$ connecting to the Kesten-Stigum threshold.
+
+From this theoretical foundation, we derive three practical principles: (1) \textbf{The Information Budget}: GNN improvement is bounded by $(1 - \text{Acc}_{\text{MLP}})$, validated on 19 benchmarks (19/19) and 4 OGB datasets at million-node scale. (2) \textbf{Concatenation Preserves Information}: The Data Processing Inequality guarantees $I(Y; X, A) \geq I(Y; X)$, explaining GraphSAGE's substantially lower damage ratio ($\sim$189$\times$ in controlled settings, $\sim$20$\times$ on real data). (3) \textbf{Dual Heterophily Types}: 2-hop recovery ratio $R > 1.5$ distinguishes recoverable (H2GCN effective) from irrecoverable (MLP optimal) heterophily. Our framework achieves 88.9\% prediction accuracy (32/36) on CSBM experiments and 77.8\% (7/9) on external validation.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Graph Neural Networks, Signal-to-Noise Ratio, Discriminability, Stochastic Block Model, Information Budget, Aggregation Damage, Kesten-Stigum Threshold
+\end{IEEEkeywords}}
+
+% Document start
+\begin{document}
+
+\maketitle
+
+\IEEEdisplaynontitleabstractindextext
+
+\IEEEpeerreviewmaketitle
+
+% Sections
+\input{sections/01_intro_information_budget}
+\input{sections/02_related_work_information_budget}
+\input{sections/03_motivating_observations}
+\input{sections/03_theory_feature_contrast}
+\input{sections/04_snr_theory_rigorous}
+\input{sections/04_quantitative_errors}
+\input{sections/04_information_budget}
+\input{sections/05_aggregation_damage}
+\input{sections/06_dual_heterophily}
+\input{sections/07_experiments_information_budget}
+\input{sections/07_conclusion_information_budget}
+
+% References
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

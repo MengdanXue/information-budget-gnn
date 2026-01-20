@@ -1,0 +1,91 @@
+\section{Introduction}
+
+Financial transaction graphs---from cryptocurrency networks to e-commerce platforms---are characterized by high-dimensional numerical node features (e.g., transaction amounts, account balances, timestamps) that span multiple orders of magnitude. While Graph Neural Networks (GNNs) have demonstrated strong performance in learning from relational data, standard attention mechanisms often lose critical numerical magnitude information during feature normalization and aggregation. This limitation is particularly problematic in financial fraud detection, where absolute numerical values (e.g., a \$1M transaction vs. \$100 transaction) carry strong predictive signals that cannot be captured by rank-based or relative comparisons alone.
+
+\subsection{Motivation: From Supply Chain Risk to General Financial Graphs}
+
+Our initial motivation stems from enterprise credit risk prediction in supply chain networks, where companies form intricate webs of procurement and collaboration relationships. In these networks, the financial distress of a single enterprise can propagate to connected partners, creating systemic vulnerabilities. Traditional credit scoring models, which analyze enterprises in isolation, fail to capture these network effects---an enterprise with strong financials may still face elevated default risk if key suppliers or buyers experience distress.
+
+However, direct evaluation on proprietary supply chain data poses reproducibility challenges: real supply chain networks are often confidential, small-scale (50-200 nodes), and lack public benchmarks. To rigorously validate our approach while ensuring full reproducibility, we broaden our scope to **general financial transaction graphs** and evaluate on large-scale public datasets that share the key characteristics of supply chain risk---numerical magnitude sensitivity, network dependencies, and class imbalance.
+
+\subsection{The Numerical Magnitude Problem in GNN Attention}
+
+Standard GNN attention mechanisms, such as those in Graph Attention Networks (GAT)~\cite{velivckovic2018gat}, compute attention weights via learned transformations followed by normalization:
+
+\begin{equation}
+\alpha_{ij} = \frac{\exp(\text{LeakyReLU}(\mathbf{a}^\top [\mathbf{W}\mathbf{h}_i \| \mathbf{W}\mathbf{h}_j]))}{\sum_{k \in \mathcal{N}(i)} \exp(\text{LeakyReLU}(\mathbf{a}^\top [\mathbf{W}\mathbf{h}_i \| \mathbf{W}\mathbf{h}_k]))}
+\end{equation}
+
+This approach faces three challenges when applied to financial graphs with multi-magnitude numerical features:
+
+\textbf{1. Magnitude Loss via Z-Score Normalization}: Many GNN implementations apply z-score normalization ($\frac{x - \mu}{\sigma}$) to node features before feeding them to the network. This transformation equalizes all features to zero mean and unit variance, effectively discarding absolute magnitude information. For financial features like transaction amounts or account balances, this means a \$10 transaction and a \$10M transaction may receive similar normalized representations if both are equidistant from the dataset mean---losing the critical 1000x magnitude difference.
+
+\textbf{2. Learned Transformations May Not Preserve Numerical Relationships}: The learned weight matrix $\mathbf{W}$ and attention vector $\mathbf{a}$ are optimized via backpropagation to minimize task loss, with no explicit constraint to preserve numerical magnitude relationships. In financial contexts where "10x larger transaction amount" has clear semantic meaning (e.g., large transactions are riskier), the model must rediscover these relationships from data---a difficult task when magnitude signals are already weakened by normalization.
+
+\textbf{3. Softmax Attention Saturates on High-Dimensional Features}: With high-dimensional node features (100+ dimensions common in financial graphs), the dot product $\mathbf{a}^\top [\mathbf{W}\mathbf{h}_i \| \mathbf{W}\mathbf{h}_j]$ can have large magnitude, causing the softmax to saturate and produce near-uniform attention weights. This reduces the effective capacity of attention to distinguish between numerically different neighbors.
+
+\subsection{Our Approach: Numerically-Aware Attention (NAA)}
+
+We propose **Numerically-Aware Attention (NAA)**, a novel attention mechanism that explicitly preserves numerical magnitude information through three components:
+
+\textbf{1. Log-Scale Normalization}: Instead of z-score normalization, we apply log-scale transformation:
+\begin{equation}
+\tilde{x} = \text{sign}(x) \cdot \log(1 + |x|)
+\end{equation}
+This compresses multi-magnitude features to a manageable range (e.g., \$1 $\to$ 0.69, \$1000 $\to$ 6.91, \$1M $\to$ 13.82) while preserving relative differences---a 1000x magnitude difference remains distinguishable as a $\sim$7-unit difference in log space.
+
+\textbf{2. Explicit Numerical Similarity}: We augment learned attention with a hand-crafted numerical similarity term:
+\begin{equation}
+\text{sim}(\mathbf{x}_i, \mathbf{x}_j) = -\frac{1}{d_f} \sum_{k=1}^{d_f} \frac{|\tilde{x}_{ik} - \tilde{x}_{jk}|}{\max(|\tilde{x}_{ik}|, |\tilde{x}_{jk}|, \epsilon)}
+\end{equation}
+This provides strong inductive bias: nodes with similar numerical features receive higher attention, independent of what the model learns.
+
+\textbf{3. Adaptive Head Gating}: Multi-head attention learns diverse feature interactions, but not all heads contribute equally. We introduce learnable gates to down-weight less useful heads:
+\begin{equation}
+g^{(k)} = \sigma(\mathbf{W}_g \mathbf{h} + b_g), \quad \tilde{\mathbf{h}}^{(k)} = g^{(k)} \cdot \mathbf{h}^{(k)}
+\end{equation}
+This acts as implicit regularization, improving generalization on small graphs.
+
+\subsection{Evaluation Strategy: Multi-Dataset Validation}
+
+To validate NAA's generalizability across financial fraud detection tasks, we evaluate on \textbf{four diverse datasets}:
+
+\textbf{1. Elliptic Bitcoin Dataset} (203,769 nodes, 234,355 edges, 165 features)~\cite{weber2019anti}: A large-scale cryptocurrency transaction graph for illicit activity detection. We use \textit{temporal split} following Weber et al., where training uses early timesteps (1--34) and testing uses later timesteps (44--49), creating realistic distribution shift.
+
+\textbf{2. Amazon Fraud Dataset} (13,752 nodes, 491,722 edges, 767 features): A dense product co-purchase network (avg degree 35.7) with synthetic fraud labels, testing NAA on high-dimensional feature spaces.
+
+\textbf{3. YelpChi Dataset} (45,954 nodes, 8M edges, 32 features)~\cite{mukherjee2013yelp,dou2020enhancing}: A real-world review spam detection benchmark with extremely dense structure (avg degree 175) and low-dimensional features. This dataset exhibits strong \textit{heterophily}---spammers connect to legitimate users---providing a critical test case where heterophily-aware models like H2GCN may outperform numerical-focused methods.
+
+\textbf{4. DGraphFin Dataset} (208,522 nodes, 156,422 edges, 17 features): A P2P lending fraud detection graph with extreme class imbalance (0.29\% fraud), testing NAA's limits under severe data challenges.
+
+These datasets differ in scale (14k--208k nodes), density (0.75--175 avg degree), feature dimensions (17--767), and class imbalance (0.29\%--14.5\% fraud). This diversity enables honest characterization of when NAA helps and when it does not.
+
+\subsection{Key Contributions}
+
+This work makes the following contributions:
+
+\textbf{1. Numerically-Aware Attention (NAA)}: We propose a novel attention mechanism with three innovations (log-scale normalization, explicit numerical similarity, adaptive head gating) designed to preserve numerical magnitude information in financial graphs. NAA is specifically designed for \textbf{numerically-sensitive scenarios}---high-dimensional features spanning multiple orders of magnitude---rather than claiming universal superiority.
+
+\textbf{2. Comprehensive SOTA Comparison with Statistical Validation}: We compare NAA against recent heterophily-aware GNNs (H2GCN, MixHop, GATv2, FAGCN) on YelpChi with 5-seed experiments and paired t-tests. Key findings:
+\begin{itemize}
+\item NAA-GCN \textbf{significantly outperforms} GCN (p=0.001), GAT (p=0.000), GATv2 (p=0.000), FAGCN (p=0.001)
+\item NAA-GCN is \textbf{statistically comparable} to H2GCN (p=0.103) and MixHop (p=0.226) in AUC, while achieving 21\% higher precision
+\item This establishes NAA's value in precision-critical applications even when not achieving highest AUC
+\end{itemize}
+
+\textbf{3. Regime-Dependent Benefits with Honest Characterization}: We identify clear applicability boundaries:
+\begin{itemize}
+\item \textbf{High-dimensional features} (Elliptic: 165-dim, Amazon: 767-dim): NAA provides substantial improvements (+25\% AUC, $\Delta$F1=+0.46)
+\item \textbf{Dense heterophilous + low-dim} (YelpChi: 32-dim, 175 avg degree): NAA is competitive but H2GCN's heterophily-aware design achieves higher AUC; NAA excels in precision
+\item \textbf{Extreme imbalance} (DGraphFin: 0.29\% fraud): Neither method succeeds---data challenges dominate
+\end{itemize}
+
+\textbf{4. Efficiency Analysis}: NAA incurs 3$\times$ overhead vs GCN. We provide Pareto frontier analysis showing H2GCN achieves best efficiency-performance tradeoff on dense heterophilous graphs, while NAA is preferred for high-dimensional scenarios where precision matters.
+
+\textbf{5. Full Reproducibility}: All experiments are reproducible via provided scripts (\texttt{run\_stability\_experiments.py}, \texttt{run\_sota\_comparison.py}, \texttt{run\_efficiency\_comparison.py}). Results stored in JSON format with 5-seed statistics.
+
+\textbf{Scope and Honest Positioning}: NAA addresses numerical magnitude preservation, \textit{not} heterophily handling. On graphs where heterophily dominates (YelpChi), H2GCN may be preferred; on graphs where numerical features dominate (Elliptic, Amazon), NAA excels. We provide a decision matrix (Section~\ref{sec:cross_dataset}) to guide practitioners.
+
+\subsection{Paper Organization}
+
+The remainder of this paper is organized as follows: Section~\ref{sec:related} surveys related work. Section~\ref{sec:method} presents NAA methodology and theoretical analysis. Section~\ref{sec:experiments} details experiments on Elliptic, Amazon, and DGraphFin datasets. Section~\ref{sec:discussion} discusses findings, limitations, and broader applicability. Section~\ref{sec:conclusion} concludes with future directions.

@@ -1,0 +1,35 @@
+% ============================================================
+% Abstract: The Information Budget of Graph Neural Networks
+% ============================================================
+
+% This file contains the abstract for the Information Budget paper
+% To be included in main_information_budget.tex
+
+% Abstract content (to be placed within \begin{abstract}...\end{abstract} in main file):
+%
+% Graph Neural Networks (GNNs) show inconsistent performance across datasets:
+% sometimes improving over feature-only methods (MLPs) by 20%+, other times
+% underperforming by similar margins. The conventional explanation attributes
+% this to homophily, but datasets with identical homophily can show opposite
+% outcomes. We discover that the critical factor is the Information Budget---
+% the residual predictive capacity $(1 - \text{Acc}_{\text{MLP}})$ that features
+% alone cannot explain.
+%
+% We establish three key principles: (1) The Conditional Enhancement Bound: Under
+% fair comparison conditions (equivalent model capacity, identical features,
+% standard aggregation), GNN improvement is upper-bounded by $(1 - \text{Acc}_{\text{MLP}})$,
+% validated on 19 benchmark datasets (19/19 within bound) and 4 OGB datasets at
+% million-node scale. (2) The Aggregation Damage Ratio (ADR): At mid-homophily
+% ($h \approx 0.5$), GCN loses 18.9% of the information MLP captures. We prove
+% via the Data Processing Inequality that concatenation-based architectures
+% (GraphSAGE) cannot lose original feature information, explaining their
+% 200$\times$ lower ADR. (3) Dual Heterophily Types: Type A (recoverable via
+% 2-hop, H2GCN effective) vs Type B (irrecoverable, MLP optimal), resolving
+% the Chameleon-Squirrel paradox.
+%
+% Our unified decision framework achieves 88.9% prediction accuracy on controlled
+% CSBM experiments (32/36 configurations) and 77.8% on external validation (7/9
+% datasets). This work shifts the focus from ``homophily determines GNN success''
+% to ``feature sufficiency determines the ceiling, homophily determines the
+% utilization''---providing practitioners with an actionable diagnostic: always
+% train MLP first to reveal the budget.

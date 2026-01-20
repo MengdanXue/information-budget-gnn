@@ -1,0 +1,262 @@
+% ============================================================
+% Section 4: SNR Ratio Theory for Graph Neural Networks
+% Rigorous information-theoretic framework based on first principles
+% Key contribution: Aggregation SNR Ratio theorem and extensions
+% ============================================================
+
+\section{Signal-to-Noise Ratio Framework for Structural Enhancement}
+\label{sec:snr_theory}
+
+We develop a rigorous information-theoretic framework for understanding when graph structure improves node classification. Our analysis is grounded in first-principles derivation of how message passing affects the signal-to-noise ratio (SNR) of node representations.
+
+\subsection{Problem Setup}
+\label{subsec:setup}
+
+\begin{definition}[Contextual Stochastic Block Model with Gaussian Features]
+\label{def:csbm}
+Consider a graph $G = (V, E)$ with $|V| = n$ nodes. Each node $v \in V$ has:
+\begin{itemize}
+    \item A binary label $Y_v \in \{+1, -1\}$ with uniform prior
+    \item Features $X_v = \mu Y_v + \varepsilon_v$ where $\varepsilon_v \sim \mathcal{N}(0, \sigma^2 I_{d_x})$
+\end{itemize}
+Edges are generated with \textbf{homophily parameter} $h \in [0, 1]$:
+\begin{equation}
+    h := \mathbb{P}(Y_u = Y_v \mid (u, v) \in E)
+\end{equation}
+Define the \textbf{correlation coefficient} $\rho := 2h - 1 \in [-1, 1]$, satisfying:
+\begin{equation}
+    \mathbb{E}[Y_u \mid (u,v) \in E, Y_v = y] = \rho \cdot y
+\end{equation}
+\end{definition}
+
+\begin{definition}[Signal-to-Noise Ratio]
+\label{def:snr}
+For a representation $Z$ with class-conditional distribution $Z \mid Y = y$, the \textbf{SNR} is:
+\begin{equation}
+    \mathrm{SNR}(Z) := \frac{\|\mathbb{E}[Z \mid Y=+1] - \mathbb{E}[Z \mid Y=-1]\|^2}{\mathrm{tr}(\mathrm{Cov}(Z \mid Y))}
+\end{equation}
+For the original features under Definition~\ref{def:csbm}:
+\begin{equation}
+    \mathrm{SNR}_X = \frac{4\|\mu\|^2}{d_x \sigma^2}
+\end{equation}
+\end{definition}
+
+\subsection{The Aggregation SNR Ratio Theorem}
+\label{subsec:snr_ratio}
+
+Our central result characterizes how one-hop aggregation affects the SNR.
+
+\begin{definition}[Mean Aggregation]
+\label{def:aggregation}
+For node $v$ with degree $k_v := |\mathcal{N}(v)|$, the one-hop mean aggregation is:
+\begin{equation}
+    A_v := \frac{1}{k_v} \sum_{u \in \mathcal{N}(v)} X_u
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Aggregation SNR Ratio]
+\label{thm:snr_ratio}
+Under the CSBM with Gaussian features (Definition~\ref{def:csbm}), assume:
+\begin{enumerate}
+    \item[(A1)] \textbf{Local independence}: Given $Y_v$, neighbor labels $\{Y_u : u \in \mathcal{N}(v)\}$ are approximately independent (valid in sparse limit $n \to \infty$)
+    \item[(A2)] \textbf{Homogeneous degree}: All nodes have degree $k$
+\end{enumerate}
+Then the SNR after one-hop mean aggregation satisfies:
+\begin{equation}
+    \kappa := \frac{\mathrm{SNR}_A}{\mathrm{SNR}_X} = \rho^2 \cdot k = (2h-1)^2 \cdot k
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+\textbf{Step 1 (Conditional mean of aggregated features):}
+Given $Y_v = y$ and edge $(u,v) \in E$:
+\begin{equation}
+    \mathbb{E}[X_u \mid (u,v) \in E, Y_v = y] = \mu \cdot \mathbb{E}[Y_u \mid (u,v) \in E, Y_v = y] = \rho \mu y
+\end{equation}
+Averaging over $k$ neighbors:
+\begin{equation}
+    \mathbb{E}[A_v \mid Y_v = y] = \rho \mu y
+\end{equation}
+Thus the class separation after aggregation is:
+\begin{equation}
+    \|\mathbb{E}[A_v \mid Y_v = +1] - \mathbb{E}[A_v \mid Y_v = -1]\| = 2|\rho| \|\mu\|
+\end{equation}
+
+\textbf{Step 2 (Conditional variance of aggregated features):}
+Under assumption (A1), neighbor features are conditionally independent given $Y_v$:
+\begin{equation}
+    \mathrm{Cov}(A_v \mid Y_v) = \frac{1}{k^2} \sum_{u \in \mathcal{N}(v)} \mathrm{Cov}(X_u \mid Y_u) = \frac{1}{k} \sigma^2 I_{d_x}
+\end{equation}
+Thus:
+\begin{equation}
+    \mathrm{tr}(\mathrm{Cov}(A_v \mid Y_v)) = \frac{d_x \sigma^2}{k}
+\end{equation}
+
+\textbf{Step 3 (SNR ratio):}
+\begin{equation}
+    \mathrm{SNR}_A = \frac{(2|\rho| \|\mu\|)^2}{d_x \sigma^2 / k} = \rho^2 k \cdot \frac{4\|\mu\|^2}{d_x \sigma^2} = \rho^2 k \cdot \mathrm{SNR}_X
+\end{equation}
+\end{proof}
+
+\begin{corollary}[Critical Threshold]
+\label{cor:threshold}
+The aggregation is beneficial ($\kappa > 1$) if and only if:
+\begin{equation}
+    |\rho| > \frac{1}{\sqrt{k}} \quad \Leftrightarrow \quad h > \frac{1 + 1/\sqrt{k}}{2} \text{ or } h < \frac{1 - 1/\sqrt{k}}{2}
+\end{equation}
+For $k = 10$: the ``dead zone'' is $h \in (0.34, 0.66)$, matching empirical thresholds $(0.3, 0.7)$.
+\end{corollary}
+
+\subsection{From SNR to Classification Error}
+\label{subsec:error}
+
+\begin{theorem}[Bayes Error under Aggregation]
+\label{thm:bayes_error}
+Under the Gaussian class-conditional model, the Bayes-optimal classification error using representation $Z$ is:
+\begin{equation}
+    P_e(Z) = \Phi\left(-\frac{1}{2}\sqrt{d_x \cdot \mathrm{SNR}(Z)}\right)
+\end{equation}
+where $\Phi(\cdot)$ is the standard normal CDF.
+
+Consequently, for aggregated features:
+\begin{equation}
+    P_e(A) = \Phi\left(-\frac{1}{2}\sqrt{d_x \cdot \rho^2 k \cdot \mathrm{SNR}_X}\right)
+\end{equation}
+\begin{itemize}
+    \item $\kappa > 1$: Aggregation \textbf{decreases} Bayes error
+    \item $\kappa < 1$: Aggregation \textbf{increases} Bayes error
+    \item $\rho = 0$: $P_e(A) = 0.5$ (random guessing)
+\end{itemize}
+\end{theorem}
+
+\subsection{Multi-Layer SNR Dynamics}
+\label{subsec:multilayer}
+
+\begin{theorem}[Multi-Layer SNR Recursion]
+\label{thm:multilayer}
+Define the $t$-th layer representation $A^{(t)}$ with $A^{(0)} = X$. Under replace aggregation:
+
+\textbf{(a) Without layer noise ($\sigma_\varepsilon^2 = 0$):}
+\begin{equation}
+    \mathrm{SNR}^{(t)} = (\rho^2 k)^t \cdot \mathrm{SNR}^{(0)} = \kappa^t \cdot \mathrm{SNR}_X
+\end{equation}
+\begin{itemize}
+    \item $\kappa > 1$: SNR grows exponentially (beneficial)
+    \item $\kappa < 1$: SNR decays exponentially (harmful, oversmoothing)
+    \item $\kappa = 1$: SNR remains constant (critical point)
+\end{itemize}
+
+\textbf{(b) With layer noise ($\sigma_\varepsilon^2 > 0$):}
+Let $\Delta_t = \|\mathbb{E}[A^{(t)} \mid Y=+1] - \mathbb{E}[A^{(t)} \mid Y=-1]\|$ and $V_t = \mathrm{tr}(\mathrm{Cov}(A^{(t)} \mid Y))$.
+\begin{align}
+    \Delta_{t+1} &= \rho k \cdot \Delta_t \\
+    V_{t+1} &= k \cdot V_t + d_x \sigma_\varepsilon^2
+\end{align}
+Solving the recursion:
+\begin{equation}
+    \mathrm{SNR}^{(t)} = \frac{(\rho k)^{2t} \Delta_0^2}{k^t V_0 + d_x \sigma_\varepsilon^2 \frac{k^t - 1}{k - 1}}
+\end{equation}
+The \textbf{critical layer depth} is:
+\begin{equation}
+    t^\star = \arg\max_{t \in \mathbb{N}} \mathrm{SNR}^{(t)}
+\end{equation}
+\end{theorem}
+
+\begin{remark}[Oversmoothing Interpretation]
+When $\kappa < 1$ or with layer noise, the SNR eventually decays, causing the ``oversmoothing'' phenomenon where deep GNNs converge to uninformative representations.
+\end{remark}
+
+\subsection{GCN Normalization and Effective Degree}
+\label{subsec:gcn}
+
+\begin{theorem}[Effective Degree under Normalization]
+\label{thm:effective_degree}
+For GCN-style aggregation with weights $w_{ij} = 1/\sqrt{d_i d_j}$, define the \textbf{effective degree}:
+\begin{equation}
+    k_{\mathrm{eff}}(i) := \frac{\left(\sum_{j \in \mathcal{N}(i)} w_{ij}\right)^2}{\sum_{j \in \mathcal{N}(i)} w_{ij}^2}
+\end{equation}
+Then the local SNR ratio is:
+\begin{equation}
+    \kappa_i^{\mathrm{(GCN)}} \approx \rho^2 \cdot k_{\mathrm{eff}}(i)
+\end{equation}
+
+Special cases:
+\begin{itemize}
+    \item \textbf{$k$-regular graph}: $k_{\mathrm{eff}} = k$, so $\kappa^{\mathrm{(GCN)}} = \rho^2 k$ (same as unnormalized)
+    \item \textbf{Heterogeneous degrees}: $k_{\mathrm{eff}}(i) \ll d_i$ for high-degree nodes, reducing aggregation benefit
+\end{itemize}
+\end{theorem}
+
+\subsection{Concatenation Preserves Information}
+\label{subsec:concat}
+
+\begin{theorem}[SNR under Concatenation]
+\label{thm:concat}
+For concatenated representation $Z = (X, A)$, assuming $X$ and $A$ are approximately uncorrelated in noise:
+\begin{equation}
+    \mathrm{SNR}_{\mathrm{concat}} \approx \mathrm{SNR}_X + \mathrm{SNR}_A = (1 + \kappa) \cdot \mathrm{SNR}_X = (1 + \rho^2 k) \cdot \mathrm{SNR}_X
+\end{equation}
+\end{theorem}
+
+\begin{corollary}[GraphSAGE ADR $\approx 0$ Explained]
+\label{cor:sage}
+GraphSAGE uses concatenation. When $\rho \approx 0$ (weak homophily):
+\begin{itemize}
+    \item $\mathrm{SNR}_A \approx 0$
+    \item $\mathrm{SNR}_{\mathrm{concat}} \approx \mathrm{SNR}_X$
+    \item The model learns to ignore the aggregation branch
+    \item ADR $\approx 0$ (no aggregation damage)
+\end{itemize}
+This explains the observed 200$\times$ ADR difference: GCN (replace, $\kappa \approx 0$) vs GraphSAGE (concat, protected).
+\end{corollary}
+
+\subsection{Connection to Kesten-Stigum Threshold}
+\label{subsec:ks}
+
+\begin{remark}[Comparison with KS Threshold]
+The classical Kesten-Stigum threshold for community detection is $(k-1)\rho^2 = 1$, i.e., $|\rho| = 1/\sqrt{k-1}$.
+
+Our threshold is $k\rho^2 = 1$, i.e., $|\rho| = 1/\sqrt{k}$.
+
+The difference ($k$ vs $k-1$) arises from different mechanisms:
+\begin{itemize}
+    \item \textbf{KS threshold}: Concerns deep propagation on trees; the effective branching factor is $k-1$ (non-backtracking)
+    \item \textbf{Our threshold}: Concerns one-hop SNR improvement; uses all $k$ neighbors for variance reduction
+\end{itemize}
+Both thresholds are asymptotically equivalent for large $k$, but their mechanisms differ fundamentally.
+\end{remark}
+
+\subsection{Summary of Theoretical Contributions}
+\label{subsec:summary}
+
+\begin{table}[t]
+\centering
+\caption{SNR-Based Theoretical Framework: Key Results}
+\label{tab:snr_summary}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Result} & \textbf{Formula} & \textbf{Source} \\
+\midrule
+SNR ratio (1-hop) & $\kappa = \rho^2 k$ & Theorem~\ref{thm:snr_ratio} \\
+Bayes error & $P_e = \Phi(-\frac{1}{2}\sqrt{d_x \cdot \mathrm{SNR}})$ & Theorem~\ref{thm:bayes_error} \\
+Multi-layer SNR & $\mathrm{SNR}^{(t)} = \kappa^t \cdot \mathrm{SNR}_X$ & Theorem~\ref{thm:multilayer} \\
+GCN effective degree & $\kappa_i^{\mathrm{GCN}} = \rho^2 k_{\mathrm{eff}}(i)$ & Theorem~\ref{thm:effective_degree} \\
+Concatenation SNR & $\mathrm{SNR}_{\mathrm{concat}} = (1+\kappa) \mathrm{SNR}_X$ & Theorem~\ref{thm:concat} \\
+Critical threshold & $|\rho| = 1/\sqrt{k}$ & Corollary~\ref{cor:threshold} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}[Scope and Limitations]
+\label{rem:scope}
+The theoretical results hold under:
+\begin{enumerate}
+    \item Binary classification with uniform prior
+    \item Gaussian features with class-conditional mean
+    \item CSBM edge generation
+    \item Local independence approximation (valid in sparse limit)
+    \item Homogeneous degree assumption (relaxed via $k_{\mathrm{eff}}$)
+\end{enumerate}
+Extensions to multi-class, non-Gaussian features, and heterogeneous graphs require additional analysis.
+\end{remark}
+

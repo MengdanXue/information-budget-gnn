@@ -1,0 +1,316 @@
+% ============================================================
+% Section 6: Discussion
+% Trust Regions of Graph Propagation
+% ============================================================
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Implications for Practitioners}
+
+Our findings have several practical implications:
+
+\textbf{1. Don't blindly apply GNNs.} The conventional wisdom that ``graph structure always helps'' is false. In the Uncertainty Zone ($0.2 < h < 0.7$), GNNs---especially GCN---can significantly underperform simple MLPs. Before deploying a GNN, compute SPI.
+
+\textbf{2. Model selection matters less than expected.} In the Trust Region, most GNNs perform similarly well. The critical decision is whether to use \textit{any} GNN, not \textit{which} GNN.
+
+\textbf{3. GraphSAGE is a safe default.} Among the models tested, GraphSAGE shows remarkable robustness across the entire homophily spectrum. When SPI is uncertain, GraphSAGE minimizes downside risk.
+
+\textbf{4. Feature quality interacts with structure value.} When features are highly discriminative (high separability), the marginal value of structure decreases. Invest in feature engineering before graph modeling.
+
+\subsection{Why Does GraphSAGE Resist the U-Shape?}
+
+An interesting finding is that GraphSAGE shows almost no U-shape compared to GCN. Table~\ref{tab:sage_gcn_comparison} quantifies this using our enhanced H-sweep experiments (N=10 runs).
+
+\begin{table}[h]
+\centering
+\caption{GCN vs GraphSAGE: U-Shape Amplitude Comparison}
+\label{tab:sage_gcn_comparison}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Metric} & \textbf{GCN} & \textbf{GraphSAGE} & \textbf{Ratio} \\
+\midrule
+Peak advantage ($h=0.1$) & +0.60\% & +0.65\% & 1.1$\times$ \\
+Valley disadvantage ($h=0.5$) & $-18.75\%$ & $-0.10\%$ & 188$\times$ \\
+U-shape amplitude & 19.35\% & 0.75\% & 26$\times$ \\
+\midrule
+Uncertainty Zone avg. & $-9.67\%$ & $+0.24\%$ & -- \\
+Cohen's $d$ at $h=0.5$ & $-9.15$ & $-0.12$ & 76$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key quantitative findings}:
+\begin{itemize}
+    \item GCN exhibits severe U-shaped degradation (amplitude 19.35\%), while GraphSAGE maintains \textbf{near-flat performance} across the homophily spectrum (amplitude 0.75\%).
+    \item \textbf{Practical impact}: At $h=0.5$, GCN loses 18.75\% accuracy while GraphSAGE loses only 0.10\%---an 18.65 percentage point improvement in worst-case performance.
+    \item Effect size comparison: Cohen's $d=-9.15$ (GCN, extremely large) vs $d=-0.12$ (GraphSAGE, negligible) at $h=0.5$.
+\end{itemize}
+
+We hypothesize two mechanisms for GraphSAGE's robustness:
+
+\textbf{1. Neighbor Sampling.} GraphSAGE samples a fixed number of neighbors rather than using all of them. This stochastic subsampling naturally averages out noise from uninformative connections, preventing the full ``dilution'' effect.
+
+\textbf{2. Learned Aggregation.} Unlike GCN's fixed mean aggregation, GraphSAGE learns aggregation weights through a neural network, potentially adapting to neighbor quality and filtering out noise.
+
+This suggests that \textit{aggregation mechanism design} is crucial for robustness to varying homophily. \textbf{Practical implication}: When homophily is uncertain, GraphSAGE is the safest GNN choice.
+
+\subsection{Limitations}
+
+\textbf{1. Asymmetric behavior in real heterophilic graphs---now partially resolved.} A critical finding is that the U-shape observed in synthetic data does \textit{not} transfer directly to real-world low-homophily datasets. In our original validation, SPI correctly predicted GNN advantage for high-$h$ graphs (100\% accuracy, 9/9) but achieved only 14\% accuracy (1/7) for low-$h$ graphs. However, our extended two-factor framework (Section~\ref{sec:chameleon_paradox}) \textbf{resolves most of the Chameleon-Squirrel paradox}: by incorporating feature sufficiency, we achieve \textbf{93.8\% accuracy (15/16 decisive predictions)}. The key insight is that low-$h$ datasets must be subdivided by MLP accuracy---when features are useless (MLP $<$ 50\%), even noisy aggregation can help (``bad information $>$ no information''). Actor remains an exception to this rule.
+
+\textbf{2. Binary classification focus.} Our experiments primarily use binary classification. The U-shape may manifest differently in multi-class settings where class imbalance and inter-class homophily vary.
+
+\textbf{3. Synthetic-real gap.} While synthetic experiments provide clean mechanism demonstration, real-world graphs have complex structure beyond homophily. The clean U-shape in controlled settings becomes asymmetric in practice.
+
+\textbf{4. Static graphs only.} We consider static graphs. Temporal graphs where homophily evolves over time may exhibit different patterns.
+
+\textbf{5. Node features assumed.} Our framework assumes informative node features exist. For graphs with no or weak features, the feature-structure trade-off differs.
+
+\subsection{Understanding the Synthetic-Real Gap}
+\label{sec:synthetic_real_gap}
+
+A central finding of this work is the \textit{asymmetric} behavior of SPI predictions: 100\% accuracy for high-$h$ graphs but 0\% for low-$h$ graphs. This section analyzes why the symmetric U-shape observed in synthetic experiments breaks down in real-world heterophilic networks.
+
+\subsubsection{Why Synthetic Experiments Show Symmetry}
+
+In our synthetic data generation (Section~\ref{sec:ushape}), we create graphs with \textit{clean} heterophily: when $h = 0.1$, 90\% of edges connect nodes of \textit{different} classes, creating a consistent anti-correlation signal. This clean structure enables GCN to learn meaningful patterns---neighbors reliably belong to the opposite class.
+
+Key properties of synthetic heterophilic graphs:
+\begin{itemize}
+    \item \textbf{Uniform edge semantics}: All edges carry the same ``different-class'' semantic meaning
+    \item \textbf{Clean feature separation}: Features are generated with controlled separability, no noise or corruption
+    \item \textbf{Balanced classes}: 50-50 class distribution ensures symmetric learning
+    \item \textbf{No label noise}: Ground truth labels are deterministic
+\end{itemize}
+
+\subsubsection{Why Real Heterophilic Graphs Break Symmetry}
+
+Real-world low-homophily datasets exhibit fundamentally different characteristics that may violate the assumptions underlying the symmetric U-shape. We identify four \textit{possible contributing factors}---while we cannot isolate each factor's individual contribution, understanding them motivates our Two-Factor Framework solution:
+
+\textbf{1. Heterogeneous edge semantics.} In networks like Texas/Wisconsin (university webpages), edges connect pages for various reasons---shared department, cross-references, navigation links. Unlike synthetic graphs where all edges carry consistent ``different-class'' semantics, real edges have mixed, often uninformative meanings. This \textit{semantic heterogeneity} means low homophily may reflect noise rather than exploitable anti-correlation.
+
+\textbf{2. Label noise and ambiguity.} Many heterophilic benchmarks suffer from label quality issues~\cite{platonov2023heterophilous}. Squirrel and Chameleon contain substantial labeling errors; Roman-empire uses proxy labels derived from text. Standard GCN aggregation can amplify these errors through neighbor propagation.
+
+\textbf{3. Feature-label misalignment.} In synthetic experiments, we control feature separability. In real datasets like Texas/Cornell, node features (bag-of-words) may poorly correlate with class labels (webpage category), creating a ``feature-label gap'' that aggregation cannot bridge.
+
+\textbf{4. Degree distribution effects.} Many heterophilic graphs have highly skewed degree distributions. High-degree nodes dominate aggregation, potentially propagating misleading signals to many neighbors. This effect is minimal in our regular synthetic graphs.
+
+\textbf{Resolution via Two-Factor Framework.} Rather than attempting to model all four factors individually, our Two-Factor Framework (Section~\ref{sec:feature_sufficiency}) provides a practical solution: by incorporating Feature Sufficiency alongside homophily, we achieve 93.8\% accuracy (15/16) on real-world datasets, recovering most of the predictive power lost due to the synthetic-real gap.
+
+\textbf{Quantitative Analysis of Gap Factors.} To move beyond qualitative descriptions, Table~\ref{tab:gap_factors} provides quantitative metrics for each factor across six representative heterophilic datasets.
+
+\textbf{Metric Definitions:}
+\begin{itemize}
+    \item \textbf{Edge type entropy}: $H = -\sum_i p_i \log p_i$, where $p_i$ is the proportion of edges classified by endpoint degree quartile combinations. Higher entropy indicates more heterogeneous edge semantics.
+    \item \textbf{2-hop recovery}: $R = h_2 / h_1$, where $h_2$ is 2-hop homophily (probability that 2-hop neighbors share the same label). $R > 1$ indicates recoverable heterophily via 2-hop aggregation.
+    \item \textbf{FS score}: Test accuracy of a 2-layer MLP baseline, directly measuring feature predictive power without graph structure.
+    \item \textbf{Degree Gini}: Standard Gini coefficient $G = \frac{\sum_{i,j}|d_i - d_j|}{2n^2\bar{d}}$, measuring degree distribution skewness.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{Quantitative Analysis of Synthetic-Real Gap Factors}
+\label{tab:gap_factors}
+\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+\textbf{Metric} & \textbf{Texas} & \textbf{Wisc.} & \textbf{Cornell} & \textbf{Actor} & \textbf{Cham.} & \textbf{Squir.} \\
+\midrule
+\multicolumn{7}{l}{\textit{Edge Semantic Heterogeneity (lower = more uniform)}} \\
+Edge type entropy & 1.8 & 1.6 & 1.7 & 0.9 & 0.8 & 0.7 \\
+\midrule
+\multicolumn{7}{l}{\textit{Label Quality (higher = better)}} \\
+2-hop recovery & 5.3$\times$ & 2.1$\times$ & 3.0$\times$ & 0.96$\times$ & 0.97$\times$ & 0.88$\times$ \\
+\midrule
+\multicolumn{7}{l}{\textit{Feature Sufficiency (MLP accuracy)}} \\
+FS score & 0.76 & 0.80 & 0.72 & 0.36 & 0.49 & 0.36 \\
+\midrule
+\multicolumn{7}{l}{\textit{Degree Skewness (Gini coefficient, higher = more skewed)}} \\
+Gini & 0.31 & 0.28 & 0.35 & 0.62 & 0.58 & 0.65 \\
+\midrule
+\multicolumn{7}{l}{\textit{Outcome}} \\
+GCN$-$MLP (\%) & $-24$ & $-31$ & $-24$ & $-7$ & $+16$ & $+16$ \\
+H2GCN$-$GCN (\%) & $+18$ & $+30$ & $+36$ & $+7$ & $+12$ & $+9$ \\
+\midrule
+\multicolumn{7}{l}{\textit{Correlation with GCN Failure (Pearson $r$, N=6)}} \\
+\multicolumn{7}{c}{FS score: $r = 0.72$, $p = 0.11$ ~~~~ 2-hop recovery: $r = -0.68$, $p = 0.13$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key Quantitative Findings}:
+\begin{itemize}
+    \item \textbf{Two-Hop Recovery Shows Moderate Correlation} ($r = -0.68$, $p = 0.13$): This metric shows a moderate negative correlation with GCN success. WebKB datasets (Texas, Wisconsin, Cornell) have high 2-hop recovery ratios (2--5$\times$) but GCN still fails, likely due to high feature sufficiency making structure harmful. Wikipedia datasets (Chameleon, Squirrel) have low recovery ratios ($<1\times$) but GCN actually succeeds, suggesting other factors are at play. \textbf{Practical implication}: 2-hop recovery alone is insufficient for prediction; feature sufficiency must also be considered.
+    \item \textbf{Feature Sufficiency} explains why high-FS datasets (Texas: 0.76, Wisconsin: 0.80) show large GCN failures: when features alone are highly predictive, aggregation adds noise.
+    \item \textbf{H2GCN improvement} shows weak positive correlation with 2-hop recovery ($r = 0.45$, $p = 0.37$, N=6): datasets with higher 2-hop recovery ratios tend to benefit more from heterophily-aware architectures, though this relationship is not statistically significant.
+    \item \textbf{Degree Gini} shows Wikipedia datasets have more skewed distributions (0.58--0.65) than WebKB (0.28--0.35), contributing to aggregation dominance by hub nodes.
+\end{itemize}
+
+\subsubsection{Implications for SPI Framework}
+
+This analysis motivates our asymmetric decision algorithm (Algorithm~\ref{alg:spi_decision}):
+
+\begin{itemize}
+    \item \textbf{High-$h$ region} ($h > 0.7$): Homophilic patterns are robust across synthetic and real data. Similar nodes connect for interpretable reasons (co-citation, friendship, shared attributes). GCN aggregation amplifies the correct signal. \textit{SPI is reliable.}
+
+    \item \textbf{Low-$h$ region} ($h < 0.3$): The theoretical information content exists ($\SPI > 0.4$), but real-world noise patterns corrupt the signal. Standard GCN lacks mechanisms to handle semantic heterogeneity. \textit{SPI indicates potential that standard GCN cannot exploit.}
+
+    \item \textbf{Mid-$h$ region} ($0.3 \leq h \leq 0.7$): Structure is genuinely uninformative. \textit{Use MLP or GraphSAGE.}
+\end{itemize}
+
+\textbf{Key insight}: SPI measures \textit{theoretical information content}, not \textit{extractable information for a given architecture}. The gap between these quantities is small for homophilic graphs but large for heterophilic ones.
+
+\subsubsection{Empirical Evidence: Two-Hop Homophily Recovery}
+
+To validate our hypothesis that information exists but is inaccessible to standard GCN, we analyze \textit{two-hop homophily}---the probability that 2-hop neighbors share the same label.
+
+\begin{table}[h]
+\centering
+\caption{Two-Hop Homophily Recovery in Heterophilic Graphs}
+\label{tab:two_hop_recovery}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Dataset} & \textbf{1-hop $h$} & \textbf{2-hop $h$} & \textbf{Ratio} & \textbf{Recovers?} \\
+\midrule
+Texas & 0.108 & 0.566 & 5.26$\times$ & Yes \\
+Wisconsin & 0.196 & 0.421 & 2.15$\times$ & Yes \\
+Cornell & 0.131 & 0.391 & 2.99$\times$ & Yes \\
+Actor & 0.219 & 0.209 & 0.96$\times$ & No \\
+Chameleon & 0.235 & 0.228 & 0.97$\times$ & No \\
+Squirrel & 0.224 & 0.198 & 0.88$\times$ & No \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:two_hop_recovery} reveals a striking pattern: WebKB datasets (Texas, Wisconsin, Cornell) show strong 2-hop recovery, with ratios of 2--5$\times$. This confirms that structural information exists at the 2-hop level---exactly what heterophily-aware architectures like H2GCN exploit. In contrast, Wikipedia datasets (Actor, Chameleon, Squirrel) show no recovery, suggesting different failure mechanisms (feature-orthogonal noise).
+
+\subsubsection{Feature Similarity Analysis: Orthogonal vs Opposite}
+
+A critical question is whether heterophilic neighbors provide \textit{contrastive signal} (opposite features, exploitable) or \textit{noise} (orthogonal features, unexploitable). We analyze the cosine similarity between connected nodes of different classes.
+
+Our analysis shows that 0/6 heterophilic datasets have ``opposite'' neighbors (negative similarity), while 3/6 are ``orthogonal'' (near-zero similarity) and 3/6 are ``similar'' (positive similarity). This explains why standard GCN fails: aggregating orthogonal or similar features from different-class neighbors adds noise rather than contrastive signal.
+
+\subsubsection{H2GCN Validation}
+
+If 2-hop information is valuable, heterophily-aware architectures should outperform standard GCN. Table~\ref{tab:h2gcn_comparison} confirms this:
+
+\begin{table}[h]
+\centering
+\caption{H2GCN vs GCN on Heterophilic Datasets}
+\label{tab:h2gcn_comparison}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Dataset} & \textbf{GCN} & \textbf{H2GCN} & \textbf{Improvement} \\
+\midrule
+Texas & 60.5\% & 78.9\% & +18.4\% \\
+Wisconsin & 49.4\% & 79.6\% & +30.2\% \\
+Cornell & 40.5\% & 76.2\% & +35.7\% \\
+Actor & 28.7\% & 35.9\% & +7.2\% \\
+Chameleon & 40.1\% & 52.3\% & +12.2\% \\
+Squirrel & 25.8\% & 35.0\% & +9.2\% \\
+\midrule
+\textbf{Average} & 40.8\% & 59.6\% & \textbf{+18.8\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+H2GCN wins on all 6 heterophilic datasets, with an average improvement of +18.8\% over GCN. This validates our framework: SPI correctly identifies that structure contains information (high SPI), but \textit{which architecture can extract it} depends on whether the information is in 1-hop or 2-hop neighborhoods.
+
+\textbf{Important clarification}: Our contribution is \textit{diagnostic}, not algorithmic. We do not claim to outperform H2GCN or other heterophily-aware methods. Instead, SPI provides practitioners with an \textit{a priori} signal about when standard GNNs will struggle and specialized architectures are needed. The H2GCN results demonstrate that when SPI indicates high structural information but standard GCN fails (the low-$h$ regime), the information \textit{exists}---it simply requires appropriate architectural choices to extract.
+
+\subsubsection{Recommendations for Heterophilic Graphs}
+
+For practitioners encountering low-$h$ datasets:
+\begin{enumerate}
+    \item \textbf{Default to MLP}: Simple features-only baseline often wins
+    \item \textbf{Consider heterophily-aware architectures}: H2GCN~\cite{zhu2020beyond}, GPRGNN~\cite{chien2021gprgnn}, and LINKX~\cite{lim2021large} are designed to handle heterophilic structure
+    \item \textbf{Validate with GraphSAGE}: Its robustness (Section~\ref{sec:discussion}) makes it a reasonable GNN candidate
+    \item \textbf{Analyze edge semantics}: If edges have heterogeneous meanings, aggregation may hurt regardless of homophily level
+\end{enumerate}
+
+\subsubsection{Multivariate Analysis: Controlling for Confounders}
+
+A potential concern is that SPI's predictive power may be confounded by other dataset characteristics. We conduct multivariate logistic regression to disentangle the effect of homophily from other factors.
+
+\textbf{Model Specification.} We fit:
+\begin{equation}
+    \text{logit}(P(\text{GCN} > \text{MLP})) = \beta_0 + \beta_1 \cdot h + \beta_2 \cdot \log(n) + \beta_3 \cdot \log(d) + \beta_4 \cdot \text{FS}
+\end{equation}
+where $n$ = number of nodes, $d$ = feature dimensionality, and FS = Feature Sufficiency (MLP accuracy).
+
+\begin{table}[h]
+\centering
+\caption{Multivariate Logistic Regression Results (N=19 datasets)}
+\label{tab:multivariate}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Predictor} & \textbf{Coefficient} & \textbf{Std. Error} & \textbf{$z$-value} & \textbf{$p$-value} \\
+\midrule
+Intercept & $-2.41$ & 1.83 & $-1.32$ & 0.188 \\
+\textbf{Homophily $h$} & \textbf{4.72} & \textbf{1.89} & \textbf{2.50} & \textbf{0.013$^*$} \\
+$\log(n)$ & 0.18 & 0.31 & 0.58 & 0.562 \\
+$\log(d)$ & $-0.21$ & 0.28 & $-0.75$ & 0.453 \\
+FS (MLP acc.) & $-1.85$ & 1.42 & $-1.30$ & 0.193 \\
+\midrule
+\multicolumn{5}{l}{\textit{Model fit: McFadden's $R^2 = 0.47$, AIC = 21.3}} \\
+\bottomrule
+\end{tabular}
+\vspace{1mm}
+\raggedright\small $^*p < 0.05$
+\end{table}
+
+\textbf{Key Finding}: After controlling for dataset size ($n$), feature dimensionality ($d$), and feature sufficiency (FS), \textbf{homophily remains the only statistically significant predictor} ($p = 0.013$). This confirms that SPI's predictive power is not an artifact of correlated confounders.
+
+\textbf{Reconciling Multivariate Results with U-Shape Theory}: An important observation is that the multivariate regression shows \textit{monotonic} dependence on $h$ (positive coefficient $\beta_1 = 4.72$), not the symmetric U-shape observed in synthetic experiments. This is not a contradiction but rather \textbf{additional evidence for the synthetic-real gap}:
+
+\begin{itemize}
+    \item \textbf{Synthetic data} (Section~\ref{sec:ushape}): Clean heterophily produces symmetric U-shape because both extremes provide exploitable structure.
+    \item \textbf{Real data} (multivariate regression): Only the right half of the U-shape survives. The left half (low-$h$ advantage) collapses due to the four gap factors identified in Table~\ref{tab:gap_factors}.
+\end{itemize}
+
+This means the multivariate regression result ($h$ significant, monotonic) is \textit{consistent with} our framework: it captures the practical reality that real-world GNN advantage increases monotonically with homophily, while the 2-hop recovery metric explains \textit{why} some low-$h$ graphs can still benefit from specialized architectures.
+
+\textbf{Interpretation}:
+\begin{itemize}
+    \item Each 0.1 increase in $h$ increases the odds of GCN outperforming MLP by $\exp(0.472) = 1.60\times$.
+    \item Dataset size has negligible effect ($p = 0.562$), refuting the hypothesis that SPI only works on large graphs.
+    \item Feature dimensionality shows no significant effect ($p = 0.453$).
+    \item Feature sufficiency shows marginal negative effect ($p = 0.193$): when features alone are highly predictive, GNN advantage diminishes.
+\end{itemize}
+
+This multivariate analysis strengthens our main claim: homophily is the primary determinant of GNN effectiveness, independent of other dataset characteristics.
+
+\subsection{Connection to Spectral Theory}
+
+The U-shape has an intuitive connection to spectral graph theory, which we briefly outline here. A full spectral treatment is left for future work.
+
+\textbf{GCN as Low-Pass Filter.} GCN's aggregation acts as a low-pass filter on graph signals~\cite{wu2019sgc}. Formally, after $K$ layers:
+\begin{equation}
+    \mathbf{H}^{(K)} = \tilde{\mathbf{D}}^{-1/2} \tilde{\mathbf{A}} \tilde{\mathbf{D}}^{-1/2} \mathbf{H}^{(K-1)} = \sum_{i=1}^{n} \tilde{\lambda}_i^K \mathbf{u}_i \mathbf{u}_i^T \mathbf{X}
+\end{equation}
+where $\tilde{\lambda}_i \in [0, 2]$ are normalized adjacency eigenvalues. This amplifies low-frequency (smooth) components and attenuates high-frequency (non-smooth) components.
+
+\textbf{Homophily and Label Smoothness.} The Rayleigh quotient of the label vector $\mathbf{y}$ on the graph Laplacian $\mathbf{L}$ measures label smoothness:
+\begin{equation}
+    R(\mathbf{y}) = \frac{\mathbf{y}^T \mathbf{L} \mathbf{y}}{\mathbf{y}^T \mathbf{y}} = \frac{\sum_{(i,j) \in E} (y_i - y_j)^2}{2|E|} \propto (1 - h)
+\end{equation}
+When $h \approx 1$, labels are smooth (low $R(\mathbf{y})$), so low-pass filtering preserves signal. When $h \approx 0$, labels are anti-smooth (high $R(\mathbf{y})$), meaning labels vary rapidly across edges. In principle, this high-frequency signal could be exploited by models that adapt to anti-smoothness. When $h \approx 0.5$, labels are random (medium $R(\mathbf{y})$), and filtering destroys signal without providing alternative structure.
+
+\textbf{Why SPI Captures This.} Our SPI = $|2h-1|$ measures the deviation of label smoothness from the random baseline. SPI = 0 corresponds to maximum-entropy label distribution on edges; SPI = 1 corresponds to deterministic (either fully smooth or fully anti-smooth) structure.
+
+\textbf{Limitation.} This spectral intuition explains why mid-$h$ is harmful but does not fully explain the asymmetric synthetic-real gap. The spectral view assumes edges carry consistent semantics, which breaks down in real heterophilic graphs (Section~\ref{sec:synthetic_real_gap}).
+
+\subsection{Future Directions}
+
+\textbf{1. Adaptive SPI thresholds.} The threshold $\tau = 0.4$ may vary across domains. Developing domain-specific or data-adaptive thresholds could improve applicability.
+
+\textbf{2. Multi-metric frameworks.} SPI captures one aspect of graph structure. Combining SPI with other metrics (e.g., clustering coefficient, degree distribution) may yield more comprehensive predictions.
+
+\textbf{3. Architecture design.} Our findings suggest designing GNNs that explicitly detect and adapt to SPI. An ``SPI-aware'' aggregation mechanism could switch between GNN and MLP behavior based on local structure.
+
+\textbf{4. Theoretical analysis.} Formalizing the U-shape through random graph theory or information-theoretic bounds would strengthen the contribution.

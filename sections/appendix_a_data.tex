@@ -1,0 +1,188 @@
+\section*{Appendix A: Dataset Details}
+
+This appendix provides additional details on the four financial fraud detection datasets and six standard benchmarks used for evaluation in the Feature-Structure Disentanglement (FSD) framework analysis.
+
+\subsection*{A.1 Elliptic Bitcoin Dataset}
+
+The Elliptic Bitcoin Dataset~\cite{weber2019anti} is derived from real Bitcoin blockchain transactions:
+
+\textbf{Graph construction}:
+\begin{itemize}
+\item Nodes represent Bitcoin transactions (not wallets)
+\item Directed edges connect transactions where output of one transaction is input to another
+\item We symmetrize the graph: $\mathcal{A}_{sym} = \mathcal{A} + \mathcal{A}^T$
+\end{itemize}
+
+\textbf{Feature description} (165 dimensions):
+\begin{itemize}
+\item \textbf{Local features} (94 dims): Transaction-level properties including timestamp, number of inputs/outputs, transaction fees, output volumes, aggregated statistics of input/output transactions
+\item \textbf{Aggregated features} (71 dims): Neighborhood statistics computed over 1-hop neighbors, including mean, std, min, max of local features
+\end{itemize}
+
+\textbf{Label information}:
+\begin{itemize}
+\item \textbf{Illicit (1)}: Transactions associated with known malicious entities (ransomware, darknet markets, etc.)
+\item \textbf{Licit (0)}: Transactions from known legitimate entities (exchanges, wallet providers, miners)
+\item \textbf{Unknown}: 166,197 nodes with unknown labels (excluded from training/testing)
+\end{itemize}
+
+\textbf{Temporal structure}: 49 timesteps corresponding to approximately 2-week periods. Our temporal split uses timesteps 1--34 for training, 35--43 for validation, and 44--49 for testing.
+
+\subsection*{A.2 Amazon Fraud Dataset}
+
+Derived from Amazon product co-purchase network with synthetic fraud labels:
+
+\textbf{Graph construction}:
+\begin{itemize}
+\item Nodes represent products in the ``Computers'' category
+\item Undirected edges connect frequently co-purchased products
+\item Dense graph with average degree 35.7
+\end{itemize}
+
+\textbf{Feature description} (767 dimensions):
+\begin{itemize}
+\item Bag-of-words representation of product reviews
+\item TF-IDF weighted
+\item High-dimensional sparse features
+\end{itemize}
+
+\textbf{Synthetic label generation}:
+\begin{itemize}
+\item \textbf{Degree anomaly}: Top 5\% highest-degree nodes labeled as fraud
+\item \textbf{Feature anomaly}: Top 5\% highest L2-norm feature vectors labeled as fraud
+\item \textbf{Random noise}: Additional 5\% random nodes labeled as fraud
+\item Final fraud rate: 13.6\% (1,870 fraud nodes)
+\end{itemize}
+
+\textbf{Rationale}: While synthetic, this labeling strategy captures known fraud indicators: (1) fraudulent products often have artificially inflated co-purchase networks, (2) fake reviews tend to have distinctive linguistic patterns. We acknowledge this limitation and interpret Amazon results as stress-testing NAA on dense, high-dimensional graphs rather than claims about real e-commerce fraud.
+
+\subsection*{A.3 YelpChi Review Fraud Dataset}
+
+The YelpChi dataset~\cite{rayana2015yelp} contains Yelp reviews with spam labels:
+
+\textbf{Graph construction}:
+\begin{itemize}
+\item Nodes represent reviews in restaurant and hotel categories
+\item Three relation types: R-U-R (same user), R-S-R (same rating star), R-T-R (same month)
+\item We use the R-U-R relation for primary evaluation (following prior work)
+\item Multi-relational experiments combine all three relations
+\end{itemize}
+
+\textbf{Feature description} (32 dimensions):
+\begin{itemize}
+\item Linguistic features extracted from review text
+\item Behavioral features (posting frequency, review length statistics)
+\item Low-dimensional compared to Elliptic (165) and Amazon (767)
+\end{itemize}
+
+\textbf{Label information}:
+\begin{itemize}
+\item \textbf{Spam (1)}: Reviews identified as fake by Yelp's filter
+\item \textbf{Non-spam (0)}: Legitimate reviews
+\item Fraud rate: 14.5\% (moderate imbalance)
+\end{itemize}
+
+\textbf{Key characteristic}: \textit{Negative} Feature-Structure Alignment ($\rho_{\text{FS}} = -0.12$). Connected reviews (same user) tend to be feature-\textit{dissimilar}, as spammers deliberately vary their writing style across reviews. This makes YelpChi a canonical heterophily-dominant dataset.
+
+\subsection*{A.4 DGraphFin Dataset}
+
+Large-scale P2P lending fraud detection dataset:
+
+\textbf{Original graph}:
+\begin{itemize}
+\item 3,700,550 user nodes
+\item 4,300,999 directed edges (emergency contact relations)
+\item 17 anonymized user features
+\item 0.29\% fraud rate (extreme imbalance)
+\end{itemize}
+
+\textbf{Subgraph extraction}:
+\begin{itemize}
+\item Sample 100,000 nodes preserving approximate fraud rate
+\item 1-hop expansion yields 208,522 nodes, 156,422 edges
+\item Use official train/val/test splits from PyTorch Geometric
+\end{itemize}
+
+\textbf{Feature description} (17 dimensions):
+\begin{itemize}
+\item Anonymized user attributes
+\item Low-dimensional compared to Elliptic (165) and Amazon (767)
+\item Features normalized to [0, 1] range
+\end{itemize}
+
+\textbf{Challenge}: The 0.29\% fraud rate makes this an extremely challenging benchmark. Even simple baselines struggle to achieve non-zero F1 under standard classification thresholds.
+
+\subsection*{A.5 Dataset Comparison}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Property} & \textbf{Elliptic} & \textbf{Amazon} & \textbf{YelpChi} & \textbf{DGraphFin} \\
+\midrule
+Nodes & 203,769 & 13,752 & 45,954 & 208,522 \\
+Edges & 234,355 & 491,722 & 98,630 & 156,422 \\
+Features & 165 & 767 & 32 & 17 \\
+Avg. Degree & 2.3 & 35.7 & 4.3 & 0.75 \\
+Fraud Rate & 9.7\% & 13.6\% & 14.5\% & 0.29\% \\
+Homophily & 0.73 & 0.65 & 0.22 & 0.51 \\
+$\rho_{\text{FS}}$ & +0.31 & +0.18 & $-$0.12 & +0.05 \\
+Label Source & Real & Synthetic & Real & Real \\
+FSD Regime & Feature-dominant & Feature-dominant & Heterophily & Imbalance-limited \\
+\bottomrule
+\end{tabular}
+\caption{Comprehensive dataset characteristics comparison including FSD metrics}
+\end{table}
+
+\textbf{Key insights for method selection}:
+\begin{itemize}
+\item \textbf{Elliptic \& Amazon} ($\rho_{\text{FS}} > 0.15$): Feature-dominant regime. NAA's explicit feature similarity provides substantial gains (+9.3\%, +13.3\% F1 respectively).
+\item \textbf{YelpChi} ($\rho_{\text{FS}} < 0$): Heterophily-dominant regime. Structural neighbors are adversarial; H2GCN's ego-neighbor separation is optimal.
+\item \textbf{DGraphFin} ($\rho_{\text{FS}} \approx 0$, 0.29\% fraud): Class imbalance overwhelms architectural differences. All methods achieve similar (poor) performance.
+\end{itemize}
+
+\subsection*{A.6 Standard Benchmark Datasets}
+
+To validate FSD's generality beyond financial graphs, we analyze six standard benchmarks:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Dataset} & \textbf{Nodes} & \textbf{Features} & $\rho_{\text{FS}}$ & \textbf{Homophily} & \textbf{Domain} \\
+\midrule
+Cora & 2,708 & 1,433 & +0.52 & 0.81 & Citation \\
+Citeseer & 3,327 & 3,703 & +0.48 & 0.74 & Citation \\
+Pubmed & 19,717 & 500 & +0.41 & 0.80 & Citation \\
+\midrule
+Texas & 183 & 1,703 & $-$0.18 & 0.11 & Web pages \\
+Wisconsin & 251 & 1,703 & $-$0.21 & 0.21 & Web pages \\
+Cornell & 183 & 1,703 & $-$0.15 & 0.30 & Web pages \\
+\bottomrule
+\end{tabular}
+\caption{FSD analysis on standard benchmarks. Positive $\rho_{\text{FS}}$ correlates with GCN success; negative with H2GCN success.}
+\end{table}
+
+\textbf{Validation}: The sign of $\rho_{\text{FS}}$ correctly predicts which method category (structure-based vs. heterophily-aware) performs best on each benchmark, confirming FSD's generality beyond fraud detection.
+
+\subsection*{A.7 Feature-Structure Alignment Computation Details}
+
+For reproducibility, we provide exact parameters used to compute $\rho_{\text{FS}}$ values:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Dataset} & \textbf{Edge Samples} & \textbf{Non-edge Samples} & $S_{\text{feat}}$ & \textbf{CI (95\%)} \\
+\midrule
+Elliptic & 234,355 (all) & 500,000 & Log-Cosine & $\pm$0.003 \\
+Amazon & 491,722 (all) & 500,000 & Log-Cosine & $\pm$0.002 \\
+YelpChi & 98,630 (all) & 200,000 & Cosine & $\pm$0.004 \\
+DGraphFin & 156,422 (all) & 500,000 & Log-Cosine & $\pm$0.003 \\
+\bottomrule
+\end{tabular}
+\caption{$\rho_{\text{FS}}$ computation parameters. CI computed via bootstrap sampling.}
+\end{table}

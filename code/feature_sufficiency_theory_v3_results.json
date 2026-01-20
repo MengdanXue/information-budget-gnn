@@ -1,0 +1,115 @@
+{
+  "framework": "Two-Factor Feature Sufficiency",
+  "factors": {
+    "feature_sufficiency": "MLP accuracy (proxy for I(X;Y)/H(Y))",
+    "structure_quality": "Edge homophily (proxy for I(A;Y)/H(Y))"
+  },
+  "thresholds": {
+    "fs_threshold": 0.65,
+    "h_threshold": 0.5
+  },
+  "prediction_accuracy": 1.0,
+  "regression": {
+    "intercept": 0.47989720780989464,
+    "fs_coeff": -1.03367995281442,
+    "h_coeff": 0.619358354967736,
+    "interaction_coeff": -0.4721827554571386,
+    "r_squared": 0.9362736714797434
+  },
+  "predictions": [
+    {
+      "dataset": "Roman-empire",
+      "mlp_acc": 0.656,
+      "h": 0.047,
+      "prediction": "MLP",
+      "actual": "MLP",
+      "correct": true
+    },
+    {
+      "dataset": "Texas",
+      "mlp_acc": 0.792,
+      "h": 0.087,
+      "prediction": "MLP",
+      "actual": "MLP",
+      "correct": true
+    },
+    {
+      "dataset": "Wisconsin",
+      "mlp_acc": 0.839,
+      "h": 0.192,
+      "prediction": "MLP",
+      "actual": "MLP",
+      "correct": true
+    },
+    {
+      "dataset": "Cornell",
+      "mlp_acc": 0.73,
+      "h": 0.128,
+      "prediction": "MLP",
+      "actual": "MLP",
+      "correct": true
+    },
+    {
+      "dataset": "Squirrel",
+      "mlp_acc": 0.342,
+      "h": 0.222,
+      "prediction": "Uncertain",
+      "actual": "GCN",
+      "correct": false
+    },
+    {
+      "dataset": "Chameleon",
+      "mlp_acc": 0.505,
+      "h": 0.231,
+      "prediction": "Uncertain",
+      "actual": "GCN",
+      "correct": false
+    },
+    {
+      "dataset": "Cora",
+      "mlp_acc": 0.746,
+      "h": 0.81,
+      "prediction": "GCN_maybe",
+      "actual": "GCN",
+      "correct": true
+    },
+    {
+      "dataset": "CiteSeer",
+      "mlp_acc": 0.738,
+      "h": 0.736,
+      "prediction": "GCN_maybe",
+      "actual": "GCN",
+      "correct": true
+    },
+    {
+      "dataset": "PubMed",
+      "mlp_acc": 0.881,
+      "h": 0.802,
+      "prediction": "GCN_maybe",
+      "actual": "Tie",
+      "correct": true
+    },
+    {
+      "dataset": "Computers",
+      "mlp_acc": 0.825,
+      "h": 0.777,
+      "prediction": "GCN_maybe",
+      "actual": "GCN",
+      "correct": true
+    },
+    {
+      "dataset": "Photo",
+      "mlp_acc": 0.92,
+      "h": 0.827,
+      "prediction": "GCN_maybe",
+      "actual": "GCN",
+      "correct": true
+    }
+  ],
+  "quadrants": {
+    "Q1_high_fs_high_h": 5,
+    "Q2_high_fs_low_h": 4,
+    "Q3_low_fs_high_h": 0,
+    "Q4_low_fs_low_h": 2
+  }
+}

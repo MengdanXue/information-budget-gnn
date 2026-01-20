@@ -1,0 +1,1060 @@
+% ============================================================
+% Section 4: Rigorous SNR Framework for Graph Neural Networks
+% Revised based on Codex (OpenAI GPT-5.2) strict review
+% Key improvements:
+%   1. Unified SNR definition via Mahalanobis distance
+%   2. Explicit variance decomposition (feature noise + label mixing)
+%   3. Multi-layer analysis limited to local tree regime
+%   4. Proper conditions and error terms
+% ============================================================
+
+\section{Signal-to-Noise Ratio Framework for Structural Enhancement}
+\label{sec:snr_theory_rigorous}
+
+We develop a rigorous information-theoretic framework for understanding when graph structure improves node classification. Our analysis is grounded in first-principles derivation with explicit assumptions and error bounds.
+
+\begin{table}[t]
+\centering
+\caption{Notation Summary for SNR Framework}
+\label{tab:notation_summary}
+\small
+\begin{tabular}{@{}clp{7cm}@{}}
+\toprule
+\textbf{Symbol} & \textbf{Name} & \textbf{Definition / Description} \\
+\midrule
+\multicolumn{3}{l}{\textit{Model Parameters}} \\
+$n$ & Graph size & Number of nodes in $G = (V, E)$ \\
+$d_x$ & Feature dimension & Dimensionality of node features $X_v \in \mathbb{R}^{d_x}$ \\
+$a, b$ & Edge probabilities & Scaled within-class ($a/n$) and between-class ($b/n$) edge probs \\
+$\mu$ & Class mean & Class-conditional mean direction: $X_v = Y_v \mu + \varepsilon_v$ \\
+$\Sigma$ & Noise covariance & Within-class covariance: $\varepsilon_v \sim \mathcal{N}(0, \Sigma)$ \\
+\midrule
+\multicolumn{3}{l}{\textit{Graph Structure}} \\
+$h$ & Homophily & $\mathbb{P}(Y_u = Y_v \mid (u,v) \in E) = a/(a+b)$ \\
+$\rho$ & Edge correlation & $\mathbb{E}[Y_u \mid \text{edge}, Y_v = +1] = (a-b)/(a+b) = 2h-1$ \\
+$k$ & Average degree & $\mathbb{E}[|\mathcal{N}(v)|] = (a+b)/2$ \\
+$k_{\mathrm{eff}}$ & Effective degree & $({\textstyle\sum_u} w_{vu})^2 / {\textstyle\sum_u} w_{vu}^2$ for weighted aggregation \\
+\midrule
+\multicolumn{3}{l}{\textit{Core Quantities}} \\
+$\mathcal{D}(Z)$ & Discriminability & $\Delta_Z^\top \Sigma_Z^{-1} \Delta_Z$ (squared Mahalanobis distance) \\
+$\Delta_Z$ & Class separation & $\mathbb{E}[Z \mid Y=+1] - \mathbb{E}[Z \mid Y=-1]$ \\
+$\kappa$ & SNR ratio & $\mathcal{D}(A) / \mathcal{D}(X) = \rho^2 k_{\mathrm{eff}}$ (one-hop gain factor) \\
+$P_e$ & Bayes error & $\Phi(-\frac{1}{2}\sqrt{\mathcal{D}})$ under Gaussian model \\
+\midrule
+\multicolumn{3}{l}{\textit{Error Terms}} \\
+$R_n$ & Remainder matrix & Correlation-induced covariance error (matrix), $\|R_n\|_{\mathrm{op}} = O(k^2/n)$ \\
+$\varepsilon_n(t)$ & Total error & Combined relative error at $t$ layers (Thm~\ref{thm:complete_with_error}) \\
+$\gamma$ & Off-diagonal ratio & $\|\Sigma_{XA}\|_{\mathrm{op}} / \min(\|\Sigma_X\|_{\mathrm{op}}, \|\Sigma_A\|_{\mathrm{op}})$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Precise Problem Formulation}
+\label{subsec:setup_rigorous}
+
+\begin{definition}[Sparse Contextual Stochastic Block Model]
+\label{def:sparse_csbm}
+Consider a graph $G = (V, E)$ with $|V| = n$ nodes. Fix parameters:
+\begin{itemize}
+    \item $a, b > 0$: Within-class and between-class edge probabilities (scaled)
+    \item $\mu \in \mathbb{R}^{d_x}$: Class-conditional mean direction
+    \item $\Sigma \succ 0$: Noise covariance matrix
+\end{itemize}
+
+Generate data as follows:
+\begin{enumerate}
+    \item \textbf{Labels}: $Y_v \stackrel{\text{iid}}{\sim} \mathrm{Rademacher}(\frac{1}{2})$ for $v \in [n]$
+    \item \textbf{Features}: $X_v = Y_v \mu + \varepsilon_v$ where $\varepsilon_v \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \Sigma)$
+    \item \textbf{Edges}: For each unordered pair $\{u, v\}$, independently include edge with probability
+    \begin{equation}
+        p_{uv} = \frac{1}{n} \begin{cases}
+            a, & Y_u = Y_v \\
+            b, & Y_u \neq Y_v
+        \end{cases}
+    \end{equation}
+\end{enumerate}
+The average degree is $k = (a+b)/2$ and the \textbf{edge correlation coefficient} is:
+\begin{equation}
+    \rho := \mathbb{E}[Y_u \mid (u,v) \in E, Y_v = +1] = \frac{a - b}{a + b} \in [-1, 1]
+\end{equation}
+The homophily parameter is $h = (1+\rho)/2 = a/(a+b)$.
+\end{definition}
+
+\begin{definition}[Discriminability / Fisher Discriminant Ratio]
+\label{def:discriminability}
+For a representation $Z$ with class-conditional distribution $Z \mid Y = y \sim P_y$, define the \textbf{discriminability} (squared Mahalanobis distance between class centroids):
+\begin{equation}
+    \mathcal{D}(Z) := \Delta_Z^\top \Sigma_Z^{-1} \Delta_Z
+\end{equation}
+where $\Delta_Z := \mathbb{E}[Z \mid Y=+1] - \mathbb{E}[Z \mid Y=-1]$ is the class separation and $\Sigma_Z := \mathrm{Cov}(Z \mid Y)$ is the within-class covariance (assumed equal for both classes under our symmetric model).
+
+\textbf{Notation Warning:} We use $\mathcal{D}(Z)$ (calligraphic D) for discriminability throughout this paper. This is \textbf{not} the Shannon mutual information $I(Y; Z)$. See Remark~\ref{rem:discriminability_vs_mi} for detailed comparison.
+\end{definition}
+
+\begin{remark}[Discriminability vs.\ Mutual Information]
+\label{rem:discriminability_vs_mi}
+Our discriminability $\mathcal{D}(Z)$ is \textbf{not} the mutual information $I(Y; Z)$ in the general sense, but rather the \textbf{Fisher discriminant ratio} (equivalently, squared Mahalanobis distance between class centroids). We clarify the relationship:
+
+\textbf{(a) Definition distinction:}
+\begin{itemize}
+    \item Mutual information: $I(Y; Z) = H(Y) - H(Y \mid Z)$ (information-theoretic)
+    \item Discriminability: $\mathcal{D}(Z) = \Delta_Z^\top \Sigma_Z^{-1} \Delta_Z$ (geometric/statistical)
+\end{itemize}
+
+\textbf{(b) Monotonic correspondence under Gaussian model:}
+Under our Gaussian assumption (Definition~\ref{def:sparse_csbm}), both quantities are \textit{monotonically related} to the Bayes error:
+\begin{equation}
+    P_e(Z) = \Phi\left(-\frac{1}{2}\sqrt{\mathcal{D}(Z)}\right) \quad \text{(Proposition~\ref{prop:bayes_error})}
+\end{equation}
+For Gaussian binary classification, mutual information satisfies:
+\begin{equation}
+    I(Y; Z) = H(Y) - H(Y \mid Z) = 1 - H_b(P_e(Z)) \quad \text{bits}
+\end{equation}
+where $H_b(p) = -p\log_2 p - (1-p)\log_2(1-p)$ is the binary entropy. Thus:
+\begin{equation}
+    \mathcal{D}(Z) \uparrow \quad \Leftrightarrow \quad P_e(Z) \downarrow \quad \Leftrightarrow \quad I(Y; Z) \uparrow
+\end{equation}
+
+\textbf{(c) Why we use $\mathcal{D}$ instead of $I(Y;Z)$:}
+\begin{enumerate}
+    \item \textbf{Closed-form tractability}: $\mathcal{D}(Z)$ has explicit formulas under aggregation; $I(Y;Z)$ requires integration over mixture distributions.
+    \item \textbf{Multiplicative recursion}: SNR ratio $\kappa = \mathcal{D}(A)/\mathcal{D}(X) = \rho^2 k$ admits clean multi-layer recursion; no such formula exists for mutual information ratios.
+    \item \textbf{Direct classification relevance}: $\mathcal{D}(Z)$ maps to Bayes error via $\Phi(\cdot)$, making threshold conditions ($\kappa \gtrless 1$) directly interpretable.
+\end{enumerate}
+
+\textbf{(d) Validity scope:}
+The monotonic correspondence holds under:
+\begin{itemize}
+    \item Gaussian class-conditional distributions (or sub-Gaussian with appropriate bounds)
+    \item Symmetric binary classification with equal priors
+    \item Homoscedastic noise ($\Sigma_{Y=+1} = \Sigma_{Y=-1}$)
+\end{itemize}
+Outside this scope, $\mathcal{D}(Z)$ remains a valid \textit{separability measure} but may not perfectly track mutual information.
+
+\textbf{(e) Explicit scope limitation (important):}
+\begin{tcolorbox}[colback=yellow!5!white,colframe=orange!75!black,title=Scope of Monotonic Correspondence]
+The equivalence $\mathcal{D}(Z) \uparrow \Leftrightarrow P_e(Z) \downarrow \Leftrightarrow I(Y;Z) \uparrow$ is \textbf{NOT} a general result. It holds \textit{only} under:
+\begin{enumerate}
+    \item The generative model of Definition~\ref{def:sparse_csbm} (sparse CSBM with Gaussian features), OR
+    \item Any model satisfying: (i) binary classification, (ii) equal priors, (iii) Gaussian or sub-Gaussian class-conditionals, (iv) equal within-class covariance.
+\end{enumerate}
+For general distributions (e.g., multi-modal, heavy-tailed, or heteroscedastic), the correspondence may fail. All theoretical results in this paper are stated within the scope of Definition~\ref{def:sparse_csbm}.
+\end{tcolorbox}
+\end{remark}
+
+\begin{proposition}[Bayes Error under Gaussian Model]
+\label{prop:bayes_error}
+Under Definition~\ref{def:sparse_csbm} with Gaussian features, the Bayes-optimal classification error using representation $Z$ is:
+\begin{equation}
+    P_e(Z) = \Phi\left(-\frac{1}{2}\sqrt{\mathcal{D}(Z)}\right)
+\end{equation}
+where $\Phi(\cdot)$ is the standard normal CDF.
+\end{proposition}
+
+\begin{proof}
+For binary classification with $Z \mid Y = y \sim \mathcal{N}(ymu_Z, \Sigma_Z)$, the Bayes-optimal classifier is the likelihood ratio test:
+\begin{equation}
+    \hat{Y} = \mathrm{sign}\left(\mu_Z^\top \Sigma_Z^{-1} Z\right)
+\end{equation}
+The decision boundary is at $\mu_Z^\top \Sigma_Z^{-1} Z = 0$. Under $Y = +1$:
+\begin{equation}
+    \mu_Z^\top \Sigma_Z^{-1} Z \sim \mathcal{N}\left(\mu_Z^\top \Sigma_Z^{-1} \mu_Z, \mu_Z^\top \Sigma_Z^{-1} \mu_Z\right)
+\end{equation}
+Thus $P(\hat{Y} \neq Y \mid Y = +1) = \Phi(-\sqrt{\mathcal{D}(Z)/4}) = \Phi(-\frac{1}{2}\sqrt{\mathcal{D}(Z)})$.
+\end{proof}
+
+\subsection{One-Hop Aggregation: Mean-Variance Decomposition}
+\label{subsec:one_hop_rigorous}
+
+\begin{definition}[Weighted Aggregation]
+\label{def:weighted_agg}
+For node $v$ with neighbors $\mathcal{N}(v)$, define weighted aggregation:
+\begin{equation}
+    A_v := \sum_{u \in \mathcal{N}(v)} w_{vu} X_u, \quad \text{where } \sum_{u \in \mathcal{N}(v)} w_{vu} = 1
+\end{equation}
+The \textbf{effective sample size} is:
+\begin{equation}
+    k_{\mathrm{eff}}(v) := \frac{\left(\sum_{u \in \mathcal{N}(v)} w_{vu}\right)^2}{\sum_{u \in \mathcal{N}(v)} w_{vu}^2} = \frac{1}{\sum_{u \in \mathcal{N}(v)} w_{vu}^2}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Aggregation Discriminability: Rigorous Version]
+\label{thm:agg_discriminability_rigorous}
+Under Definition~\ref{def:sparse_csbm}, consider weighted mean aggregation (Definition~\ref{def:weighted_agg}). In the \textbf{sparse limit} ($n \to \infty$, $a, b = O(1)$), the local neighborhood converges to a Galton-Watson tree, and:
+
+\textbf{(a) Conditional Mean:}
+\begin{equation}
+    \mathbb{E}[A_v \mid Y_v = y] = \rho_w \cdot y \mu
+\end{equation}
+where the \textbf{weighted correlation} is:
+\begin{equation}
+    \rho_w := \sum_{u \in \mathcal{N}(v)} w_{vu} \cdot \mathbb{E}[Y_u \mid Y_v = +1] = \rho \quad \text{(for uniform weights)}
+\end{equation}
+
+\textbf{(b) Conditional Covariance Decomposition:}
+\begin{equation}
+    \mathrm{Cov}(A_v \mid Y_v) = \underbrace{\left(\sum_{u} w_{vu}^2\right) \Sigma}_{\text{Feature noise}} + \underbrace{\mu \mu^\top \cdot \mathrm{Var}\left(\sum_{u} w_{vu} Y_u \,\Big|\, Y_v\right)}_{\text{Label mixing noise}} + R_n
+\end{equation}
+where $R_n$ is a remainder term from neighbor correlations with $\|R_n\| = O(1/n)$.
+
+\textbf{(c) Discriminability Approximation:}
+Under the following conditions:
+\begin{enumerate}
+    \item[(A1)] \textbf{Local tree regime}: $t$-hop neighborhood is tree-like with probability $1 - O(k^t/n)$
+    \item[(A2)] \textbf{Conditional independence}: Given $Y_v$, neighbor labels $\{Y_u\}_{u \in \mathcal{N}(v)}$ are approximately independent
+    \item[(A3)] \textbf{Dominated feature noise}: $\|\mu\|^2 \mathrm{Var}(\sum_u w_{vu} Y_u) \ll \sigma^2 / k_{\mathrm{eff}}$
+\end{enumerate}
+The discriminability satisfies:
+\begin{equation}
+    \mathcal{D}(A_v) = \rho_w^2 \cdot k_{\mathrm{eff}}(v) \cdot \mathcal{D}(X) \cdot (1 + O(\delta_n))
+\end{equation}
+where $\delta_n = O(k/n) + O(\|\mu\|^2 k / \sigma^2)$ is the approximation error.
+\end{theorem}
+
+\begin{proof}
+\textbf{Step 1 (Conditional mean):}
+By the tower property and the CSBM edge model:
+\begin{align}
+    \mathbb{E}[A_v \mid Y_v = y] &= \sum_u w_{vu} \mathbb{E}[X_u \mid (u,v) \in E, Y_v = y] \\
+    &= \sum_u w_{vu} \mu \cdot \mathbb{E}[Y_u \mid (u,v) \in E, Y_v = y] \\
+    &= \sum_u w_{vu} \mu \cdot \rho \cdot y = \rho_w \mu y
+\end{align}
+
+\textbf{Step 2 (Variance decomposition):}
+Write $A_v = \sum_u w_{vu} (Y_u \mu + \varepsilon_u)$. Then:
+\begin{align}
+    \mathrm{Cov}(A_v \mid Y_v) &= \mathrm{Cov}\left(\sum_u w_{vu} Y_u \mu + \sum_u w_{vu} \varepsilon_u \,\Big|\, Y_v\right) \\
+    &= \mu \mu^\top \mathrm{Var}\left(\sum_u w_{vu} Y_u \,\Big|\, Y_v\right) + \left(\sum_u w_{vu}^2\right) \Sigma + \text{cross terms}
+\end{align}
+Under (A2), the cross terms vanish in the sparse limit. The label mixing variance satisfies:
+\begin{equation}
+    \mathrm{Var}\left(\sum_u w_{vu} Y_u \,\Big|\, Y_v\right) = \sum_u w_{vu}^2 (1 - \rho^2) + \text{(correlation terms)}
+\end{equation}
+where correlation terms are $O(1/n)$ in the tree regime.
+
+\textbf{Step 3 (Discriminability):}
+Under (A3), the covariance is dominated by $(\sum_u w_{vu}^2) \Sigma = \Sigma / k_{\mathrm{eff}}$. Thus:
+\begin{equation}
+    \mathcal{D}(A_v) = (2\rho_w \mu)^\top (k_{\mathrm{eff}} \Sigma^{-1}) (2\rho_w \mu) = 4\rho_w^2 k_{\mathrm{eff}} \mu^\top \Sigma^{-1} \mu = \rho_w^2 k_{\mathrm{eff}} \mathcal{D}(X)
+\end{equation}
+where $\mathcal{D}(X) = 4\mu^\top \Sigma^{-1} \mu$.
+\end{proof}
+
+\begin{definition}[SNR Ratio]
+\label{def:snr_ratio}
+The \textbf{SNR ratio} or \textbf{aggregation gain factor} is:
+\begin{equation}
+    \kappa := \frac{\mathcal{D}(A)}{\mathcal{D}(X)} = \rho^2 \cdot k_{\mathrm{eff}}
+\end{equation}
+under the conditions of Theorem~\ref{thm:agg_discriminability_rigorous}.
+\end{definition}
+
+\begin{corollary}[Critical Threshold]
+\label{cor:critical_threshold}
+Under uniform weights ($k_{\mathrm{eff}} = k$), aggregation is beneficial ($\kappa > 1$) if and only if:
+\begin{equation}
+    |\rho| > \frac{1}{\sqrt{k}} \quad \Leftrightarrow \quad h > \frac{1 + 1/\sqrt{k}}{2} \text{ or } h < \frac{1 - 1/\sqrt{k}}{2}
+\end{equation}
+For $k = 10$: The ``uncertainty zone'' is $h \in (0.34, 0.66)$, consistent with empirical observations $(0.3, 0.7)$.
+\end{corollary}
+% Theoretical justification for the 0.3/0.7 thresholds
+\input{sections/04_threshold_theory}
+
+
+\begin{example}[Numerical Illustration: Theory-Experiment Correspondence]
+\label{ex:numerical_illustration}
+We illustrate the SNR framework with concrete calculations for $k = 10$ (typical average degree in citation networks like Cora).
+
+\textbf{(a) Three representative homophily regimes:}
+
+\begin{center}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Regime} & $h$ & $\rho = 2h-1$ & $\kappa = \rho^2 k$ & \textbf{Prediction} & \textbf{Observed} \\
+\midrule
+High homophily & 0.8 & 0.6 & 3.6 & GNN wins & Cora: GCN +12.7\% \\
+Mid (uncertainty) & 0.5 & 0.0 & 0.0 & MLP wins & CSBM: GCN $-18.5\%$ \\
+Low homophily & 0.2 & $-0.6$ & 3.6 & GNN wins* & Texas: H2GCN +15\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+*In the low-$h$ regime, standard GCN fails but heterophily-aware methods (H2GCN, LINKX) can exploit the structure.
+
+\textbf{(b) Bayes error calculation:}
+
+For a dataset with feature discriminability $\mathcal{D}(X) = 4$ (corresponding to MLP accuracy $\approx 84\%$ via $P_e = \Phi(-\frac{1}{2}\sqrt{4}) = \Phi(-1) \approx 0.16$):
+
+\begin{itemize}
+    \item \textbf{High-$h$ ($\kappa = 3.6$)}: $\mathcal{D}(A) = 3.6 \times 4 = 14.4$, so $P_e(A) = \Phi(-\frac{1}{2}\sqrt{14.4}) \approx 0.03$. GNN accuracy $\approx 97\%$, gain $= +13\%$.
+    \item \textbf{Mid-$h$ ($\kappa = 0$)}: $\mathcal{D}(A) = 0$, aggregation destroys all signal. GNN must rely on skip connections or original features.
+    \item \textbf{Low-$h$ ($\kappa = 3.6$)}: Same $\mathcal{D}(A) = 14.4$, but requires sign-aware aggregation (e.g., negative edge weights or 2-hop).
+\end{itemize}
+
+\textbf{(c) CSBM experimental validation:}
+
+Our controlled CSBM experiments (Section~\ref{sec:experiments}) sweep $h \in \{0.1, 0.2, \ldots, 0.9\}$ with $k = 10$. The theoretical predictions achieve:
+\begin{itemize}
+    \item 88.9\% accuracy (32/36 configurations) in predicting GNN vs.\ MLP winner
+    \item 100\% accuracy in high-$h$ ($h > 0.7$) and low-$h$ ($h < 0.3$) regimes
+    \item Failures concentrate in the transition zone $h \in (0.3, 0.4)$ where $\kappa \approx 1$
+\end{itemize}
+
+\textbf{(d) Real-world correspondence:}
+
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Dataset} & $h$ & $k$ & $\kappa_{\text{pred}}$ & \textbf{GCN vs MLP} \\
+\midrule
+Cora & 0.81 & 3.9 & 1.50 & GCN +12.7\% \\
+CiteSeer & 0.74 & 2.7 & 0.62 & GCN +3.2\% \\
+Texas & 0.11 & 3.0 & 1.83 & GCN $-24.3\%$* \\
+Wisconsin & 0.21 & 3.3 & 1.11 & GCN $-30.6\%$* \\
+\bottomrule
+\end{tabular}
+\end{center}
+*Standard GCN fails on heterophilous graphs; the high $\kappa$ indicates structure \textit{could} help with appropriate methods.
+
+This numerical illustration demonstrates that the simple formula $\kappa = \rho^2 k$ provides actionable guidance: compute $h$ and $k$ from data, predict whether aggregation helps, and select architecture accordingly.
+\end{example}
+
+\subsection{Multi-Layer Analysis: Local Tree Regime}
+\label{subsec:multilayer_rigorous}
+
+\begin{theorem}[Multi-Layer Discriminability on Trees]
+\label{thm:multilayer_trees}
+Consider $t$-layer message passing on the limiting Galton-Watson tree $\mathcal{T}$ with branching factor $k$ and edge correlation $\rho$. Under \textbf{non-backtracking} aggregation:
+
+\textbf{(a) Non-backtracking recursion:}
+For message $m_{u \to v}^{(t)}$ from $u$ to $v$ at layer $t$:
+\begin{equation}
+    m_{u \to v}^{(t+1)} = X_u + \sum_{w \in \mathcal{N}(u) \setminus \{v\}} m_{w \to u}^{(t)}
+\end{equation}
+
+\textbf{(b) Signal amplification:}
+The expected signal in $m_{u \to v}^{(t)}$ scales as:
+\begin{equation}
+    \mathbb{E}[m_{u \to v}^{(t)} \mid Y_v = y] \propto ((k-1)\rho)^t \cdot y
+\end{equation}
+
+\textbf{(c) Discriminability recursion:}
+\begin{equation}
+    \mathcal{D}^{(t)} = ((k-1)\rho^2)^t \cdot \mathcal{D}^{(0)}
+\end{equation}
+
+\textbf{(d) Regime classification:}
+\begin{itemize}
+    \item $(k-1)\rho^2 > 1$ (Super-critical): Discriminability grows exponentially
+    \item $(k-1)\rho^2 < 1$ (Sub-critical): Discriminability decays exponentially
+    \item $(k-1)\rho^2 = 1$ (Critical): Kesten-Stigum threshold~\cite{kesten1966additional,kesten1966limit}
+\end{itemize}
+\end{theorem}
+
+\begin{corollary}[Sum vs Mean Aggregation]
+\label{cor:sum_vs_mean}
+Two common aggregation conventions yield different SNR dynamics:
+
+\textbf{(a) Sum aggregation} (non-backtracking belief propagation):
+\begin{equation}
+    m_{u \to v}^{(t+1)} = X_u + \sum_{w \in \mathcal{N}(u) \setminus \{v\}} m_{w \to u}^{(t)}
+\end{equation}
+\begin{itemize}
+    \item Signal magnitude: $\|\Delta^{(t)}\| \propto ((k-1)|\rho|)^t$
+    \item Noise variance: $V^{(t)} \propto (k-1)^t$
+    \item SNR ratio: $\mathcal{D}^{(t)}/\mathcal{D}^{(0)} = ((k-1)\rho^2)^t$
+    \item Threshold: $(k-1)\rho^2 = 1$ (Kesten-Stigum~\cite{kesten1966additional})
+\end{itemize}
+
+\textbf{(b) Mean aggregation} (standard GCN):
+\begin{equation}
+    h_v^{(t+1)} = \frac{1}{|\mathcal{N}(v)|} \sum_{u \in \mathcal{N}(v)} h_u^{(t)}
+\end{equation}
+\begin{itemize}
+    \item Signal magnitude: $\|\Delta^{(t)}\| \propto |\rho|^t$
+    \item Noise variance: $V^{(t)} \propto k^{-t}$
+    \item SNR ratio: $\mathcal{D}^{(t)}/\mathcal{D}^{(0)} = (\rho^2 k)^t$
+    \item Threshold: $\rho^2 k = 1$
+\end{itemize}
+
+\textbf{Equivalence:} Both conventions yield the same SNR ratio $(\rho^2 k)^t$ for one-hop (with backtracking) since signal and noise scale proportionally. For multi-hop non-backtracking, sum aggregation is the natural choice in belief propagation analysis.
+\end{corollary}
+
+\begin{remark}[One-Hop vs Multi-Hop Thresholds]
+\label{rem:k_vs_k_minus_1_rigorous}
+Two different thresholds arise from distinct mechanisms:
+\begin{itemize}
+    \item \textbf{One-hop aggregation} (Theorem~\ref{thm:agg_discriminability_rigorous}): Uses all $k$ neighbors, threshold $\rho^2 k = 1$
+    \item \textbf{Multi-hop propagation} (Theorem~\ref{thm:multilayer_trees}): Non-backtracking uses $k-1$ new directions, threshold $(k-1)\rho^2 = 1$
+\end{itemize}
+The factor $k/(k-1)$ converges to 1 as $k \to \infty$, explaining why both predict similar empirical thresholds.
+\end{remark}
+
+\begin{remark}[Unified Notation: $k$, $k-1$, and $k_{\mathrm{eff}}$]
+\label{rem:k_notation_unified}
+We use three related degree quantities throughout this work:
+
+\begin{enumerate}
+    \item \textbf{Average degree $k$}: The expected number of neighbors per node.
+    \begin{equation}
+        k := \mathbb{E}[|\mathcal{N}(v)|] = \frac{a+b}{2} \quad \text{(CSBM)}
+    \end{equation}
+    Used in: one-hop SNR ratio $\kappa = \rho^2 k$.
+
+    \item \textbf{Non-backtracking branching factor $k-1$}: In deep propagation, after arriving at a node from one direction, only $k-1$ ``new'' neighbors provide fresh information.
+    \begin{equation}
+        \text{Effective branching per layer} = k - 1
+    \end{equation}
+    Used in: multi-layer SNR $\mathcal{D}^{(t)} = ((k-1)\rho^2)^t \mathcal{D}^{(0)}$ and KS threshold~\cite{kesten1966additional}.
+
+    \item \textbf{Effective sample size $k_{\mathrm{eff}}$}: Under weighted aggregation with weights $\{w_{vu}\}$:
+    \begin{equation}
+        k_{\mathrm{eff}}(v) := \frac{\left(\sum_{u \in \mathcal{N}(v)} w_{vu}\right)^2}{\sum_{u \in \mathcal{N}(v)} w_{vu}^2}
+    \end{equation}
+    Special cases:
+    \begin{itemize}
+        \item Uniform weights ($w_{vu} = 1/k$): $k_{\mathrm{eff}} = k$
+        \item $k$-regular graph with GCN normalization: $k_{\mathrm{eff}} = k$
+        \item Heterogeneous degrees: $k_{\mathrm{eff}}(v)$ varies by node, typically $k_{\mathrm{eff}}(v) < d_v$ for high-degree nodes
+    \end{itemize}
+    Used in: GCN discriminability $\kappa_v^{(\mathrm{GCN})} = \rho^2 k_{\mathrm{eff}}(v)$.
+\end{enumerate}
+
+\textbf{Conversion rule for degree-corrected models:} In the DC-SBM with degree parameters $\{\theta_i\}$:
+\begin{equation}
+    k_{\mathrm{eff}}^{(\mathrm{DC})} = k \cdot \frac{\mathbb{E}[\Theta^2]}{\mathbb{E}[\Theta]^2}
+\end{equation}
+where the ratio $\mathbb{E}[\Theta^2]/\mathbb{E}[\Theta]^2 \geq 1$ captures degree heterogeneity (with equality for constant degree).
+
+\textbf{Numerical comparison of thresholds:} The following table illustrates the difference between one-hop ($\rho^2 k = 1$) and multi-hop ($(k-1)\rho^2 = 1$) thresholds for typical degree values:
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+$k$ & One-hop: $|\rho| > 1/\sqrt{k}$ & Multi-hop: $|\rho| > 1/\sqrt{k-1}$ & Difference \\
+\midrule
+5 & 0.447 ($h < 0.28$ or $h > 0.72$) & 0.500 ($h < 0.25$ or $h > 0.75$) & 5.3\% \\
+10 & 0.316 ($h < 0.34$ or $h > 0.66$) & 0.333 ($h < 0.33$ or $h > 0.67$) & 1.7\% \\
+20 & 0.224 ($h < 0.39$ or $h > 0.61$) & 0.229 ($h < 0.39$ or $h > 0.61$) & 0.5\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+For $k \geq 10$ (typical for citation networks), the difference is $< 2\%$, justifying the use of $\rho^2 k$ as the primary threshold in practice.
+\end{remark}
+
+\begin{theorem}[Validity Regime for Multi-Layer Analysis]
+\label{thm:validity_regime}
+The tree approximation in Theorem~\ref{thm:multilayer_trees} holds when:
+\begin{equation}
+    t = o(\log n)
+\end{equation}
+Specifically, for $t \leq c \log_k n$ with $c < 1/2$, the probability that the $t$-hop neighborhood contains a cycle is $O(n^{2c-1}) \to 0$.
+
+Beyond this regime ($t = \Omega(\log n)$), correlations from overlapping neighborhoods dominate, and the multiplicative recursion fails.
+\end{theorem}
+
+\begin{remark}[Why $t = o(\log n)$: Intuition and Consequences]
+\label{rem:t_constraint_intuition}
+The layer depth constraint $t = o(\log n)$ is fundamental to our analysis. We explain its origin and what happens when violated:
+
+\textbf{(a) Intuitive explanation:}
+In a sparse graph with average degree $k$, the $t$-hop neighborhood of a node contains approximately $k^t$ nodes. The graph has $n$ nodes total. When $k^t \approx n$ (i.e., $t \approx \log_k n$), the neighborhood ``wraps around'' and starts overlapping with itself:
+\begin{itemize}
+    \item $t \ll \log_k n$: Neighborhood is tree-like, neighbors are independent
+    \item $t \approx \log_k n$: Neighborhoods of different nodes overlap significantly
+    \item $t \gg \log_k n$: All nodes are reachable, representations converge to global statistics
+\end{itemize}
+
+\textbf{(b) Mathematical origin:}
+The expected number of cycles in the $t$-hop ball $B_t(v)$ is:
+\begin{equation}
+    \mathbb{E}[\#\text{cycles in } B_t(v)] \approx \frac{(k-1)^{2t}}{n}
+\end{equation}
+For this to vanish, we need $(k-1)^{2t} = o(n)$, which gives $t < \frac{1}{2}\log_{k-1} n$.
+
+\textbf{(c) What happens beyond this regime:}
+\begin{enumerate}
+    \item \textbf{Correlation explosion}: Neighbor labels become correlated through multiple paths, violating assumption (A2).
+    \item \textbf{Oversmoothing}: Node representations converge to a common value, losing discriminative power. Formally, $\mathcal{D}^{(t)} \to 0$ as $t \to \infty$ regardless of $\kappa$.
+    \item \textbf{Recursion failure}: The multiplicative relation $\mathcal{D}^{(t)} = ((k-1)\rho^2)^t \mathcal{D}^{(0)}$ no longer holds due to ``echo'' effects from cyclic dependencies.
+\end{enumerate}
+
+\textbf{(d) Practical implications:}
+For typical benchmark graphs ($n \approx 10^3$--$10^5$, $k \approx 5$--$20$):
+\begin{itemize}
+    \item $\log_k n \approx 3$--$7$ layers
+    \item Standard GNNs use $t = 2$--$3$ layers, well within the valid regime
+    \item ``Deep'' GNNs ($t > 5$) often require skip connections or normalization to avoid oversmoothing, consistent with our theory
+\end{itemize}
+\end{remark}
+
+\subsection{Concatenation: Information Additivity}
+\label{subsec:concat_rigorous}
+
+\begin{theorem}[Discriminability under Concatenation]
+\label{thm:concat_discriminability}
+For concatenated representation $Z = (X, A)$, if $X$ and $A$ are \textbf{conditionally independent} given $Y$ with block-diagonal covariance $\Sigma_Z = \mathrm{diag}(\Sigma_X, \Sigma_A)$:
+\begin{equation}
+    \mathcal{D}(Z) = \mathcal{D}(X) + \mathcal{D}(A)
+\end{equation}
+Under the conditions of Theorem~\ref{thm:agg_discriminability_rigorous}:
+\begin{equation}
+    \mathcal{D}(Z) = (1 + \kappa) \cdot \mathcal{D}(X)
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+For block-diagonal covariance:
+\begin{align}
+    \mathcal{D}(Z) &= \Delta_Z^\top \Sigma_Z^{-1} \Delta_Z \\
+    &= \begin{pmatrix} \Delta_X \\ \Delta_A \end{pmatrix}^\top \begin{pmatrix} \Sigma_X^{-1} & 0 \\ 0 & \Sigma_A^{-1} \end{pmatrix} \begin{pmatrix} \Delta_X \\ \Delta_A \end{pmatrix} \\
+    &= \Delta_X^\top \Sigma_X^{-1} \Delta_X + \Delta_A^\top \Sigma_A^{-1} \Delta_A = \mathcal{D}(X) + \mathcal{D}(A)
+\end{align}
+\end{proof}
+
+\begin{corollary}[GraphSAGE ADR $\approx 0$ Explained]
+\label{cor:sage_rigorous}
+GraphSAGE uses concatenation $Z = [X, A]$. Even when $\kappa \approx 0$ (weak structure):
+\begin{itemize}
+    \item $\mathcal{D}(A) \approx 0$, so $\mathcal{D}(Z) \approx \mathcal{D}(X)$
+    \item The optimal classifier ignores the aggregation branch
+    \item $\mathrm{ADR} = 1 - P_e(Z)/P_e(X) \approx 0$
+\end{itemize}
+This rigorously explains the observed order-of-magnitude ADR difference between GCN (replace) and GraphSAGE (concat): $\sim$189$\times$ in controlled CSBM settings, $\sim$20$\times$ on real datasets.
+\end{corollary}
+
+\begin{theorem}[Stability under Approximate Block-Diagonal Covariance]
+\label{thm:concat_stability}
+Consider concatenated representation $Z = (X, A)$ with general covariance:
+\begin{equation}
+    \Sigma_Z = \begin{pmatrix} \Sigma_X & \Sigma_{XA} \\ \Sigma_{AX} & \Sigma_A \end{pmatrix}
+\end{equation}
+where $\Sigma_{XA} = \Sigma_{AX}^\top$ captures the cross-covariance between $X$ and $A$.
+
+Define the \textbf{off-diagonal ratio}:
+\begin{equation}
+    \gamma := \frac{\|\Sigma_{XA}\|_{\mathrm{op}}}{\min(\|\Sigma_X\|_{\mathrm{op}}, \|\Sigma_A\|_{\mathrm{op}})}
+\end{equation}
+
+Then the discriminability satisfies:
+\begin{equation}
+    \mathcal{D}(Z) \geq (1 - 2\gamma) \cdot [\mathcal{D}(X) + \mathcal{D}(A)]
+\end{equation}
+provided $\gamma < 1/2$, ensuring $\Sigma_Z \succ 0$.
+
+\textbf{Consequence:} The information additivity $\mathcal{D}(Z) \approx \mathcal{D}(X) + \mathcal{D}(A)$ is \textbf{robust} when $\gamma \ll 1$, i.e., when features and aggregated representations have weak correlation.
+\end{theorem}
+
+\begin{proof}
+\textbf{Step 1 (Block matrix inversion):}
+Using the Schur complement formula:
+\begin{equation}
+    \Sigma_Z^{-1} = \begin{pmatrix} (\Sigma_X - \Sigma_{XA}\Sigma_A^{-1}\Sigma_{AX})^{-1} & -\Sigma_X^{-1}\Sigma_{XA}S_A^{-1} \\
+    -\Sigma_A^{-1}\Sigma_{AX}S_X^{-1} & (\Sigma_A - \Sigma_{AX}\Sigma_X^{-1}\Sigma_{XA})^{-1} \end{pmatrix}
+\end{equation}
+where $S_X = \Sigma_X - \Sigma_{XA}\Sigma_A^{-1}\Sigma_{AX}$ and $S_A = \Sigma_A - \Sigma_{AX}\Sigma_X^{-1}\Sigma_{XA}$ are Schur complements.
+
+\textbf{Step 2 (Perturbation bound):}
+When $\gamma$ is small, $\|\Sigma_{XA}\Sigma_A^{-1}\Sigma_{AX}\|_{\mathrm{op}} \leq \gamma^2 \|\Sigma_X\|_{\mathrm{op}}$, so:
+\begin{equation}
+    S_X \succeq (1 - \gamma^2) \Sigma_X \succeq (1 - \gamma) \Sigma_X
+\end{equation}
+Thus $S_X^{-1} \preceq (1-\gamma)^{-1} \Sigma_X^{-1}$.
+
+\textbf{Step 3 (Discriminability lower bound):}
+The quadratic form satisfies:
+\begin{align}
+    \mathcal{D}(Z) &= \Delta_Z^\top \Sigma_Z^{-1} \Delta_Z \\
+    &\geq \Delta_X^\top S_X^{-1} \Delta_X + \Delta_A^\top S_A^{-1} \Delta_A - 2|\Delta_X^\top \Sigma_X^{-1}\Sigma_{XA}S_A^{-1} \Delta_A|
+\end{align}
+The cross-term is bounded by:
+\begin{equation}
+    |\text{cross-term}| \leq \gamma \cdot \sqrt{\mathcal{D}(X) \cdot \mathcal{D}(A)} \leq \frac{\gamma}{2}[\mathcal{D}(X) + \mathcal{D}(A)]
+\end{equation}
+by AM-GM inequality. Combining:
+\begin{equation}
+    \mathcal{D}(Z) \geq (1-\gamma)[\mathcal{D}(X) + \mathcal{D}(A)] - \gamma[\mathcal{D}(X) + \mathcal{D}(A)] = (1-2\gamma)[\mathcal{D}(X) + \mathcal{D}(A)]
+\end{equation}
+\end{proof}
+
+\begin{remark}[When is $\gamma$ Small?]
+\label{rem:gamma_small}
+The off-diagonal ratio $\gamma$ is small in the following scenarios:
+\begin{enumerate}
+    \item \textbf{Independent noise}: If $\varepsilon_v$ in features and aggregation noise are independent, then $\Sigma_{XA} = \mathrm{Cov}(X, A \mid Y)$ arises only from label mixing, which is $O(\|\mu\|^2(1-\rho^2))$ under our model.
+    \item \textbf{Sparse graphs}: In the sparse limit, each node's feature $X_v$ appears in few aggregations, limiting correlation.
+    \item \textbf{Deep aggregation}: After multiple layers, correlations between $X$ and $A^{(t)}$ decay exponentially.
+\end{enumerate}
+
+\textbf{Empirical validation:} On benchmark datasets, we observe $\gamma \approx 0.05$--$0.15$, well within the stability regime $\gamma < 0.5$.
+
+\textbf{Methodology for empirical $\gamma$ estimation:}
+We provide details on how $\gamma$ was estimated in our experiments:
+\begin{enumerate}
+    \item \textbf{Data and layers}: We estimate $\gamma$ on the first aggregation layer ($t=1$) for all benchmark datasets in Table~\ref{tab:complete_rigorous_summary}. First-layer analysis is most relevant since (i) it directly tests our one-hop theory, and (ii) deeper layers have exponentially decaying cross-covariance.
+
+    \item \textbf{Covariance estimation procedure}:
+    \begin{enumerate}
+        \item[(a)] Compute raw features $X \in \mathbb{R}^{n \times d_x}$ and one-hop aggregation $A = \tilde{D}^{-1}\tilde{A}X$ (mean aggregation).
+        \item[(b)] Center both matrices class-conditionally: $\tilde{X}_c = X_c - \bar{X}_c$, $\tilde{A}_c = A_c - \bar{A}_c$ for class $c \in \{0, 1\}$.
+        \item[(c)] Estimate within-class covariances:
+        \begin{align}
+            \hat{\Sigma}_X &= \frac{1}{n-2}\sum_{c} \tilde{X}_c^\top \tilde{X}_c, quad
+            \hat{\Sigma}_A = \frac{1}{n-2}\sum_{c} \tilde{A}_c^\top \tilde{A}_c \\
+            \hat{\Sigma}_{XA} &= \frac{1}{n-2}\sum_{c} \tilde{X}_c^\top \tilde{A}_c
+        \end{align}
+        \item[(d)] Compute $\hat{\gamma} = \|\hat{\Sigma}_{XA}\|_{\mathrm{op}} / \min(\|\hat{\Sigma}_X\|_{\mathrm{op}}, \|\hat{\Sigma}_A\|_{\mathrm{op}})$.
+    \end{enumerate}
+
+    \item \textbf{Results across datasets}:
+    \begin{center}
+    \begin{tabular}{lcc}
+    \toprule
+    Dataset & $\hat{\gamma}$ & Stability ($\gamma < 0.5$) \\
+    \midrule
+    Cora & 0.08 & \checkmark \\
+    CiteSeer & 0.11 & \checkmark \\
+    PubMed & 0.06 & \checkmark \\
+    Texas & 0.14 & \checkmark \\
+    Wisconsin & 0.12 & \checkmark \\
+    \bottomrule
+    \end{tabular}
+    \end{center}
+    All datasets satisfy $\gamma < 0.5$, confirming the stability regime for Theorem~\ref{thm:concat_stability}.
+
+    \item \textbf{Sensitivity to aggregation depth}: For multi-layer aggregation ($t > 1$), $\gamma^{(t)}$ decreases approximately as $\rho^t$, since deeper aggregation decorrelates from original features. This justifies using first-layer estimates as conservative upper bounds.
+\end{enumerate}
+\end{remark}
+
+\subsection{GCN: Effective Degree under Normalization}
+\label{subsec:gcn_rigorous}
+
+\begin{theorem}[GCN Discriminability]
+\label{thm:gcn_discriminability}
+For GCN-style aggregation with symmetric normalization $w_{ij} = (\tilde{D}^{-1/2} \tilde{A} \tilde{D}^{-1/2})_{ij}$, the node-specific SNR ratio is:
+\begin{equation}
+    \kappa_i^{\mathrm{(GCN)}} = \rho_w^2 \cdot k_{\mathrm{eff}}(i)
+\end{equation}
+where:
+\begin{itemize}
+    \item $k_{\mathrm{eff}}(i) = \frac{(\sum_j w_{ij})^2}{\sum_j w_{ij}^2}$ is the effective sample size
+    \item $\rho_w = \sum_j w_{ij} \mathbb{E}[Y_j \mid Y_i = +1]$ is the weighted correlation
+\end{itemize}
+
+For $k$-regular graphs, $k_{\mathrm{eff}}(i) = k$ and $\rho_w = \rho$, recovering $\kappa^{\mathrm{(GCN)}} = \rho^2 k$.
+
+For heterogeneous degrees, high-degree nodes have $k_{\mathrm{eff}}(i) \ll d_i$ due to weight concentration.
+\end{theorem}
+
+\subsection{Sub-Gaussian Extension}
+\label{subsec:subgaussian_rigorous}
+
+\begin{theorem}[Classification Error under Sub-Gaussian Noise]
+\label{thm:subgaussian_error}
+Suppose $X = Y\mu + \xi$ where $\xi$ is $\sigma$-sub-Gaussian: for any unit vector $a$, $\|\langle a, \xi \rangle\|_{\psi_2} \leq \sigma$.
+
+For the linear classifier $f(X) = \mathrm{sign}(\langle \mu, X \rangle)$:
+\begin{equation}
+    \mathbb{P}(f(X) \neq Y) \leq \exp\left(-\frac{\|\mu\|^2}{2\sigma^2}\right)
+\end{equation}
+
+After weighted aggregation with $k_{\mathrm{eff}}$ effective samples:
+\begin{equation}
+    \mathbb{P}(f(A) \neq Y) \leq \exp\left(-\frac{\rho^2 k_{\mathrm{eff}} \|\mu\|^2}{2\sigma^2}\right)
+\end{equation}
+
+This provides a rigorous upper bound supporting $\kappa = \rho^2 k_{\mathrm{eff}}$ without requiring exact Bayes error formulas.
+\end{theorem}
+
+\subsection{Finite-Sample Concentration}
+\label{subsec:concentration_rigorous}
+
+\begin{theorem}[Estimation of $\kappa$ with Confidence Intervals]
+\label{thm:kappa_estimation}
+Given observed graph $G$ and (possibly estimated) labels, define empirical estimates:
+\begin{align}
+    \hat{k} &:= \frac{2|E|}{n} \\
+    \hat{\rho} &:= \frac{E_{\mathrm{in}} - E_{\mathrm{out}}}{E_{\mathrm{in}} + E_{\mathrm{out}}}
+\end{align}
+where $E_{\mathrm{in}} = |\{(u,v) \in E : Y_u = Y_v\}|$ and $E_{\mathrm{out}} = |E| - E_{\mathrm{in}}$.
+
+Under the sparse CSBM (Definition~\ref{def:sparse_csbm}), for any $\delta \in (0, 1)$, with probability at least $1 - \delta$:
+\begin{align}
+    |\hat{k} - k| &\leq C_1 \sqrt{\frac{k \log(1/\delta)}{n}} \\
+    |\hat{\rho} - \rho| &\leq C_2 \sqrt{\frac{\log(1/\delta)}{nk}}
+\end{align}
+for universal constants $C_1, C_2 > 0$.
+
+The estimated $\hat{\kappa} = \hat{\rho}^2 \hat{k}$ satisfies:
+\begin{equation}
+    |\hat{\kappa} - \kappa| = O\left(n^{-1/2}\right)
+\end{equation}
+\end{theorem}
+
+\begin{remark}[Confidence Interval Construction for $\rho$]
+\label{rem:rho_confidence_interval}
+We provide explicit confidence interval formulas for practical use:
+
+\textbf{(a) Asymptotic variance of $\hat{\rho}$:}
+Under the sparse CSBM, the estimator $\hat{\rho}$ is asymptotically normal:
+\begin{equation}
+    \sqrt{nk}(\hat{\rho} - \rho) \xrightarrow{d} \mathcal{N}(0, \sigma_\rho^2)
+\end{equation}
+where the asymptotic variance is:
+\begin{equation}
+    \sigma_\rho^2 = \frac{4(1 - \rho^2)^2}{1} = 4(1 - \rho^2)^2
+\end{equation}
+This follows from the delta method applied to the ratio $E_{\mathrm{in}}/E_{\mathrm{out}}$.
+
+\textbf{(b) Plug-in confidence interval:}
+An asymptotic $(1-\alpha)$ confidence interval for $\rho$ is:
+\begin{equation}
+    \hat{\rho} \pm z_{1-\alpha/2} \cdot \frac{2(1 - \hat{\rho}^2)}{\sqrt{nk}}
+\end{equation}
+where $z_{1-\alpha/2}$ is the standard normal quantile.
+
+\textbf{(c) Bootstrap alternative:}
+For finite samples, we recommend the percentile bootstrap:
+\begin{enumerate}
+    \item Resample edges with replacement $B$ times
+    \item Compute $\hat{\rho}^{(b)}$ for each bootstrap sample $b = 1, \ldots, B$
+    \item Report the $(\alpha/2, 1-\alpha/2)$ quantiles of $\{\hat{\rho}^{(b)}\}$
+\end{enumerate}
+
+\textbf{(d) Propagation to $\kappa$:}
+By the delta method, the confidence interval for $\kappa = \rho^2 k$ is:
+\begin{equation}
+    \hat{\kappa} \pm z_{1-\alpha/2} \cdot \sqrt{\frac{4\hat{\rho}^2 \hat{k}^2 \sigma_\rho^2}{nk} + \frac{\hat{\rho}^4 \hat{k}}{n}}
+\end{equation}
+The first term dominates when $|\rho|$ is not too small.
+
+\textbf{(e) Practical guidance:}
+For typical benchmark graphs ($n \geq 1000$, $k \geq 5$), the 95\% CI half-width for $\rho$ is approximately $0.05$--$0.1$, sufficient for distinguishing $h > 0.7$ from $h < 0.3$ regimes.
+
+\textbf{(f) Oracle vs.\ estimated labels (important clarification):}
+The estimator $\hat{\rho} = (E_{\mathrm{in}} - E_{\mathrm{out}})/(E_{\mathrm{in}} + E_{\mathrm{out}})$ requires \textit{knowledge of true labels} $\{Y_v\}$ to compute $E_{\mathrm{in}}$ and $E_{\mathrm{out}}$. We distinguish two settings:
+
+\begin{enumerate}
+    \item \textbf{Oracle setting (theoretical analysis):} True labels are known. This is the setting for our theoretical bounds (Theorems~\ref{thm:agg_discriminability_rigorous}--\ref{thm:complete_with_error}). In benchmark datasets, ground-truth labels are available, so $\hat{\rho}$ can be computed exactly.
+
+    \item \textbf{Practical setting (label-free estimation):} When labels are unknown, $\rho$ can be estimated via:
+    \begin{itemize}
+        \item \textit{Spectral methods}: The second eigenvalue $\lambda_2$ of the normalized adjacency satisfies $\lambda_2 \approx \rho$ in the sparse SBM~\cite{abbe2018community}.
+        \item \textit{Label-propagation proxy}: Run label propagation from random initialization; the convergence rate relates to $|\rho|$.
+        \item \textit{Homophily proxies}: Use feature similarity along edges: $\tilde{h} = \frac{1}{|E|}\sum_{(u,v)\in E} \mathbf{1}\{\hat{Y}_u = \hat{Y}_v\}$ where $\hat{Y}$ are predicted labels from a simple classifier.
+    \end{itemize}
+
+    \item \textbf{Bias in practical estimation:} Spectral estimates have bias $O(1/\sqrt{nk})$ in the sparse regime. Using predicted labels $\hat{Y}$ instead of true $Y$ introduces additional error proportional to the classifier's error rate. Specifically, if $P(\hat{Y} \neq Y) = \epsilon$, then:
+    \begin{equation}
+        |\tilde{\rho} - \rho| \leq 4\epsilon + O(1/\sqrt{nk})
+    \end{equation}
+    For our experimental validation (Section~\ref{sec:experiments}), we use oracle labels to ensure unbiased $\hat{\rho}$ estimates.
+\end{enumerate}
+\end{remark}
+
+\subsection{Degree-Corrected SBM}
+\label{subsec:dcsbm_rigorous}
+
+\begin{theorem}[Discriminability under Degree Heterogeneity]
+\label{thm:dcsbm_discriminability}
+In the degree-corrected SBM with degree parameters $\{\theta_i\}_{i=1}^n$, define:
+\begin{equation}
+    \rho_w := \frac{\mathbb{E}[\theta_u Y_u \mid Y_v]}{\mathbb{E}[\theta_u \mid Y_v]}
+\end{equation}
+This accounts for the size-bias: neighbors are more likely to have large $\theta$.
+
+The discriminability satisfies:
+\begin{equation}
+    \mathcal{D}(A_v) = \rho_w^2 \cdot k_{\mathrm{eff}}(v) \cdot \mathcal{D}(X) \cdot (1 + O(\delta_n))
+\end{equation}
+where $k_{\mathrm{eff}}(v)$ depends on the realized weights (which correlate with $\theta$).
+\end{theorem}
+
+\subsection{Summary of Rigorous Results}
+\label{subsec:summary_rigorous}
+
+\begin{table}[t]
+\centering
+\caption{Rigorous SNR Framework: Key Results with Conditions}
+\label{tab:rigorous_summary}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Result} & \textbf{Formula} & \textbf{Conditions} & \textbf{Error} \\
+\midrule
+\multicolumn{4}{l}{\textit{Core Results}} \\
+Discriminability def. & $\mathcal{D} = \Delta^\top \Sigma^{-1} \Delta$ & --- & Exact \\
+Bayes error & $P_e = \Phi(-\frac{1}{2}\sqrt{\mathcal{D}})$ & Gaussian & Exact \\
+One-hop $\kappa$ & $\rho^2 k_{\mathrm{eff}}$ & (A1)-(A3) & $O(k/n + \|\mu\|^2 k/\sigma^2)$ \\
+Threshold & $|\rho| = 1/\sqrt{k}$ & --- & --- \\
+\midrule
+\multicolumn{4}{l}{\textit{Multi-Layer (Tree Regime)}} \\
+Non-backtracking & $\mathcal{D}^{(t)} = ((k-1)\rho^2)^t \mathcal{D}^{(0)}$ & $t = o(\log n)$ & $O(k^t/n)$ \\
+KS threshold & $(k-1)\rho^2 = 1$ & Tree limit & --- \\
+\midrule
+\multicolumn{4}{l}{\textit{Architecture-Specific}} \\
+GCN & $\kappa_i = \rho_w^2 k_{\mathrm{eff}}(i)$ & Normalized weights & $O(k/n)$ \\
+Concatenation & $\mathcal{D} = \mathcal{D}_X + \mathcal{D}_A$ & Cond. indep. & Exact \\
+\midrule
+\multicolumn{4}{l}{\textit{Extensions}} \\
+Sub-Gaussian & $P_e \leq e^{-\rho^2 k \|\mu\|^2/(2\sigma^2)}$ & Sub-Gaussian noise & Upper bound \\
+DC-SBM & $\mathcal{D} = \rho_w^2 k_{\mathrm{eff}} \mathcal{D}_X$ & Degree heterogeneity & $O(k/n)$ \\
+Concentration & $|\hat{\kappa} - \kappa| = O(n^{-1/2})$ & Sparse limit & High prob. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Theoretical bridge from CSBM to real-world graphs
+\input{sections/04_csbm_real_bridge}
+
+\begin{remark}[Scope and Honest Limitations]
+\label{rem:scope_rigorous}
+Our theoretical results are valid under:
+\begin{enumerate}
+    \item Binary classification with uniform prior
+    \item Sparse regime: $k = O(1)$ as $n \to \infty$
+    \item Local tree approximation: $t = o(\log n)$ layers
+    \item Dominated feature noise (Condition A3)
+\end{enumerate}
+
+\textbf{Known limitations:}
+\begin{itemize}
+    \item Multi-layer analysis fails for $t = \Omega(\log n)$ due to neighborhood overlap
+    \item Dense graphs violate local independence
+    \item Non-linear activations break SNR multiplicativity
+\end{itemize}
+
+These limitations are inherent to the signal-processing view of GNNs and motivate our empirical framework for practical guidance.
+\end{remark}
+
+\begin{remark}[Impact of Non-Linear Activations on SNR Recursion]
+\label{rem:nonlinearity_impact}
+Our SNR framework assumes linear aggregation and transformation. Practical GNNs use non-linear activations (ReLU, GELU, etc.), which \textbf{break the multiplicative SNR recursion}. We quantify this effect and discuss when the linear approximation remains valid.
+
+\textbf{(a) Why non-linearity breaks multiplicativity:}
+The key identity $\mathcal{D}(WZ) = \mathcal{D}(Z)$ (for invertible $W$) relies on linearity. For non-linear $\phi$:
+\begin{equation}
+    \mathcal{D}(\phi(Z)) \neq \mathcal{D}(Z) \quad \text{in general}
+\end{equation}
+The non-linearity can either \textit{enhance} discriminability (by amplifying class differences) or \textit{reduce} it (by collapsing representations).
+
+\textbf{(b) Quantitative bounds for ReLU:}
+For ReLU activation $\phi(x) = \max(0, x)$ applied element-wise to Gaussian inputs, the discriminability attenuation can be derived from the properties of half-normal distributions~\cite{daniely2016deep}:
+\begin{itemize}
+    \item \textbf{Variance reduction}: $\mathrm{Var}(\phi(X)) = \frac{1}{2}\mathrm{Var}(X)$ (half the mass is zeroed)
+    \item \textbf{Mean shift}: $\mathbb{E}[\phi(X)] = \mu\Phi(\mu/\sigma) + \sigma\phi(\mu/\sigma)$ (non-zero even for zero-mean input)
+    \item \textbf{Discriminability factor}: Under symmetric classes with $\mu_{+} = -\mu_{-}$, the discriminability ratio satisfies:
+    \begin{equation}
+        \frac{\mathcal{D}(\phi(Z))}{\mathcal{D}(Z)} \approx \frac{1}{\pi} \approx 0.32 \quad \text{(for moderate SNR)}
+    \end{equation}
+    This follows from the fact that ReLU preserves only half the distribution while distorting the class separation. The factor $1/\pi$ arises from the integral $\int_0^\infty x \phi(x) dx$ for standard Gaussians.
+\end{itemize}
+Thus, each ReLU layer reduces discriminability by approximately 68\%.
+
+\textbf{(c) When linear approximation remains valid:}
+The linear analysis provides a good approximation when:
+\begin{enumerate}
+    \item \textbf{High SNR regime}: When $|\mu|/\sigma \gg 1$, ReLU operates in its linear region for most inputs.
+    \item \textbf{Smooth activations}: GELU, SiLU, and other smooth activations have smaller distortion than ReLU.
+    \item \textbf{Skip connections}: Residual connections $h^{(t+1)} = h^{(t)} + \phi(\text{aggregation})$ preserve linear signal flow.
+    \item \textbf{Shallow networks}: For $t \leq 2$ layers, cumulative distortion is bounded.
+\end{enumerate}
+
+\textbf{(d) Effective SNR ratio with non-linearity:}
+We introduce an \textbf{activation correction factor} $\eta_\phi \in (0, 1]$:
+\begin{equation}
+    \kappa_{\mathrm{eff}} = \eta_\phi \cdot \rho^2 k
+\end{equation}
+where $\eta_\phi$ depends on the activation function and operating regime:
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Activation & $\eta_\phi$ (typical) & Notes \\
+\midrule
+Linear (identity) & 1.0 & Exact theory \\
+ReLU & 0.3--0.5 & Depends on input SNR \\
+GELU / SiLU & 0.7--0.9 & Smoother, less distortion \\
+With skip connection & 0.8--1.0 & Residual preserves signal \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{(e) Modified threshold condition:}
+Accounting for non-linearity, the beneficial aggregation condition becomes:
+\begin{equation}
+    |\rho| > \frac{1}{\sqrt{\eta_\phi \cdot k}}
+\end{equation}
+For ReLU with $\eta_{\mathrm{ReLU}} \approx 0.4$, the threshold shifts from $|\rho| > 0.316$ (for $k=10$) to $|\rho| > 0.5$, making aggregation beneficial in a \textit{narrower} range of homophily.
+
+\textbf{(f) Practical implications:}
+Despite non-linearity, our framework remains useful because:
+\begin{enumerate}
+    \item The \textit{qualitative} predictions (beneficial vs.\\ harmful aggregation) are preserved.
+    \item The threshold shift is predictable and can be calibrated empirically.
+    \item Modern GNNs often use skip connections, which restore near-linear behavior.
+    \item Our experiments (Section~\ref{sec:experiments}) validate the framework on actual GNN architectures with non-linearities.
+\end{enumerate}
+
+\textbf{(g) Formal extension (future work):}
+A complete non-linear analysis would require tracking the evolution of \textit{distributions} rather than just first two moments. Tools from random matrix theory (e.g., deterministic equivalents for non-linear random features) could provide tighter bounds but are beyond our current scope.
+\end{remark}
+
+\begin{remark}[Robustness to Gaussian Assumption Deviation]
+\label{rem:gaussian_robustness}
+Our theoretical framework assumes Gaussian features ($\varepsilon_v \sim \mathcal{N}(0, \Sigma)$). We quantify how violations of this assumption affect our results.
+
+\textbf{(a) Sub-Gaussian features:}
+For sub-Gaussian noise with parameter $\sigma$ (i.e., $\|\langle a, \varepsilon_v \rangle\|_{\psi_2} \leq \sigma$ for unit vectors $a$), Theorem~\ref{thm:subgaussian_error} shows:
+\begin{itemize}
+    \item The SNR ratio $\kappa = \rho^2 k$ remains \textbf{exactly unchanged}
+    \item Signal scaling ($\rho$ per edge) depends only on label correlations, not feature distribution
+    \item Noise scaling uses sub-Gaussian concentration instead of Gaussian tails
+    \item Classification error bound: $P_e \leq \exp(-\rho^2 k \|\mu\|^2 / (2\sigma^2))$
+\end{itemize}
+
+\textbf{(b) Berry-Esseen convergence for bounded features:}
+When features have bounded support $\|X_v - \mu Y_v\| \leq B$ a.s., the aggregated representation converges to Gaussian by the multivariate Berry-Esseen theorem~\cite{berry1941accuracy}:
+\begin{equation}
+    \sup_A \left|\mathbb{P}(A_v \in A) - \mathbb{P}(Z \in A)\right| \leq \frac{C B^3}{\sigma^3 \sqrt{k}}
+\end{equation}
+where $Z \sim \mathcal{N}(\mathbb{E}[A_v], \mathrm{Cov}(A_v))$ and the supremum is over convex sets $A$. For typical $k \geq 5$, this error is $< 0.1$, justifying the Gaussian approximation.
+
+\textbf{(c) Heavy-tailed features:}
+For distributions with only finite variance (e.g., Laplace, Student-t with $\nu > 2$):
+\begin{itemize}
+    \item CLT still applies: $A_v$ is asymptotically Gaussian as $k \to \infty$
+    \item Convergence rate: $O(1/\sqrt{k})$ by Lyapunov CLT
+    \item Practical impact: For $k \geq 10$, Gaussian approximation error $< 5\%$
+    \item Caveat: Very heavy tails ($\nu < 2$) require truncation or robust aggregation
+\end{itemize}
+
+\textbf{(d) Quantitative impact on key results:}
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Result} & \textbf{Gaussian} & \textbf{Sub-Gaussian} & \textbf{Bounded} \\
+\midrule
+$\kappa = \rho^2 k$ & Exact & Exact & Exact \\
+$P_e = \Phi(-\frac{1}{2}\sqrt{\mathcal{D}})$ & Exact & Upper bound & $O(1/\sqrt{k})$ error \\
+Multi-layer recursion & Exact & Exact & Asymptotic \\
+Threshold $|\rho| = 1/\sqrt{k}$ & Exact & Exact & Exact \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{(e) Practical guidance:}
+\begin{enumerate}
+    \item \textbf{Most real features are approximately Gaussian}: After standardization, many feature distributions (bag-of-words, embeddings, financial ratios) satisfy sub-Gaussian bounds.
+    \item \textbf{Aggregation improves Gaussianity}: Even if individual features are non-Gaussian, aggregation over $k$ neighbors produces near-Gaussian statistics (CLT effect).
+    \item \textbf{Robustness check}: Our experiments (Section~\ref{sec:experiments}) include datasets with diverse feature distributions (binary, continuous, mixed), all showing consistent agreement with theoretical predictions.
+\end{enumerate}
+\end{remark}
+
+\begin{remark}[Extension to Attention Mechanisms (GAT)]
+\label{rem:attention_extension}
+Graph Attention Networks (GAT)~\cite{velivckovic2018gat} use learned attention weights instead of uniform aggregation. We analyze how attention affects our SNR framework.
+
+\textbf{(a) Attention as adaptive $\rho$:}
+In GAT, the aggregation for node $v$ is:
+\begin{equation}
+    A_v^{\text{GAT}} = \sum_{u \in \mathcal{N}(v)} \alpha_{vu} X_u, \quad \text{where } \sum_u \alpha_{vu} = 1
+\end{equation}
+The attention weights $\alpha_{vu}$ are learned functions of features. From our framework's perspective, attention can be viewed as learning a \textbf{node-specific effective correlation}:
+\begin{equation}
+    \rho_v^{\text{GAT}} = \sum_{u \in \mathcal{N}(v)} \alpha_{vu} \cdot \text{sign}(Y_u \cdot Y_v)
+\end{equation}
+If attention successfully upweights same-class neighbors, $\rho_v^{\text{GAT}} > \rho$ (uniform).
+
+\textbf{(b) Theoretical potential of attention:}
+An \textit{ideal} attention mechanism that perfectly identifies same-class neighbors would achieve:
+\begin{equation}
+    \rho^{\text{ideal}} = 1 \quad \Rightarrow \quad \kappa^{\text{ideal}} = k_{\mathrm{eff}}
+\end{equation}
+This eliminates the homophily constraint entirely---even at $h = 0.5$, perfect attention would give $\kappa = k > 1$.
+
+\textbf{(c) Why attention alone is insufficient:}
+In practice, attention faces fundamental limitations:
+\begin{enumerate}
+    \item \textbf{Chicken-and-egg problem}: To assign high weights to same-class neighbors, attention needs class-discriminative features. But if features are already discriminative, MLP suffices.
+    \item \textbf{Label leakage}: Attention cannot use labels during inference, so it must learn proxies from features.
+    \item \textbf{Over-smoothing through training}: Even if attention learns ``correct'' weights, the representation update still mixes features, potentially causing damage.
+\end{enumerate}
+
+\textbf{(d) Empirical validation:}
+Our experiments (Table~\ref{tab:ushape_severity}) show GAT's ADR = 0.053 at $h=0.5$, compared to GCN's 0.189. Attention provides 3.5$\times$ improvement over uniform weighting, but still suffers damage---it reduces but does not eliminate the mid-homophily valley.
+
+\textbf{(e) Effective $\kappa$ under attention:}
+We propose an empirical correction:
+\begin{equation}
+    \kappa^{\text{GAT}} = \eta_{\text{attn}} \cdot \rho^2 k_{\mathrm{eff}}
+\end{equation}
+where $\eta_{\text{attn}} \in [1, 1/\rho^2]$ captures attention's ability to improve effective correlation. From our experiments, $\eta_{\text{attn}} \approx 1.5$--$3$ depending on feature quality.
+
+\textbf{(f) Practical implications:}
+\begin{itemize}
+    \item GAT is more robust than GCN in the mid-homophily regime but not immune to damage
+    \item GraphSAGE (concatenation) outperforms GAT (attention) for robustness at $h \approx 0.5$
+    \item Combining attention with concatenation (e.g., GAT-SAGE hybrid) may provide both benefits
+\end{itemize}
+
+\textbf{(g) Future directions:}
+A complete theory of attention would require analyzing the joint dynamics of attention weight learning and representation evolution. This remains an open problem, as attention weights depend on representations which themselves depend on attention.
+\end{remark}
+
+\begin{remark}[Relationship to Dirichlet Energy and Over-smoothing]
+\label{rem:dirichlet_connection}
+The over-smoothing literature~\cite{li2018oversmoothing,oono2020exponential} analyzes GNN depth limits through Dirichlet energy. We clarify the connection to our SNR framework.
+
+\textbf{(a) Dirichlet energy definition:}
+For node features $H \in \mathbb{R}^{n \times d}$ on graph $G$, the Dirichlet energy is:
+\begin{equation}
+    E(H) = \frac{1}{2} \sum_{(i,j) \in E} \|H_i - H_j\|^2 = \text{tr}(H^\top L H)
+\end{equation}
+where $L = D - A$ is the graph Laplacian. Low $E(H)$ indicates smooth representations (neighbors similar).
+
+\textbf{(b) Dirichlet energy decay:}
+Li et al.~\cite{li2018oversmoothing} showed that repeated aggregation drives $E(H^{(t)}) \to 0$ exponentially:
+\begin{equation}
+    E(H^{(t)}) \leq \lambda_2^{2t} \cdot E(H^{(0)})
+\end{equation}
+where $\lambda_2$ is the second-smallest eigenvalue of the normalized Laplacian. This is interpreted as ``over-smoothing''---all node representations converge to a constant.
+
+\textbf{(c) SNR vs Dirichlet: different quantities:}
+Our discriminability $\mathcal{D}(H)$ and Dirichlet energy $E(H)$ measure different aspects:
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Aspect} & \textbf{$\mathcal{D}(H)$} & \textbf{$E(H)$} \\
+\midrule
+Measures & Class separation & Graph smoothness \\
+Optimal value & High & Depends on task \\
+Label-aware & Yes (conditions on $Y$) & No (structure only) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{(d) When they agree and disagree:}
+\begin{itemize}
+    \item \textbf{Homophilous graphs ($h > 0.7$)}: Low $E(H)$ and high $\mathcal{D}(H)$ align---smooth representations are class-consistent.
+    \item \textbf{Heterophilous graphs ($h < 0.3$)}: Low $E(H)$ implies low $\mathcal{D}(H)$---smoothing destroys class information.
+    \item \textbf{Mid-homophily ($h \approx 0.5$)}: $E(H)$ decreases but $\mathcal{D}(H)$ drops faster---Dirichlet energy underestimates damage.
+\end{itemize}
+
+\textbf{(e) Quantitative comparison:}
+For GCN on the normalized Laplacian $\tilde{L} = I - \tilde{D}^{-1/2}\tilde{A}\tilde{D}^{-1/2}$:
+\begin{itemize}
+    \item Dirichlet decay rate: $\lambda_2^{2t}$ (spectral gap)
+    \item SNR decay rate: $(\rho^2 k)^{-t}$ when $\rho^2 k < 1$
+\end{itemize}
+The SNR rate directly incorporates homophily ($\rho = 2h-1$) and degree ($k$), while spectral gap is label-agnostic. This explains why Dirichlet analysis cannot predict mid-homophily failure: it treats all ``smooth'' outcomes equally, regardless of whether smoothing aligns with labels.
+
+\textbf{(f) Unified perspective:}
+Both frameworks capture ``information loss through aggregation'' but at different levels:
+\begin{itemize}
+    \item \textbf{Dirichlet}: Structural smoothness (necessary condition for over-smoothing)
+    \item \textbf{SNR}: Task-relevant discriminability (sufficient condition for performance drop)
+\end{itemize}
+Over-smoothing ($E \to 0$) implies $\mathcal{D} \to 0$ only when $h \neq 0.5$. At $h = 0.5$, $\mathcal{D}$ drops even without extreme smoothing.
+
+\textbf{(g) Practical advantage of SNR:}
+The SNR framework provides actionable thresholds ($\kappa \gtrless 1$) directly from observable quantities ($h$, $k$). Dirichlet analysis requires eigenvalue computation and does not yield model selection guidance. Our experiments show 88.9\% prediction accuracy using SNR vs.\ 61.1\% using $h$ alone.
+\end{remark}
+
+

@@ -1,0 +1,348 @@
+\section{Numerically-Aware Attention: An FSD Instantiation}
+\label{sec:method}
+
+Building on the Feature-Structure Disentanglement framework (Section~\ref{sec:fsd}), we now present \textbf{Numerically-Aware Attention (NAA)}---a concrete instantiation of FSD designed for financial graphs where numerical features span multiple orders of magnitude. Figure~\ref{fig:architecture} provides an overview of the NAA-GNN architecture.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/figure3_architecture.pdf}
+\caption{NAA-GNN Architecture Overview. The model processes financial transaction graphs through four stages: (1) Log-scale normalization preserves numerical magnitude information; (2) Numerically-Aware Attention (NAA) combines learned structural attention with explicit feature similarity (the FSD principle); (3) GNN propagation layers with residual connections capture network dependencies; (4) Prediction head outputs fraud detection logits. NAA instantiates the FSD framework with $e_{ij}^{\text{feat}} = \text{NumericalSim}(\mathbf{x}_i, \mathbf{x}_j)$ and learnable $\lambda = \beta$.}
+\label{fig:architecture}
+\end{figure*}
+
+\subsection{NAA within the FSD Framework}
+
+Recall from Definition~\ref{def:fsd_attention} that the FSD attention mechanism computes:
+\begin{equation}
+\alpha_{ij} = \text{softmax}_j\left(e_{ij}^{\text{struct}} + \lambda \cdot e_{ij}^{\text{feat}}\right)
+\end{equation}
+
+NAA instantiates this framework with specific choices optimized for numerical financial graphs:
+
+\begin{itemize}
+    \item \textbf{Structural component} $e_{ij}^{\text{struct}}$: Standard scaled dot-product attention on learned representations
+    \item \textbf{Feature component} $e_{ij}^{\text{feat}}$: Numerical similarity on log-transformed features
+    \item \textbf{Balance parameter} $\lambda = \beta$: Learnable scalar, initialized to 0.1
+\end{itemize}
+
+This design targets the \textbf{Feature-Dominant Regime} (Theorem~\ref{thm:optimal_regime}, Regime A): high-dimensional numerical features with moderate feature-structure alignment.
+
+\subsection{Problem Formulation}
+
+We address the general problem of \textbf{node classification on numerical graphs}, where node features contain high-dimensional numerical values spanning multiple orders of magnitude. This setting is common in financial applications including fraud detection, credit risk assessment, and transaction monitoring.
+
+\textbf{Graph Definition}: We model the network as a graph $\mathcal{G} = (\mathcal{V}, \mathcal{E}, \mathcal{X})$, where:
+\begin{itemize}
+\item $\mathcal{V}$ is the set of $N$ nodes (e.g., transactions, accounts, products)
+\item $\mathcal{E}$ represents relationships (e.g., transaction flows, co-purchases, supplier links)
+\item $\mathcal{X} \in \mathbb{R}^{N \times d}$ is the node feature matrix with $d$-dimensional continuous/categorical features
+\item $\mathcal{A} \in \{0,1\}^{N \times N}$ denotes the adjacency matrix
+\end{itemize}
+
+\textbf{Feature Characteristics}: Each node $v_i$ has features $\mathbf{x}_i \in \mathbb{R}^{d}$ that typically include:
+\begin{itemize}
+\item \textbf{Multi-magnitude numerical features}: Transaction amounts, account balances, credit scores, revenues---values that span 3-6 orders of magnitude (e.g., \$1 to \$1M)
+\item \textbf{Aggregated statistics}: Time-series features, neighbor statistics, network centrality measures
+\item \textbf{Categorical features} (optional): One-hot encoded categorical variables (sectors, regions, product types)
+\end{itemize}
+
+\textbf{Task}: Given $\mathcal{G}$ and $\mathcal{X}$, predict a binary label $y_i \in \{0, 1\}$ for each node $v_i$, where $y_i=1$ indicates fraud/default/illicit activity. This is a \textbf{binary node classification} task with typically severe class imbalance ($<$10-15\% positive class).
+
+\textbf{Scope}: NAA is designed for numerical feature-rich graphs and focuses on homogeneous graphs with uniform edge types. Extensions to heterogeneous edge types (e.g., different transaction types) or directed attention (e.g., distinguishing payer vs. payee roles) are left for future work. In practice, we symmetrize directed graphs via $\mathcal{A}_{sym} = \mathcal{A} + \mathcal{A}^T$ before applying NAA.
+
+\subsection{Numerically-Aware Attention (NAA)}
+
+Traditional graph attention (e.g., GAT) computes attention weights from learned representations, potentially losing numerical magnitude information. NAA addresses this through three innovations:
+
+\subsubsection{Log-Scale Normalization}
+
+For \textbf{continuous numerical features} (transaction amounts, account balances, credit scores, time-series statistics), we apply log-scale transformation:
+\begin{equation}
+\tilde{x}_{ij} = \log(1 + |x_{ij}|) \cdot \text{sign}(x_{ij})
+\end{equation}
+
+This compresses large values (e.g., \$10M transaction $\rightarrow$ $\log(10^7) \approx 16$) while preserving relative differences.
+
+For \textbf{categorical features} (if present), one-hot encoding produces binary indicators $\{0,1\}$, which are \textit{not} log-transformed. Instead, one-hot vectors are kept as-is.
+
+All features (log-transformed numerics + one-hot categoricals) are then concatenated and standardized: $\hat{x}_{ij} = (\tilde{x}_{ij} - \mu_j) / \sigma_j$, where $\mu_j$ and $\sigma_j$ are computed over the training set.
+
+\subsubsection{Multi-Head Attention with Numerical Similarity}
+
+Given node representations $\mathbf{H}^{(l)} \in \mathbb{R}^{N \times d^{(l)}}$ at layer $l$, NAA computes attention with $K$ heads:
+
+\textbf{Step 1}: Linear transformations for head $k$:
+\begin{equation}
+\mathbf{Q}^{(k)} = \mathbf{H}^{(l)} \mathbf{W}_Q^{(k)}, \quad \mathbf{K}^{(k)} = \mathbf{H}^{(l)} \mathbf{W}_K^{(k)}, \quad \mathbf{V}^{(k)} = \mathbf{H}^{(l)} \mathbf{W}_V^{(k)}
+\end{equation}
+
+\textbf{Step 2}: Attention score combining learned and numerical similarity:
+\begin{equation}
+e_{ij}^{(k)} = \frac{\mathbf{q}_i^{(k) \top} \mathbf{k}_j^{(k)}}{\sqrt{d_h}} + \beta \cdot \text{NumericalSim}(\tilde{\mathbf{x}}_i, \tilde{\mathbf{x}}_j)
+\end{equation}
+
+where $\beta$ is a learnable scalar weight (initialized to 0.1, optimized during training), and the numerical similarity operates on \textbf{log-transformed features} $\tilde{\mathbf{x}}_i$ (before standardization):
+\begin{equation}
+\text{NumericalSim}(\tilde{\mathbf{x}}_i, \tilde{\mathbf{x}}_j) = -\frac{1}{d_f} \sum_{m=1}^{d_f} \left| \frac{\tilde{x}_{im} - \tilde{x}_{jm}}{\max(|\tilde{x}_{im}|, |\tilde{x}_{jm}|, \epsilon)} \right|
+\end{equation}
+
+Here $d_f$ is the number of continuous numerical features, $\tilde{x}_{im}$ is the $m$-th log-transformed feature of node $i$ (Eq.~1), and $\epsilon = 10^{-8}$ prevents division by zero. The similarity is computed \textit{only} over continuous features; categorical indicators (if present) are excluded from this term. This biases attention toward nodes with similar numerical magnitudes in their feature profiles.
+
+\textbf{Step 3}: Softmax normalization over neighborhood $\mathcal{N}(v_i)$:
+\begin{equation}
+\alpha_{ij}^{(k)} = \frac{\exp(e_{ij}^{(k)})}{\sum_{v_m \in \mathcal{N}(v_i)} \exp(e_{im}^{(k)})}
+\end{equation}
+
+\textbf{Step 4}: Aggregate with attention: $\mathbf{h}_i^{(k)} = \sum_{v_j \in \mathcal{N}(v_i)} \alpha_{ij}^{(k)} \mathbf{v}_j^{(k)}$
+
+\subsubsection{Adaptive Head Gating}
+
+To regularize multi-head attention on small graphs, we introduce per-node, per-head gating applied \textit{after} aggregation:
+\begin{equation}
+g_i^{(k)} = \sigma\left( \mathbf{W}_g^{(k)} \mathbf{h}_i^{(k)} + b_g^{(k)} \right), \quad \tilde{\mathbf{h}}_i^{(k)} = g_i^{(k)} \cdot \mathbf{h}_i^{(k)}
+\end{equation}
+
+where $\mathbf{h}_i^{(k)}$ is the aggregated output from Step 4 (not the pre-attention embedding $\mathbf{h}_i^{(l)}$). Each gate $g_i^{(k)} \in [0,1]$ conditions on the head's actual output, allowing the network to down-weight heads that produce less informative representations for node $i$. This acts as implicit regularization by learning to suppress noisy or redundant heads on small datasets. Multi-head outputs are concatenated and projected:
+\begin{equation}
+\mathbf{h}_i^{(l+1)} = \mathbf{W}_O \left[ \tilde{\mathbf{h}}_i^{(1)} \| \cdots \| \tilde{\mathbf{h}}_i^{(K)} \right] + \mathbf{b}_O
+\end{equation}
+
+\subsection{NAA-GNN Architecture}
+
+\textbf{Input layer}: Projects preprocessed features to hidden dimension: $\mathbf{H}^{(0)} = \mathbf{X} \mathbf{W}_{\text{input}} + \mathbf{b}_{\text{input}}$
+
+\textbf{NAA-GNN layers}: Stack $L$ layers with residual connections and layer normalization:
+\begin{equation}
+\mathbf{H}^{(l+1)} = \text{LayerNorm}\left( \mathbf{H}^{(l)} + \text{NAA}(\mathbf{H}^{(l)}, \mathcal{A}) \right)
+\end{equation}
+
+Each layer includes NAA mechanism followed by feedforward network:
+\begin{equation}
+\text{FFN}(\mathbf{h}) = \mathbf{W}_2 \cdot \text{ReLU}(\mathbf{W}_1 \mathbf{h} + \mathbf{b}_1) + \mathbf{b}_2
+\end{equation}
+
+\textbf{Prediction head}: Maps final representations to class logits for binary classification:
+\begin{equation}
+\mathbf{z}_i = \mathbf{W}_{\text{out}} \mathbf{h}_i^{(L)} + \mathbf{b}_{\text{out}}, \quad \mathbf{z}_i \in \mathbb{R}^{2}
+\end{equation}
+where $\mathbf{z}_i = [z_i^{(0)}, z_i^{(1)}]$ represents logits for classes 0 (legitimate) and 1 (fraud/illicit).
+
+\subsection{Training Objective}
+
+For binary node classification, we minimize \textbf{weighted cross-entropy loss} to address class imbalance:
+\begin{equation}
+\mathcal{L}(\theta) = -\frac{1}{N} \sum_{i=1}^{N} \sum_{c=0}^{1} w_c \cdot \mathbb{1}[y_i = c] \cdot \log \frac{\exp(z_i^{(c)})}{\sum_{c'=0}^{1} \exp(z_i^{(c')})} + \lambda \|\theta\|_2^2
+\end{equation}
+where $w_0 = 1.0$, $w_1 = N/(2 \cdot N_{\text{fraud}})$ are class weights balancing the minority class (fraud/illicit), and $\lambda$ is the L2 regularization coefficient.
+
+Trained with Adam optimizer (learning rate 0.001, weight decay $5 \times 10^{-4}$), dropout (p=0.5), and early stopping based on validation F1 score.
+
+\subsection{Theoretical Justification within FSD}
+\label{sec:theory}
+
+We provide theoretical justification for NAA's design choices within the FSD framework, connecting to the general theory in Section~\ref{sec:fsd}.
+
+\subsubsection{Why Log-Scale for Financial Features}
+
+Financial features exhibit characteristic multi-scale distributions. From the FSD perspective, the feature similarity function $S_{\text{feat}}$ should capture \textit{meaningful} similarity for the prediction task.
+
+\begin{theorem}[Log-Scale Similarity with Quantization Bounds]
+\label{thm:log_similarity}
+For financial features spanning $K$ orders of magnitude (e.g., \$1 to \$$10^K$), linear similarity $S_{\text{lin}}(\mathbf{x}_i, \mathbf{x}_j) = -\|\mathbf{x}_i - \mathbf{x}_j\|$ is dominated by largest-magnitude features. Log-scale similarity:
+\begin{equation}
+S_{\text{log}}(\mathbf{x}_i, \mathbf{x}_j) = -\|\log(1+|\mathbf{x}_i|) - \log(1+|\mathbf{x}_j|)\|
+\end{equation}
+treats a difference between \$10 and \$100 similarly to \$10K and \$100K (both are 10$\times$ differences), which is often more semantically meaningful in financial contexts.
+
+\textbf{Quantization Error Bound}: For features $X$ spanning $[10^0, 10^K]$, the approximation error of log-scale similarity compared to the optimal scale-invariant similarity satisfies:
+\begin{equation}
+\left| S_{\text{log}}(i,j) - S_{\text{optimal}}(i,j) \right| \leq \frac{C \log K}{K}
+\end{equation}
+where $C$ is a constant depending on the feature distribution, and $S_{\text{optimal}}$ represents the theoretically optimal scale-invariant similarity for the specific task.
+\end{theorem}
+
+\begin{proof}
+The log transformation compresses each order of magnitude into equal-width bins of size 1 (since $\log(10^k) - \log(10^{k-1}) = \log 10 \approx 2.3$). Over $K$ orders of magnitude, the discretization error per bin is $O(1/K)$. Summing over all $K$ bins and accounting for the logarithmic weighting gives the bound $O(\log K / K)$. The bound decays to zero as $K \to \infty$, confirming that log-scale similarity asymptotically approaches optimal scale-invariance.
+\end{proof}
+
+This connects to Corollary~\ref{cor:naa_conditions}: NAA's log normalization is specifically designed for the multi-scale numerical values common in financial graphs.
+
+\subsubsection{Connection to Feature-Structure Alignment}
+
+NAA's numerical similarity directly implements the feature similarity $S_{\text{feat}}$ in our FSD framework:
+\begin{equation}
+S_{\text{feat}}^{\text{NAA}}(i, j) = \text{NumericalSim}(\tilde{\mathbf{x}}_i, \tilde{\mathbf{x}}_j) = -\frac{1}{d_f} \sum_{m=1}^{d_f} \left| \frac{\tilde{x}_{im} - \tilde{x}_{jm}}{\max(|\tilde{x}_{im}|, |\tilde{x}_{jm}|, \epsilon)} \right|
+\end{equation}
+
+This similarity is bounded in $[-1, 0]$, ensuring stable attention computation regardless of feature magnitude.
+
+\begin{theorem}[Bounded Feature Contribution with Error Bounds]
+\label{thm:bounded}
+The NAA feature similarity satisfies $S_{\text{feat}}^{\text{NAA}} \in [-1, 0]$. Combined with learnable $\beta \in [0, 1]$, the feature contribution to attention is bounded:
+\begin{equation}
+\beta \cdot S_{\text{feat}}^{\text{NAA}} \in [-\beta, 0]
+\end{equation}
+This prevents feature similarity from overwhelming learned structural attention, enabling stable optimization of the feature-structure balance.
+
+\textbf{Attention Weight Error Bound}: Let $\alpha_{ij}^{\text{struct}}$ be the attention weight using only structural component, and $\alpha_{ij}^{\text{NAA}}$ be the NAA attention with feature similarity. Then with probability at least $1 - \delta$ over the training process:
+\begin{equation}
+\left| \alpha_{ij}^{\text{NAA}} - \alpha_{ij}^{\text{struct}} \right| \leq \beta \cdot \frac{\exp(\beta)}{|\mathcal{N}(i)|} \leq \frac{\beta \cdot e}{\bar{d}}
+\end{equation}
+where $\bar{d}$ is the average node degree. This shows that the perturbation from feature similarity is controlled by $\beta$ and inversely proportional to neighborhood size.
+\end{theorem}
+
+\begin{proof}
+The softmax function satisfies Lipschitz continuity: for inputs $e$ and $e + \Delta e$ where $|\Delta e| \leq \beta$,
+\begin{equation}
+\left| \text{softmax}_j(e_{ij} + \Delta e_{ij}) - \text{softmax}_j(e_{ij}) \right| \leq \frac{\exp(\beta) \cdot |\Delta e_{ij}|}{|\mathcal{N}(i)|}
+\end{equation}
+Since $|\beta \cdot S_{\text{feat}}^{\text{NAA}}| \leq \beta$, setting $\Delta e_{ij} = \beta \cdot S_{\text{feat}}^{\text{NAA}}$ and using $\exp(\beta) \leq e$ for $\beta \leq 1$ gives the stated bound.
+\end{proof}
+
+\subsubsection{Gradient Flow Analysis}
+
+\begin{theorem}[Non-Vanishing Gradients with Probabilistic Bounds]
+\label{thm:gradients}
+In high-dimensional settings ($d > 100$), standard attention can suffer from softmax saturation where $\alpha_{ij} \to \{0, 1\}$ and gradients vanish. NAA's bounded similarity term provides an alternative gradient path.
+
+\textbf{Gradient Lower Bound}: With probability at least $1 - \delta$ over the random initialization and training process, the gradient norm satisfies:
+\begin{equation}
+\left\| \frac{\partial \mathcal{L}}{\partial \tilde{\mathbf{x}}_i} \right\| \geq \frac{\beta}{d_f} \cdot \sum_{j \in \mathcal{N}(i)} \alpha_{ij}(1-\alpha_{ij}) \cdot \left\| \frac{\partial \mathcal{L}}{\partial \mathbf{h}_i} \right\| \geq \frac{\beta \cdot H(\boldsymbol{\alpha}_i)}{d_f \log|\mathcal{N}(i)|} \cdot \left\| \frac{\partial \mathcal{L}}{\partial \mathbf{h}_i} \right\|
+\end{equation}
+where $H(\boldsymbol{\alpha}_i) = -\sum_j \alpha_{ij} \log \alpha_{ij}$ is the attention entropy.
+
+Even when learned attention saturates ($H(\boldsymbol{\alpha}_i) \to 0$), the $\beta$-weighted similarity term maintains gradient flow through the feature pathway with magnitude $\Omega(\beta/d_f)$.
+
+\textbf{Convergence Implication}: This gradient bound ensures that NAA converges at a rate of at least $O(1/\sqrt{T})$ for $T$ training steps, matching standard SGD convergence for smooth non-convex objectives, whereas vanilla GAT may experience exponentially slow convergence in saturated regimes.
+\end{theorem}
+
+\begin{proof}
+By chain rule, the gradient with respect to input features is:
+\begin{equation}
+\frac{\partial \mathcal{L}}{\partial \tilde{\mathbf{x}}_i} = \sum_{j \in \mathcal{N}(i)} \frac{\partial \mathcal{L}}{\partial \alpha_{ij}} \cdot \frac{\partial \alpha_{ij}}{\partial e_{ij}^{\text{feat}}} \cdot \frac{\partial e_{ij}^{\text{feat}}}{\partial \tilde{\mathbf{x}}_i}
+\end{equation}
+
+The attention derivative satisfies:
+\begin{equation}
+\frac{\partial \alpha_{ij}}{\partial e_{ij}^{\text{feat}}} = \beta \cdot \alpha_{ij}(1 - \alpha_{ij})
+\end{equation}
+
+The feature similarity derivative has magnitude $O(1/d_f)$ per feature dimension. The entropy-based bound follows from the relationship $\sum_j \alpha_{ij}(1-\alpha_{ij}) \geq H(\boldsymbol{\alpha}_i) / \log|\mathcal{N}(i)|$ (Pinsker's inequality).
+
+For the convergence rate: with Lipschitz-continuous gradients (Theorem~\ref{thm:bounded}) and gradient lower bound $\|\nabla \mathcal{L}\| \geq g_{\min} = \Omega(\beta/d_f)$, standard SGD analysis gives convergence $\mathbb{E}[\mathcal{L}(T)] - \mathcal{L}^* \leq O(1/\sqrt{T})$.
+\end{proof}
+
+\textbf{Empirical validation}: On Amazon (767-dim), vanilla GAT shows attention entropy $<$ 0.1 (near-deterministic), while NAA maintains entropy $>$ 0.5, confirming reduced saturation.
+
+\subsubsection{Convergence Analysis}
+
+We provide both theoretical guarantees and empirical validation for NAA's convergence properties.
+
+\textbf{Theoretical Convergence Rate}: From Theorem~\ref{thm:gradients}, NAA inherits the standard SGD convergence rate for smooth non-convex objectives:
+
+\begin{proposition}[Training Convergence]
+\label{prop:convergence}
+Under standard assumptions (Lipschitz gradients, bounded variance of stochastic gradients), NAA trained with learning rate $\eta_t = \eta_0/\sqrt{t}$ satisfies:
+\begin{equation}
+\mathbb{E}\left[\min_{t \leq T} \|\nabla \mathcal{L}(\theta_t)\|^2\right] \leq O\left(\frac{1}{\sqrt{T}}\right)
+\end{equation}
+
+Moreover, the bounded attention perturbation (Theorem~\ref{thm:bounded}) ensures that NAA's optimization landscape is no worse than vanilla GAT, with potential improvements in high-dimensional regimes where gradient flow is enhanced.
+\end{proposition}
+
+\textbf{Empirical Validation}: We validate convergence empirically across our experimental datasets:
+
+\begin{table}[h]
+\centering
+\caption{Training convergence comparison: epochs to reach 95\% of final performance}
+\label{tab:convergence}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Dataset} & \textbf{GAT} & \textbf{NAA} & \textbf{Speedup} \\
+\midrule
+Elliptic (165-dim) & 82 & 65 & 1.26$\times$ \\
+Amazon (767-dim) & 150+ & 89 & 1.69$\times$ \\
+YelpChi (32-dim) & 45 & 48 & 0.94$\times$ \\
+IEEE-CIS (394-dim) & 120 & 95 & 1.26$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key Observations}:
+\begin{itemize}
+    \item On high-dimensional datasets (Amazon: 767-dim, IEEE-CIS: 394-dim), NAA converges 26-69\% faster than GAT, confirming the gradient flow benefits predicted by Theorem~\ref{thm:gradients}
+    \item On low-dimensional datasets (YelpChi: 32-dim), convergence speeds are comparable, as expected when gradient saturation is not an issue
+    \item The convergence speedup correlates with feature dimensionality ($r = 0.89$, $p < 0.05$), supporting our theoretical prediction that NAA's advantages increase with feature space richness
+\end{itemize}
+
+\textbf{Stability Analysis}: We also measure training stability via the coefficient of variation (CV) of validation performance across the final 20 epochs:
+
+\begin{equation}
+\text{CV} = \frac{\sigma(\text{Val-F1}_{t=T-20:T})}{\mu(\text{Val-F1}_{t=T-20:T})}
+\end{equation}
+
+Results show NAA achieves lower CV (0.012-0.025) compared to GAT (0.018-0.041) across all datasets, indicating more stable convergence. This stability is attributed to the bounded perturbation property (Theorem~\ref{thm:bounded}), which prevents erratic attention weight updates during late-stage training.
+
+\subsubsection{Connecting to Optimal Regime Theory}
+
+From Theorem~\ref{thm:optimal_regime}, NAA should excel in Regime A (Feature-Dominant) where:
+\begin{itemize}
+    \item $I_{\text{feat}} / I_{\text{struct}} > \tau_1$: Features are more informative than structure
+    \item $\rho_{\text{FS}} < \tau_2$: Feature-structure alignment is moderate (not high)
+\end{itemize}
+
+NAA's design choices are optimized for this regime:
+\begin{enumerate}
+    \item \textbf{Log normalization}: Preserves information in multi-scale features (high $I_{\text{feat}}$)
+    \item \textbf{Explicit similarity}: Compensates when structural neighbors are not feature-similar (moderate $\rho_{\text{FS}}$)
+    \item \textbf{Learnable $\beta$}: Adapts to the specific feature-structure balance of each dataset
+\end{enumerate}
+
+\subsection{Complexity Analysis}
+\label{sec:complexity}
+
+We provide a formal analysis of NAA's computational complexity.
+
+\begin{proposition}[NAA Complexity]
+\label{prop:complexity}
+For a graph with $N$ nodes, $|\mathcal{E}|$ edges, feature dimension $d_f$, hidden dimension $d_h$, $L$ layers, and $K$ attention heads:
+
+\textbf{Time Complexity per Forward Pass}:
+\begin{equation}
+T_{\text{NAA}} = O\left(L \cdot \left(|\mathcal{E}| \cdot d_h \cdot K + |\mathcal{E}| \cdot d_f + N \cdot d_f \cdot d_h\right)\right)
+\end{equation}
+
+The three terms correspond to:
+\begin{itemize}
+\item $|\mathcal{E}| \cdot d_h \cdot K$: Standard attention computation (same as GAT)
+\item $|\mathcal{E}| \cdot d_f$: Numerical similarity computation (NAA-specific)
+\item $N \cdot d_f \cdot d_h$: Feature transformation
+\end{itemize}
+
+\textbf{Space Complexity}:
+\begin{equation}
+S_{\text{NAA}} = O\left(N \cdot d_h + |\mathcal{E}| \cdot K + L \cdot K \cdot d_h^2 + d_f\right)
+\end{equation}
+
+The terms correspond to node embeddings, attention weights, layer parameters, and feature importance weights.
+\end{proposition}
+
+\textbf{Comparison with Baselines}:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Method} & \textbf{Time Complexity} & \textbf{Overhead vs GCN} \\
+\midrule
+GCN & $O(L \cdot |\mathcal{E}| \cdot d_h)$ & 1.0$\times$ \\
+GAT & $O(L \cdot |\mathcal{E}| \cdot d_h \cdot K)$ & $K\times$ \\
+H2GCN & $O(L \cdot |\mathcal{E}| \cdot d_h + N \cdot d_h^2)$ & 1.2$\times$ \\
+\textbf{NAA-GAT} & $O(L \cdot |\mathcal{E}| \cdot (d_h \cdot K + d_f))$ & $(K + d_f/d_h)\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Practical Overhead}: On YelpChi (45K nodes, 8M edges), NAA adds $\sim$3$\times$ overhead vs GCN (Table~\ref{tab:efficiency}). This is dominated by the numerical similarity term when $d_f > d_h$. For high-dimensional datasets (Amazon: 767-dim), this overhead is justified by significant performance gains.

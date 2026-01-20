@@ -1,0 +1,57 @@
+% ============================================================
+% Section 2: Related Work
+% The Information Budget of Graph Neural Networks
+% ============================================================
+
+\section{Related Work}
+\label{sec:related}
+
+Our Information Budget framework relates to four research areas: GNN aggregation mechanisms, homophily and heterophily analysis, feature-structure relationships, and GNN expressiveness theory.
+
+\subsection{Graph Neural Networks and Aggregation}
+
+\textbf{Spectral methods}: GCN~\cite{kipf2017gcn} introduced efficient graph convolution via symmetric normalization. SGC~\cite{wu2019sgc} simplified this by removing nonlinearities. These methods use \textit{replace} aggregation, where the node's own features are overwritten by aggregated neighbors.
+
+\textbf{Spatial methods}: GraphSAGE~\cite{hamilton2017graphsage} uses neighborhood sampling with \textit{concatenation}---preserving the node's own features alongside aggregated information. GIN~\cite{xu2019gin} proved theoretical expressiveness bounds. Our ADR analysis (Section~\ref{sec:adr}) shows that the replace-vs-concatenate distinction is critical for robustness.
+
+\textbf{Attention mechanisms}: GAT~\cite{velivckovic2018gat} learns neighbor importance. GATv2~\cite{brody2022gatv2} improved dynamic attention. However, attention cannot prevent damage when neighbors are fundamentally misleading---a problem our ADR quantifies.
+
+\textbf{Scalability}: GraphSAINT~\cite{zeng2020graphsaint} and Cluster-GCN~\cite{chiang2019clustergcn} enable million-node training. Our OGB experiments (Section~\ref{sec:budget}) validate the Information Budget at this scale.
+
+\subsection{Homophily and Heterophily}
+
+\textbf{The homophily assumption}: Classic GNNs assume connected nodes share labels. Edge homophily $h = \frac{|\{(u,v) \in E : y_u = y_v\}|}{|E|}$ measures this tendency~\cite{mcpherson2001homophily}.
+
+\textbf{Heterophily-aware methods}: When $h$ is low, standard GNNs fail. H2GCN~\cite{zhu2020beyond} uses 2-hop neighbors and ego-neighbor separation. LINKX~\cite{luan2022linkx} separates features from structure entirely. MixHop~\cite{abu2019mixhop} and GPR-GNN~\cite{chien2021gprgnn} use multi-hop aggregation with learnable coefficients. FAGCN~\cite{fagcn2021} introduces frequency-adaptive filtering to handle both homophily and heterophily. GloGNN~\cite{li2022glognn} discovers global homophily patterns even in locally heterophilous graphs. ACM-GCN~\cite{luan2022acmgcn} uses adaptive cross-hop message passing. Our Dual Heterophily framework (Section~\ref{sec:heterophily}) explains \textit{when} these methods help: Type A (recoverable via 2-hop) vs Type B (irrecoverable, MLP optimal).
+
+\textbf{Beyond binary homophily}: Recent work challenges the simple high/low dichotomy. Platonov et al.~\cite{platonov2023heterophily} show that homophily alone is insufficient for predicting GNN success. Ma et al.~\cite{ma2021homophily} introduce class-conditional homophily. Our Information Budget provides a complementary perspective: feature sufficiency determines the ceiling, regardless of $h$.
+
+\subsection{Feature-Structure Relationships}
+
+\textbf{When features are enough}: Huang et al.~\cite{huang2021mlp} showed MLPs can match GNNs on some benchmarks. GAMLP~\cite{zhang2021gamlp} precomputes propagation then trains MLP. Our work formalizes this: when $\text{Acc}_{\text{MLP}}$ is high, there is insufficient \textbf{budget} for GNN improvement.
+
+\textbf{Feature quality metrics}: Node feature informativeness has been studied~\cite{shchur2018pitfalls}, but primarily as a data quality issue. We reconceptualize it as the \textbf{Information Budget}---a fundamental constraint on GNN improvement.
+
+\textbf{Over-smoothing}: Li et al.~\cite{li2018oversmoothing} identified representation collapse in deep GNNs. Chen et al.~\cite{chen2020oversmoothing} analyzed the spectral perspective. Our ADR provides a related but distinct insight: even \textit{one} layer of aggregation can damage information at mid-homophily.
+
+\subsection{GNN Expressiveness Theory}
+
+\textbf{WL hierarchy}: Xu et al.~\cite{xu2019gin} proved GNNs are at most as expressive as 1-WL. Morris et al.~\cite{morris2019wl} extended this to higher-order WL. These results focus on \textit{distinguishing graphs}, not \textit{improving predictions}---a gap our framework addresses.
+
+\textbf{Information-theoretic bounds}: Wu et al.~\cite{wu2023infognn} analyzed information flow in GNNs. Oono and Suzuki~\cite{oono2020exponential} proved exponential information loss in deep GNNs. Our Information Budget is complementary: it bounds improvement from the \textit{task} perspective, not the \textit{architecture} perspective.
+
+\textbf{Aggregation analysis}: Cai and Wang~\cite{cai2020note} showed mean aggregation has limitations. Hamilton~\cite{hamilton2020book} compared aggregators extensively. Our Proposition~\ref{prop:concat_bound} provides theoretical grounding for concatenation's superiority.
+
+\subsection{Positioning of Our Work}
+
+Our contribution differs from prior work in three ways:
+
+\begin{enumerate}
+    \item \textbf{Budget-first perspective}: Existing frameworks start from $h$ or structure. We start from MLP accuracy, establishing the ceiling before considering how to reach it.
+
+    \item \textbf{Damage quantification}: ADR provides a scalar measure of aggregation harm, explaining GraphSAGE's robustness through feature preservation.
+
+    \item \textbf{Heterophily typology}: Rather than treating low-$h$ as a single regime, we distinguish Type A (where H2GCN helps) from Type B (where MLP is optimal).
+\end{enumerate}
+
+Together, these form a unified decision framework that predicts GNN outcomes more accurately than homophily alone.

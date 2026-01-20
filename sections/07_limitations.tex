@@ -1,0 +1,48 @@
+\section{Limitations}
+\label{sec:limitations}
+
+While our work provides valuable insights into the trust regions of graph propagation, we acknowledge the following limitations:
+
+\subsection{Dataset Scope}
+
+Our empirical analysis primarily focuses on citation networks and social networks. While these represent important application domains, the generalization of our findings to other graph types (e.g., biological networks, knowledge graphs, molecular structures) requires further investigation. Different domains may exhibit distinct structural patterns and feature-label relationships that could affect the U-shaped performance pattern.
+
+\subsection{Feature Sufficiency Estimation}
+
+The Feature Sufficiency (FS) estimation currently relies on training a separate MLP model, which introduces computational overhead. While this approach provides a practical proxy for feature quality, developing more efficient estimation methods or theoretical bounds for FS would be valuable for large-scale applications. Additionally, the estimation accuracy may be affected by the MLP architecture and training configuration.
+
+\subsection{Homophily Metrics}
+
+Our SPI framework uses edge homophily as the primary structural quality metric. While edge homophily has proven effective in our experiments, it represents a simplified view of graph structure. More sophisticated structural metrics (e.g., node homophily, class homophily, local clustering patterns) might capture additional nuances of neighborhood relationships. The interaction between different homophily definitions and their impact on GNN performance remains an open question.
+
+\subsection{Static Graph Assumption}
+
+Our analysis assumes static graphs where both structure and features remain fixed. Dynamic graphs, where nodes, edges, or features evolve over time, may exhibit different trust region behaviors. The temporal dimension could introduce additional factors affecting when to trust graph structure, requiring extensions to our framework.
+
+\subsection{GNN Architecture Coverage}
+
+While we systematically evaluate three representative GNN architectures (GCN, GAT, GraphSAGE) with different aggregation mechanisms, the rapidly evolving landscape of GNN designs includes many specialized architectures (e.g., graph transformers, spectral methods, message-passing variants). Our findings provide insights for common aggregation patterns, but specific architectural innovations may exhibit different behaviors in trust regions.
+
+\subsection{Computational Considerations}
+
+The SPI-Guided Soft Gating mechanism requires training both GNN and MLP components, which doubles the computational cost compared to using a single model. For resource-constrained scenarios, our framework currently relies on the SPI decision boundary to select one model, but developing more efficient fusion strategies or lightweight alternatives would enhance practical applicability.
+
+\subsection{Theoretical Assumptions}
+
+Our information-theoretic derivation of $I(Y_u; Y_N) \propto \SPI^2$ (Theorem~\ref{thm:spi_mutual_info}) relies on several simplifying assumptions that practitioners should be aware of:
+
+\textbf{1. Balanced binary classification.} We assume $P(Y=0) = P(Y=1) = 0.5$. For imbalanced datasets (e.g., fraud detection with 1--5\% positive rate), the entropy calculation should be adjusted: $H(Y) = -\pi \log \pi - (1-\pi) \log(1-\pi)$ where $\pi$ is the minority class rate.
+
+\textbf{2. Uniform neighbor sampling.} We assume each neighbor is drawn uniformly at random. Real graphs exhibit degree heterogeneity, where high-degree nodes' neighbors are not uniformly sampled from the population. A degree-corrected version would weight by $P(\text{degree})$.
+
+\textbf{3. Taylor expansion validity.} The approximation $H_b(0.5 + \epsilon) \approx 1 - \frac{2\epsilon^2}{\ln 2}$ is accurate only for small $|\epsilon|$ (i.e., $|\SPI| < 0.3$). For extreme homophily values ($h < 0.15$ or $h > 0.85$), the Taylor approximation may deviate from exact mutual information.
+
+\textbf{4. Independent neighbors.} We treat each neighbor independently. Real GNN aggregation over \textit{all} neighbors involves multi-information: $I(Y; \{Y_{N_1}, ..., Y_{N_d}\}) \neq d \cdot I(Y; Y_N)$.
+
+These assumptions explain why SPI achieves high correlation ($R^2 = 0.86$) in controlled synthetic experiments but exhibits asymmetric reliability in real-world validation.
+
+\subsection{Theoretical Guarantees}
+
+While we provide theoretical analysis of the U-shaped pattern through spectral analysis and feature interference, our current framework does not offer formal guarantees on the absolute performance of GNNs or the fusion mechanism. Establishing theoretical performance bounds as a function of SPI and FS would strengthen the foundation of our approach.
+
+These limitations highlight promising directions for future work, including extending the framework to broader graph types, developing more efficient FS estimation methods, incorporating richer structural metrics, and providing stronger theoretical guarantees for trust region predictions.

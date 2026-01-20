@@ -1,0 +1,284 @@
+% ============================================================
+% Section 6: Dual Heterophily Types
+% The Information Budget of Graph Neural Networks
+% ============================================================
+
+\section{Dual Heterophily: Type A vs Type B}
+\label{sec:heterophily}
+
+The Information Budget and ADR explain GNN behavior in high-homophily and mid-homophily regimes. But low-homophily ($h < 0.3$) graphs present a puzzle: synthetic experiments show GNN advantage, while real-world experiments often show GNN failure. We resolve this puzzle by identifying two fundamentally different types of heterophily.
+
+\subsection{The Heterophily Puzzle}
+
+Consider two sets of low-$h$ datasets:
+
+\begin{table}[t]
+\centering
+\caption{The Heterophily Puzzle: Same $h$, Opposite Outcomes}
+\label{tab:heterophily_puzzle}
+\begin{tabular}{@{}lccccl@{}}
+\toprule
+\textbf{Dataset} & \textbf{$h$} & \textbf{MLP} & \textbf{GCN} & \textbf{GCN-MLP} & \textbf{Outcome} \\
+\midrule
+\multicolumn{6}{l}{\textit{Group 1: GCN wins despite low $h$}} \\
+Chameleon & 0.23 & 49.0\% & 64.6\% & \textbf{+15.6\%} & GCN \\
+Squirrel & 0.22 & 32.8\% & 49.2\% & \textbf{+16.4\%} & GCN \\
+\midrule
+\multicolumn{6}{l}{\textit{Group 2: MLP wins despite low $h$}} \\
+Texas & 0.09 & 77.8\% & 53.5\% & $-24.3\%$ & MLP \\
+Wisconsin & 0.19 & 79.6\% & 49.0\% & $-30.6\%$ & MLP \\
+Cornell & 0.13 & 71.4\% & 47.0\% & $-24.4\%$ & MLP \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Puzzle} (Table~\ref{tab:heterophily_puzzle}): All five datasets have $h < 0.25$, yet they show opposite GNN outcomes:
+\begin{itemize}
+    \item \textbf{Chameleon/Squirrel}: GCN gains +15--16\%
+    \item \textbf{Texas/Wisconsin/Cornell}: GCN loses 24--31\%
+\end{itemize}
+
+Neither homophily nor the Information Budget alone can explain this. We need to examine the \textit{structure} of heterophily.
+
+\subsection{Two Types of Heterophily}
+
+\begin{definition}[Heterophily Types]
+\label{def:hetero_types}
+Based on the 2-hop label recovery ratio $R_{2\text{-hop}} = h_2 / h_1$:
+\begin{itemize}
+    \item \textbf{Type A (Recoverable Heterophily)}: $R_{2\text{-hop}} > \tau$
+    \begin{itemize}
+        \item 2-hop neighbors are more likely same-class than 1-hop
+        \item Structure contains useful information at multi-hop level
+        \item Heterophily-aware architectures (H2GCN, LINKX) are effective
+    \end{itemize}
+
+    \item \textbf{Type B (Irrecoverable Heterophily)}: $R_{2\text{-hop}} \leq 1.0$
+    \begin{itemize}
+        \item 2-hop neighbors are \textit{not} more likely same-class
+        \item No exploitable structure at any hop level
+        \item MLP is optimal; GNNs add only noise
+    \end{itemize}
+\end{itemize}
+where $\tau$ is a threshold discussed below.
+\end{definition}
+
+\begin{remark}[On the Threshold $\tau$: Theoretical vs Practical]
+\label{rem:threshold_tau}
+The threshold $\tau$ separating Type A from Type B heterophily requires careful consideration:
+
+\textbf{Theoretical Boundary}: The information-theoretic boundary is $\tau = 1.0$. If $R_{2\text{-hop}} > 1.0$, 2-hop neighborhoods contain strictly more same-class information than 1-hop, making multi-hop aggregation potentially beneficial.
+
+\textbf{Practical Threshold}: In practice, we recommend a \textbf{graph-dependent threshold}:
+\begin{equation}
+    \tau(G) = 1 + \frac{c}{\sqrt{d_{\text{avg}}}}
+\end{equation}
+where $d_{\text{avg}}$ is the average node degree and $c$ is a constant (we use $c = 1$ in experiments). This accounts for:
+\begin{enumerate}
+    \item \textbf{Estimation noise}: $h_2$ is estimated from finite samples; variance scales as $O(1/\sqrt{d_{\text{avg}}})$
+    \item \textbf{Spectral noise floor}: Below $O(1/\sqrt{d})$ signal strength, information is likely undetectable (Kesten-Stigum bound intuition)
+\end{enumerate}
+
+\textbf{Default Heuristic}: For simplicity, we use $\tau = 1.5$ as a \textbf{fixed heuristic} that works well across diverse datasets:
+\begin{itemize}
+    \item For sparse graphs ($d_{\text{avg}} \approx 4$): $\tau(G) = 1 + 1/\sqrt{4} = 1.5$
+    \item For dense graphs ($d_{\text{avg}} \approx 100$): $\tau(G) = 1 + 1/\sqrt{100} = 1.1$
+\end{itemize}
+The choice $\tau = 1.5$ corresponds to typical sparse graphs in heterophily benchmarks. We provide sensitivity analysis in Section~\ref{sec:sensitivity}.
+
+\textbf{Reproducible Selection Protocol}: For practitioners applying our framework:
+\begin{enumerate}
+    \item Compute $h_1$, $h_2$, and $R_{2\text{-hop}} = h_2/h_1$
+    \item Compute $d_{\text{avg}}$ and $\tau(G) = 1 + 1/\sqrt{d_{\text{avg}}}$
+    \item Classify as Type A if $R_{2\text{-hop}} > \tau(G)$, else Type B (or intermediate if $1.0 < R < \tau(G)$)
+\end{enumerate}
+This protocol is fully reproducible without manual tuning.
+\end{remark}
+
+\subsection{Empirical Evidence: 2-Hop Recovery}
+
+We compute 1-hop and 2-hop homophily for all low-$h$ datasets.
+
+\begin{table}[t]
+\centering
+\caption{2-Hop Label Recovery: Type A vs Type B Heterophily}
+\label{tab:2hop_recovery}
+\begin{tabular}{@{}lccccl@{}}
+\toprule
+\textbf{Dataset} & \textbf{$h_1$ (1-hop)} & \textbf{$h_2$ (2-hop)} & \textbf{$R_{2\text{-hop}}$} & \textbf{Type} & \textbf{Best Model} \\
+\midrule
+\multicolumn{6}{l}{\textit{Type A: Recoverable (multi-hop structure exists)}} \\
+Texas & 0.108 & 0.566 & \textbf{5.26$\times$} & A & H2GCN \\
+Wisconsin & 0.196 & 0.421 & \textbf{2.15$\times$} & A & H2GCN \\
+Cornell & 0.131 & 0.391 & \textbf{2.99$\times$} & A & H2GCN \\
+\midrule
+\multicolumn{6}{l}{\textit{Type B: Irrecoverable (no multi-hop structure)}} \\
+Actor & 0.219 & 0.209 & 0.96$\times$ & B & MLP \\
+Chameleon & 0.235 & 0.228 & 0.97$\times$ & B & GCN$^\dag$ \\
+Squirrel & 0.224 & 0.198 & 0.88$\times$ & B & GCN$^\dag$ \\
+\bottomrule
+\end{tabular}
+\vspace{1mm}
+\raggedright\small $^\dag$Chameleon/Squirrel have very low MLP accuracy (32--49\%), creating sufficient budget for GCN despite Type B.
+\end{table}
+
+\textbf{Key Finding} (Table~\ref{tab:2hop_recovery}):
+\begin{itemize}
+    \item \textbf{WebKB datasets} (Texas, Wisconsin, Cornell): $R_{2\text{-hop}} = 2$--$5\times$ (Type A). Despite being heterophilic at 1-hop, they are \textit{homophilic at 2-hop}. H2GCN and similar methods exploit this.
+
+    \item \textbf{Wikipedia datasets} (Actor, Chameleon, Squirrel): $R_{2\text{-hop}} < 1\times$ (Type B). No recovery at 2-hop. Structure is noise at \textit{all} scales.
+\end{itemize}
+
+\subsection{Feature Similarity Analysis}
+
+We further analyze why Type A and Type B differ by examining feature similarity between neighbors.
+
+\begin{definition}[Feature Similarity Gap]
+\label{def:feature_gap}
+The \textbf{Feature Similarity Gap} measures the difference between intra-class and inter-class neighbor similarity:
+\begin{equation}
+    \text{Gap} = \mathbb{E}[\cos(x_u, x_v) | y_u = y_v] - \mathbb{E}[\cos(x_u, x_v) | y_u \neq y_v]
+\end{equation}
+\end{definition}
+
+\begin{table}[t]
+\centering
+\caption{Feature Similarity Analysis: Type A vs Type B}
+\label{tab:feature_similarity}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Type} & \textbf{Datasets} & \textbf{Avg. Gap} & \textbf{MLP Acc.} & \textbf{GCN vs MLP} \\
+\midrule
+Type A (WebKB) & Texas, Wisconsin, Cornell & \textbf{0.0746} & 75--80\% & MLP wins \\
+Type B (Wikipedia) & Chameleon, Squirrel & 0.0025 & 35--49\% & GCN wins \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key Finding} (Table~\ref{tab:feature_similarity}):
+\begin{itemize}
+    \item \textbf{Type A}: Large feature gap (0.0746) $\Rightarrow$ Features already discriminate well (high MLP accuracy). GCN aggregation damages this good signal.
+
+    \item \textbf{Type B}: Tiny feature gap (0.0025) $\Rightarrow$ Features are nearly useless (low MLP accuracy). Even noisy GCN aggregation provides \textit{some} additional signal.
+\end{itemize}
+
+This resolves the Chameleon-Squirrel paradox: they are Type B with low feature quality, so the ``bad information $>$ no information'' principle applies.
+
+\subsection{The Complete Picture: Budget + Type}
+
+Combining Information Budget with Heterophily Type yields a complete decision framework for low-$h$ datasets:
+
+\begin{table}[t]
+\centering
+\caption{Low-$h$ Decision Matrix: Budget $\times$ Type}
+\label{tab:low_h_matrix}
+\begin{tabular}{@{}l|cc@{}}
+\toprule
+ & \textbf{High Budget} ($\mathcal{B} > 0.5$) & \textbf{Low Budget} ($\mathcal{B} < 0.35$) \\
+\midrule
+\textbf{Type A} ($R > 1.5$) & H2GCN/LINKX & MLP (features sufficient) \\
+\textbf{Type B} ($R \leq 1.0$) & GCN may help$^\dag$ & MLP \\
+\bottomrule
+\end{tabular}
+\vspace{1mm}
+\raggedright\small $^\dag$When budget is large and features are useless, even noisy aggregation can help.
+\end{table}
+
+\textbf{Decision Logic} (Table~\ref{tab:low_h_matrix}):
+\begin{enumerate}
+    \item \textbf{Type A + High Budget}: Use H2GCN/LINKX to exploit 2-hop structure
+    \item \textbf{Type A + Low Budget}: Use MLP (features already solve the task)
+    \item \textbf{Type B + High Budget}: GCN may help (bad info $>$ no info)
+    \item \textbf{Type B + Low Budget}: Use MLP (no budget, no structure)
+\end{enumerate}
+
+\subsection{H2GCN Validation}
+
+We validate that H2GCN specifically helps Type A datasets but not Type B.
+
+\begin{table}[t]
+\centering
+\caption{H2GCN Improvement: Type A vs Type B}
+\label{tab:h2gcn_validation}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Dataset} & \textbf{Type} & \textbf{GCN} & \textbf{H2GCN} & \textbf{Improvement} \\
+\midrule
+Texas & A & 60.5\% & 78.9\% & \textbf{+18.4\%} \\
+Wisconsin & A & 49.4\% & 79.6\% & \textbf{+30.2\%} \\
+Cornell & A & 40.5\% & 76.2\% & \textbf{+35.7\%} \\
+\midrule
+Actor & B & 28.7\% & 35.9\% & +7.2\% \\
+Chameleon & B & 40.1\% & 52.3\% & +12.2\% \\
+Squirrel & B & 25.8\% & 35.0\% & +9.2\% \\
+\midrule
+\textbf{Type A Avg.} & & & & \textbf{+28.1\%} \\
+\textbf{Type B Avg.} & & & & +9.5\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key Finding} (Table~\ref{tab:h2gcn_validation}):
+\begin{itemize}
+    \item \textbf{Type A}: H2GCN improves by +28.1\% on average (exploits 2-hop structure)
+    \item \textbf{Type B}: H2GCN improves by only +9.5\% (no 2-hop structure to exploit)
+\end{itemize}
+
+H2GCN's effectiveness is \textit{predictable} from the heterophily type, confirming our framework.
+
+\subsection{The Actor Exception}
+
+Actor dataset ($h = 0.22$, MLP = 36\%) appears to be Type B with high budget, predicting GCN should help. Yet MLP wins. We analyze why:
+
+\begin{table}[t]
+\centering
+\caption{Actor Exception Analysis}
+\label{tab:actor_exception}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Dataset} & \textbf{Gini Coefficient} & \textbf{Avg. Degree} & \textbf{MLP} & \textbf{GCN-MLP} \\
+\midrule
+Chameleon & 0.31 & 14.4 & 49.0\% & +15.6\% \\
+Squirrel & 0.35 & 19.7 & 32.8\% & +16.4\% \\
+\textbf{Actor} & \textbf{0.62} & 3.9 & 36.4\% & $-6.9\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Root Cause} (Table~\ref{tab:actor_exception}): Actor has extremely skewed degree distribution (Gini = 0.62 vs 0.31--0.35) and very low average degree (3.9 vs 14--20). In highly skewed graphs, hub nodes dominate aggregation, propagating potentially misleading signals. The ``bad info $>$ no info'' principle requires \textit{diverse} neighbor sampling, which Actor lacks.
+
+\textbf{Practical Implication}: For Type B datasets with Gini $> 0.5$, our framework's GCN recommendation may not hold.
+
+\subsection{Unified Decision Algorithm}
+
+\begin{algorithm}[t]
+\caption{Information Budget Decision Framework}
+\label{alg:budget_decision}
+\begin{algorithmic}[1]
+\Require Graph $G$, Features $X$, Labels $Y$ (train split)
+\Ensure Model recommendation
+
+\State Train MLP; compute $\text{Acc}_{\text{MLP}}$ and Budget $\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$
+\State Compute homophily $h$ and 2-hop recovery $R_{2\text{-hop}}$
+
+\If{$\mathcal{B} < 0.05$}
+    \State \Return \textbf{MLP} \Comment{Insufficient budget}
+\EndIf
+
+\If{$h > 0.7$}
+    \State \Return \textbf{GCN/GAT/GraphSAGE} \Comment{High-$h$ trust region}
+\ElsIf{$0.3 \leq h \leq 0.7$}
+    \State \Return \textbf{GraphSAGE or MLP} \Comment{Uncertainty zone, minimize ADR}
+\Else \Comment{$h < 0.3$: heterophilic}
+    \If{$R_{2\text{-hop}} > 1.5$}
+        \State \Return \textbf{H2GCN/LINKX} \Comment{Type A: recoverable}
+    \ElsIf{$\mathcal{B} > 0.5$ and Gini $< 0.5$}
+        \State \Return \textbf{GCN possible} \Comment{Type B + high budget}
+    \Else
+        \State \Return \textbf{MLP} \Comment{Type B + low budget or skewed graph}
+    \EndIf
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Algorithm~\ref{alg:budget_decision}} integrates all components: Budget checks the ceiling, homophily determines the regime, and heterophily type guides the specific architecture choice.

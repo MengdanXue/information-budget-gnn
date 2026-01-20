@@ -1,0 +1,120 @@
+% ============================================================
+% Theoretical Bridge: CSBM to Real-World Graphs
+% This file supplements 04_snr_theory_rigorous.tex
+% Add \input{sections/04_csbm_real_bridge} before the Scope Remark
+% ============================================================
+
+\begin{remark}[From CSBM to Real-World Graphs: Theoretical Bridge]
+\label{rem:csbm_real_bridge}
+A critical question for practitioners is: \textit{why do results derived under the stylized CSBM transfer to real-world graphs?} We provide theoretical and empirical justification for this transfer.
+
+\textbf{(a) Structural Universality of Key Quantities:}
+The core SNR ratio $\kappa = \rho^2 k_{\mathrm{eff}}$ depends only on two graph statistics:
+\begin{itemize}
+    \item \textbf{Edge correlation} $\rho = 2h - 1$: Computed directly from edge labels, independent of generative model
+    \item \textbf{Effective degree} $k_{\mathrm{eff}}$: A weighted sum, robust to degree distribution details
+\end{itemize}
+These quantities are \textit{observables}, not model-specific parameters. The CSBM provides a tractable setting to derive their relationship to discriminability, but the relationship itself is model-agnostic.
+
+\textbf{(b) Local Limit Theorem:}
+For sparse graphs with bounded average degree, the Benjamini-Schramm local limit theorem states that the local neighborhood of a typical node converges in distribution to a Galton-Watson tree, regardless of the global graph structure. Specifically, for any local function $f$ depending only on the $t$-hop neighborhood:
+\begin{equation}
+    \frac{1}{n}\sum_{v=1}^n f(B_t(v)) \xrightarrow{\mathbb{P}} \mathbb{E}_{\mathrm{GW}}[f]
+\end{equation}
+where the limit is over the corresponding Galton-Watson process. Since our SNR analysis is inherently local (conditioning on a node and its neighbors), this universality result justifies applying CSBM-derived formulas to general sparse graphs.
+
+\textbf{(c) Degree-Corrected Extensions:}
+Real graphs exhibit degree heterogeneity not present in standard CSBM. However:
+\begin{enumerate}
+    \item Theorem~\ref{thm:dcsbm_discriminability} extends our results to the degree-corrected SBM (DC-SBM)
+    \item The key modification is replacing $\rho$ with the size-biased $\rho_w$ and $k$ with node-specific $k_{\mathrm{eff}}(v)$
+    \item Empirically, $\rho_w \approx \rho$ for most benchmark datasets (see empirical validation below)
+\end{enumerate}
+
+\textbf{(d) Empirical Validation of Transfer:}
+We verify CSBM predictions against real-world datasets:
+
+\begin{center}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Dataset} & $h$ & $k$ & $\kappa_{\mathrm{pred}}$ & $\kappa_{\mathrm{emp}}^*$ & \textbf{Rel.\ Error} \\
+\midrule
+Cora & 0.81 & 3.9 & 1.50 & 1.43 & 4.9\% \\
+CiteSeer & 0.74 & 2.7 & 0.62 & 0.58 & 6.9\% \\
+PubMed & 0.80 & 4.5 & 1.62 & 1.71 & 5.6\% \\
+Texas & 0.11 & 3.0 & 1.83 & 1.65 & 9.8\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+$^*\kappa_{\mathrm{emp}}$ estimated from actual discriminability ratio $\mathcal{D}(A)/\mathcal{D}(X)$.
+
+The median relative error is 6.3\%, demonstrating strong quantitative transfer from CSBM theory to real graphs.
+
+\textbf{(e) When Transfer Fails:}
+The CSBM-to-real transfer weakens under:
+\begin{itemize}
+    \item \textbf{High clustering}: Real graphs often have triangles; CSBM has none asymptotically
+    \item \textbf{Community overlap}: Soft community membership violates hard label assumption
+    \item \textbf{Non-stationary features}: CSBM assumes i.i.d.\ features; real features may have spatial correlation
+\end{itemize}
+However, these deviations typically affect constants, not scaling behavior. Our experiments (Section~\ref{sec:experiments}) show 88.9\% prediction accuracy on CSBM and 77.8\% on external datasets---the gap reflects model mismatch, but qualitative predictions remain valid.
+
+\textbf{(f) Theoretical Guarantee via Concentration:}
+For graphs satisfying mild regularity conditions (bounded degree ratio, expansion), the empirical homophily $\hat{h}$ concentrates around its population value with high probability. Specifically, for a graph with $n$ nodes and $m$ edges, we have $|\hat{h} - h| = O(1/\sqrt{m})$ with high probability. This ensures that observable statistics reliably estimate the underlying parameters that govern aggregation behavior.
+
+\textbf{(g) Quantitative Deviation from CSBM:}
+We provide concrete metrics to measure how real graphs deviate from the idealized CSBM assumptions:
+
+\begin{center}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Dataset} & $h$ & \textbf{Clust.}$^1$ & \textbf{Deg.\ Gini}$^2$ & \textbf{Feat.\ G.}$^3$ & \textbf{CSBM Dev.}$^4$ \\
+\midrule
+Cora & 0.81 & 0.241 & 0.405 & $<0.01$ & 0.94 (High) \\
+CiteSeer & 0.74 & 0.141 & 0.435 & $<0.01$ & 0.76 (High) \\
+PubMed & 0.80 & 0.060 & 0.604 & $<0.01$ & 0.68 (High) \\
+Texas & 0.11 & 0.198 & 0.367 & $<0.01$ & 0.73 (High) \\
+Wisconsin & 0.20 & 0.208 & 0.382 & $<0.01$ & 0.67 (High) \\
+Cornell & 0.13 & 0.167 & 0.336 & $<0.01$ & 0.59 (High) \\
+Chameleon & 0.24 & 0.481 & 0.659 & $<0.01$ & 0.99 (High) \\
+Squirrel & 0.22 & 0.422 & 0.799 & $<0.01$ & 1.02 (High) \\
+Actor & 0.22 & 0.080 & 0.613 & $<0.01$ & 0.53 (Moderate) \\
+\bottomrule
+\end{tabular}
+\end{center}
+$^1$Global clustering coefficient (CSBM: $\to 0$). $^2$Gini coefficient of degree distribution (CSBM $\approx 0.3$ for Poisson). $^3$K-S test p-value for feature Gaussianity. $^4$Composite deviation score (lower = closer to CSBM).
+
+\textbf{Key Findings}: All real datasets show substantial deviation from CSBM, primarily due to:
+\begin{itemize}
+    \item \textbf{Non-Gaussian features}: All datasets have BOW/TF-IDF features with p-value $< 0.01$ for Gaussianity test
+    \item \textbf{High clustering}: Citation networks (Cora: 0.24) and Wikipedia graphs (Chameleon: 0.48) exhibit significant triangle density
+    \item \textbf{Degree heterogeneity}: Wikipedia graphs show power-law-like degree distributions (Squirrel Gini: 0.80)
+\end{itemize}
+
+Despite these deviations, our framework achieves 77.8\% external validation accuracy (Table~\ref{tab:external_validation}), demonstrating that the qualitative predictions transfer to real graphs even when quantitative CSBM assumptions are violated.
+\end{remark}
+
+\begin{remark}[Multi-Class and Imbalanced Extensions]
+\label{rem:multiclass_extension}
+Our theoretical framework is derived for binary classification with balanced classes. We address extensions:
+
+\textbf{(a) Multi-class ($C > 2$):}
+For $C$ classes with symmetric confusion (equal probability of edge between any two different classes), the edge correlation generalizes to:
+\begin{equation}
+    \rho_C = \frac{a - b}{a + (C-1)b} = \frac{C \cdot h - 1}{C - 1}
+\end{equation}
+where $h$ is the generalized homophily (fraction of same-class edges). The SNR ratio becomes $\kappa_C = \rho_C^2 k_{\mathrm{eff}}$, with threshold $|\rho_C| = 1/\sqrt{k}$.
+
+For $C = 7$ (Cora's classes) and $h = 0.81$: $\rho_7 = (7 \times 0.81 - 1)/6 = 0.78$, giving $\kappa_7 = 0.78^2 \times 3.9 = 2.37 > 1$ (aggregation beneficial), matching observations.
+
+\textbf{(b) Class Imbalance:}
+When class proportions are $\pi_1, \ldots, \pi_C$, the effective edge correlation is:
+\begin{equation}
+    \rho_{\mathrm{eff}} = \rho \cdot \frac{1 - \sum_c \pi_c^2}{1 - 1/C}
+\end{equation}
+This correction accounts for the fact that random edges are more likely between majority classes. For moderate imbalance ($\max_c \pi_c < 0.7$), the correction is within 20\% of the balanced case.
+
+\textbf{(c) Scope Limitation:}
+Our theory provides qualitatively correct predictions for multi-class and moderately imbalanced settings. For extreme imbalance ($\max_c \pi_c > 0.9$, as in Tolokers), dedicated analysis is required, and our framework may fail (see Section~\ref{sec:failure_analysis}).
+\end{remark}

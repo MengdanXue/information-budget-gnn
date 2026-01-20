@@ -1,0 +1,171 @@
+% ============================================================
+% Section 4C: Rigorous Structural Enhancement Framework
+% Revised based on Codex (OpenAI GPT-5.2) strict review
+% Key changes:
+%   1. Acknowledge we study "marginal gain with side information"
+%   2. Use correct sigma-algebra definitions
+%   3. Distinguish Bayes-optimal from algorithm-achievable
+%   4. Honest about limitations
+% ============================================================
+
+\subsection{Structural Enhancement with Side Information}
+\label{subsec:structural_enhancement_revised}
+
+We now develop a rigorous framework for understanding when graph structure provides additional benefit beyond node features. Following the critique that standard Kesten-Stigum results apply to ``pure structure'' detection, we carefully distinguish our setting.
+
+\subsubsection{Precise Problem Formulation}
+
+\begin{definition}[Contextual SBM with Gaussian Features]
+\label{def:csbm_precise}
+Fix $n \in \mathbb{N}$ and parameters $(\rho, d, \text{SNR}_X)$ where:
+\begin{itemize}
+    \item $\rho \in [-1, 1]$: Label correlation across edges
+    \item $d > 0$: Expected degree (Poisson$(d)$ model)
+    \item $\text{SNR}_X = \|\mu\|^2 / \sigma^2$: Feature signal-to-noise ratio
+\end{itemize}
+
+Generate data as follows:
+\begin{enumerate}
+    \item Labels: $Y_v \stackrel{\text{iid}}{\sim} \mathrm{Rademacher}(\frac{1}{2})$ for $v \in [n]$
+    \item Features: $X_v = \mu Y_v + \varepsilon_v$ where $\varepsilon_v \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2 I_d)$
+    \item Edges: For each unordered pair $\{u, v\}$, independently include edge with probability
+    \begin{equation}
+        p_{uv} = \frac{d}{n} \cdot \left(1 + \rho \cdot Y_u Y_v\right) / 2
+    \end{equation}
+\end{enumerate}
+The homophily parameter is $h = (1 + \rho)/2$, giving $\rho = 2h - 1$.
+\end{definition}
+
+\begin{definition}[Information Sets]
+\label{def:info_sets}
+For node $v \in [n]$, define $\sigma$-algebras:
+\begin{itemize}
+    \item $\mathcal{F}_0(v) := \sigma(X_v)$: Own features only
+    \item $\mathcal{F}_k(v) := \sigma(X_v, G_k(v), \{X_u : u \in B_k(v)\})$: Own features, $k$-hop induced subgraph, and all features within $k$-hop neighborhood
+\end{itemize}
+where $B_k(v) = \{u : d_G(u, v) \leq k\}$ is the $k$-hop ball and $G_k(v)$ is the induced subgraph on $B_k(v)$.
+\end{definition}
+
+\begin{definition}[Classification Accuracies]
+\label{def:accuracies_precise}
+\begin{itemize}
+    \item \textbf{MLP accuracy}: $\mathrm{Acc}_{\mathrm{MLP}}^* := \mathbb{E}[\mathbf{1}\{\hat{Y}_v^{\mathrm{MLP}} = Y_v\}]$ where $\hat{Y}_v^{\mathrm{MLP}} = \mathrm{sign}(\langle \mu, X_v \rangle)$ is the Bayes-optimal classifier using $\mathcal{F}_0(v)$
+    \item \textbf{$k$-hop Bayes accuracy}: $\mathrm{Acc}_{k}^* := \mathbb{E}[\mathbf{1}\{\hat{Y}_v^{(k)} = Y_v\}]$ where $\hat{Y}_v^{(k)} = \mathbb{E}[Y_v \mid \mathcal{F}_k(v)]$ is the Bayes-optimal classifier using $\mathcal{F}_k(v)$
+    \item \textbf{Marginal gain}: $\Delta_k := \mathrm{Acc}_{k}^* - \mathrm{Acc}_{\mathrm{MLP}}^*$
+\end{itemize}
+\end{definition}
+
+\subsubsection{The Marginal Gain Problem}
+
+Our central question is: \textit{When is $\Delta_k > 0$, and how large can it be?}
+
+This differs from the classical KS problem (``can we detect communities from $G$ alone?'') because:
+\begin{enumerate}
+    \item We already have side information $X_v$ that partially reveals $Y_v$
+    \item We ask about \textit{marginal} improvement, not absolute detectability
+    \item The relevant mutual information is $I(Y_v; \mathcal{F}_k(v) \mid X_v)$, not $I(Y_v; G)$
+\end{enumerate}
+
+\subsubsection{Fundamental Bounds}
+
+\begin{theorem}[Upper Bound on Marginal Gain]
+\label{thm:marginal_gain_upper}
+For any $k \geq 1$:
+\begin{equation}
+    \Delta_k \leq \mathrm{Acc}_{k}^* - \mathrm{Acc}_{\mathrm{MLP}}^* \leq 1 - \mathrm{Acc}_{\mathrm{MLP}}^* =: \mathcal{B}
+\end{equation}
+The Information Budget $\mathcal{B}$ is the maximum possible gain.
+\end{theorem}
+
+\begin{proof}
+Since $\mathrm{Acc}_{k}^* \leq 1$ and $\mathrm{Acc}_{\mathrm{MLP}}^*$ is fixed, the bound follows immediately.
+\end{proof}
+
+\begin{theorem}[Conditional Mutual Information Bound]
+\label{thm:cmi_bound}
+For the marginal gain:
+\begin{equation}
+    \Delta_k \leq \sqrt{\frac{\ln 2}{2} \cdot I(Y_v; \mathcal{F}_k(v) \mid X_v)}
+\end{equation}
+where the right-hand side is the Pinsker bound applied to the conditional distribution.
+\end{theorem}
+
+\begin{proof}
+By the relation between accuracy and total variation, and Pinsker's inequality applied to $P(Y_v \mid \mathcal{F}_k(v))$ vs $P(Y_v \mid X_v)$.
+\end{proof}
+
+\subsubsection{Characterization of Marginal Gain (Empirical)}
+
+Due to the complexity of analyzing $I(Y_v; \mathcal{F}_k(v) \mid X_v)$ with both structure and neighbor features, we provide an \textbf{empirical characterization} rather than a full proof.
+
+\begin{observation}[Structural SNR and Marginal Gain]
+\label{obs:snr_marginal}
+Define the \textbf{structural SNR} as $\mathrm{SNR}_G := (d-1)\rho^2$.
+
+Experimentally, we observe:
+\begin{enumerate}
+    \item When $\mathrm{SNR}_G \leq 1$: Marginal gain $\Delta_k \approx 0$ for all $k$
+    \item When $\mathrm{SNR}_G > 1$: Marginal gain $\Delta_k > 0$ for appropriate $k$
+\end{enumerate}
+This suggests the KS threshold may govern marginal gains, but a formal proof requires analyzing ``broadcasting with side information.''
+\end{observation}
+
+\begin{remark}[Open Problem: KS Threshold with Side Information]
+\label{rem:open_problem}
+The precise characterization of $\Delta_k$ in terms of $(\mathrm{SNR}_X, \mathrm{SNR}_G, k)$ remains open. Key technical challenges:
+\begin{enumerate}
+    \item \textbf{Coupled state evolution}: BP with feature-initialized beliefs has different dynamics than uninformed BP
+    \item \textbf{Information-theoretic vs algorithmic}: Even if $I(Y_v; \mathcal{F}_k(v) \mid X_v) > 0$, it may not be extractable by efficient algorithms
+    \item \textbf{Finite-$n$ effects}: Local weak convergence arguments require careful control of cycle structure
+\end{enumerate}
+We leave the full theoretical treatment to future work.
+\end{remark}
+
+\subsubsection{Practical Phase Diagram}
+
+Despite theoretical gaps, our experiments support a clear \textbf{practical phase diagram}:
+
+\begin{table}[t]
+\centering
+\caption{Empirical Phase Diagram for GNN vs MLP}
+\label{tab:empirical_phase}
+\begin{tabular}{@{}lccl@{}}
+\toprule
+\textbf{Regime} & \textbf{Condition} & \textbf{Marginal Gain} & \textbf{Recommendation} \\
+\midrule
+Feature-sufficient & $\mathcal{B} < 0.05$ & $\approx 0$ & MLP \\
+Structure-beneficial (high $h$) & $h > 0.7$ and $\mathcal{B} > 0.05$ & $> 0$ & GNN \\
+Structure-harmful (mid $h$) & $0.3 < h < 0.7$ & $< 0$ (ADR) & MLP or Concat-GNN \\
+Heterophily-recoverable & $h < 0.3$ and $R > 1.5$ & $> 0$ & H2GCN \\
+Heterophily-irrecoverable & $h < 0.3$ and $R \leq 1$ & $\approx 0$ & MLP \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}[Empirical vs Theoretical]
+The thresholds $(0.3, 0.7)$ and $R = 1.5$ are \textbf{empirically calibrated} from our experiments, not theoretically derived. They approximately correspond to $\mathrm{SNR}_G = 1$ for graphs with average degree $d \approx 7$--$15$.
+
+We emphasize: \textbf{this is an empirical framework with theoretical motivation}, not a fully proven theory. The practical value lies in predictive accuracy (88.9\% on CSBM, 77.8\% external validation), not mathematical certainty.
+\end{remark}
+
+\subsubsection{Honest Statement of Theoretical Contribution}
+
+Our theoretical contributions are:
+
+\begin{enumerate}
+    \item \textbf{Information Budget Bound} (Theorem~\ref{thm:budget_pinsker}): Rigorous upper bound on GNN improvement using Pinsker's inequality
+
+    \item \textbf{Shrinkage Factor} (Theorem~\ref{thm:discriminability_shrinkage}): Exact formula $|2h-1|$ for class separation under mean aggregation
+
+    \item \textbf{Concatenation Preservation} (Theorem~\ref{thm:concat_preserves}): DPI-based guarantee that concatenation cannot hurt
+
+    \item \textbf{KS-Motivated Phase Diagram} (Observation~\ref{obs:snr_marginal}): Empirical evidence that $\mathrm{SNR}_G = 1$ predicts regime transitions
+\end{enumerate}
+
+The first three are \textbf{mathematically rigorous}. The fourth is \textbf{empirically supported but theoretically incomplete}. We acknowledge this limitation and propose it as direction for future theoretical work.
+
+\begin{remark}[Comparison with Pure KS Results]
+Our setting differs from classical KS in a crucial way: we ask ``does structure help \textit{given features}?'' rather than ``can structure alone detect communities?'' This ``marginal gain with side information'' problem is less studied and harder to analyze. Our empirical finding that the same threshold $(d-1)\rho^2 = 1$ appears relevant is intriguing but unproven.
+\end{remark}
+
+

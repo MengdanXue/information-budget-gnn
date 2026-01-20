@@ -1,0 +1,26 @@
+{
+  "correlation_direction_homophily": 0.9081881079166658,
+  "r_squared": 0.8248056393612534,
+  "linear_model": {
+    "slope": 1.1361918807387261,
+    "intercept": -0.36610476089059196
+  },
+  "residuals": {
+    "Texas": -0.2410633786036992,
+    "Wisconsin": -0.10718292906362595,
+    "Cornell": -0.12298630175412131,
+    "Squirrel": 0.1476299978763719,
+    "Chameleon": 0.128322898715022,
+    "Actor": 0.07566843725157912,
+    "Cora": 0.007127938273311374,
+    "CiteSeer": 0.05257968325685192,
+    "PubMed": -0.12607507515984956,
+    "Computers": 0.01762379468180353,
+    "Photo": 0.10385862384426536,
+    "CS": 0.14215531081383137,
+    "Physics": -0.23819048495859274,
+    "Cora_Full": 0.3467607855158148,
+    "DBLP": -0.18622930068896187
+  },
+  "conclusion": "Direction is highly correlated with Homophily (r=0.908). It does not provide substantial independent information."
+}

@@ -1,0 +1,69 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We present the \textbf{extended Feature-Structure Disentanglement (FSD)} framework, a unified theoretical perspective that explains when different GNN architectures succeed or fail on graph-based tasks. The key insight is that structural proximity and feature similarity are orthogonal signals, and optimal GNN design requires matching the aggregation strategy to the dominant signal source---crucially considering not just \textit{alignment} ($\rho_{\text{FS}}$) but also \textit{aggregation dilution} ($\delta_{\text{agg}}$).
+
+\subsection{Summary of Contributions}
+
+\textbf{1. Extended Theoretical Framework}: We introduce $\delta_{\text{agg}} = \mathbb{E}[d_i \cdot (1 - S_{\text{feat}})]$, capturing degree-dependent information loss during mean aggregation. Theorems~\ref{thm:single_layer}--\ref{thm:concat} establish that: (1) high-degree nodes lose ego information after just one layer; (2) sampling bounds dilution independently of degree; (3) concatenation preserves ego information entirely.
+
+\textbf{2. Unified View of GNN Aggregation Strategies}:
+\begin{itemize}
+    \item \textbf{Low $\delta_{\text{agg}}$ + high-dim}: NAA excels (Elliptic, Amazon)
+    \item \textbf{High $\delta_{\text{agg}}$}: GraphSAGE/H2GCN dominate (YelpChi, IEEE-CIS)
+    \item \textbf{Extreme imbalance}: Data-level solutions needed (DGraphFin)
+\end{itemize}
+
+\textbf{3. Numerically-Aware Attention (NAA)}: An instantiation of FSD for financial graphs with low aggregation dilution, combining log-scale normalization, explicit numerical similarity, and adaptive head gating.
+
+\textbf{4. Predictive Validation}: Experiments on \textbf{five} fraud detection benchmarks demonstrate \textbf{5/5 correct a priori predictions}:
+\begin{itemize}
+    \item \textbf{Elliptic} ($\delta_{\text{agg}}=0.9$, 165-dim): NAA wins (+25\% AUC) $\checkmark$
+    \item \textbf{Amazon} ($\delta_{\text{agg}}\approx5$, 767-dim): NAA wins ($\Delta$F1=+0.46) $\checkmark$
+    \item \textbf{YelpChi} ($\delta_{\text{agg}}=12.6$, 32-dim): H2GCN wins $\checkmark$
+    \item \textbf{IEEE-CIS} ($\delta_{\text{agg}}=11.2$, 394-dim): H2GCN/GraphSAGE win by 7\% $\checkmark$
+    \item \textbf{DGraphFin} (1.3\% fraud): All fail $\checkmark$
+\end{itemize}
+Notably, IEEE-CIS demonstrates the necessity of $\delta_{\text{agg}}$: $\rho_{\text{FS}}$ alone would incorrectly predict ``no clear winner.''
+
+\textbf{5. Practitioner Guidelines}: A three-metric diagnostic ($\rho_{\text{FS}}$, $\delta_{\text{agg}}$, $h$) enables principled method selection without exhaustive benchmarking.
+
+\subsection{Broader Impact}
+
+\textbf{Social Impact}: This work addresses financial fraud detection, which has significant societal value. By providing principled guidelines for GNN method selection, our framework can help financial institutions reduce fraud losses more effectively. According to industry reports, credit card fraud alone costs billions annually, and more accurate detection systems can substantially reduce these losses while minimizing false positives that inconvenience legitimate customers.
+
+\textbf{Cross-Domain Applications}: While our evaluation focuses on financial fraud detection, the FSD framework and diagnostic metrics ($\rho_{\text{FS}}$, $\delta_{\text{agg}}$, $h$) are applicable to diverse graph-based problems:
+\begin{itemize}
+    \item \textbf{Supply Chain Risk Management}: Identifying suspicious entities in procurement networks
+    \item \textbf{Social Network Analysis}: Detecting coordinated inauthentic behavior and bot accounts
+    \item \textbf{Recommender Systems}: Balancing structural similarity (social connections) with feature similarity (user preferences)
+    \item \textbf{Citation Networks}: Understanding when content similarity or citation patterns better predict paper relevance
+\end{itemize}
+
+\textbf{Methodological Contribution}: Beyond specific applications, our work contributes to the scientific foundation of GNN research. The extended FSD framework shifts the focus from ``proposing better methods'' to ``understanding when methods work.'' This diagnostic approach reduces wasteful trial-and-error experimentation and enables researchers to design targeted solutions for specific graph regimes. Future papers could report ($\rho_{\text{FS}}$, $\delta_{\text{agg}}$) alongside performance metrics, facilitating systematic knowledge accumulation.
+
+\textbf{Limitations and Responsible Use}: While our framework provides valuable guidance, practitioners should be aware of several limitations:
+\begin{itemize}
+    \item \textbf{Data Quality Dependence}: The diagnostic metrics are only as reliable as the input data. Incomplete or biased graphs may yield misleading measurements.
+    \item \textbf{Domain Knowledge Required}: Interpreting $\rho_{\text{FS}}$ and $\delta_{\text{agg}}$ requires understanding the specific application context. The same metric values may have different implications in different domains.
+    \item \textbf{Threshold Sensitivity}: The $\delta_{\text{agg}} \approx 10$ threshold identified in our experiments may require adjustment for other domains.
+    \item \textbf{Ethical Considerations}: In fraud detection applications, model errors can have serious consequences. False positives may deny service to legitimate users, while false negatives allow fraudulent activity. Practitioners must carefully balance these trade-offs and implement appropriate human oversight.
+\end{itemize}
+
+\subsection{Limitations and Future Work}
+
+\textbf{1. Metric Computation}: Computing $\delta_{\text{agg}}$ scales with edge count. Efficient approximation for billion-edge graphs is future work.
+
+\textbf{2. Threshold Sensitivity}: The $\delta_{\text{agg}} \approx 10$ threshold provides guidance but may need adjustment for different domains.
+
+\textbf{3. Five-Dataset Validation}: Additional validation on molecular graphs, social networks, and knowledge graphs would strengthen the framework.
+
+\textbf{4. Node-Level Adaptation}: Our stratified analysis shows within-dataset heterogeneity. Node-level adaptive aggregation strategies could improve performance.
+
+\subsection{Closing Remarks}
+
+The GNN field has produced many architectures, each claiming improvements on specific benchmarks. What has been missing is a \textbf{diagnostic framework} that explains \textit{when} and \textit{why} each approach works. The extended Feature-Structure Disentanglement framework fills this gap by providing a three-metric characterization ($\rho_{\text{FS}}$, $\delta_{\text{agg}}$, $h$) that enables principled method selection.
+
+Our key message is not that NAA is superior to H2GCN, or vice versa. Rather, it is that \textbf{the right choice depends on the graph}. By measuring these metrics, practitioners can make informed decisions without exhaustive experimentation. By understanding the FSD decomposition, researchers can design methods that target specific regimes rather than pursuing universal architectures.
+
+\textbf{Reproducibility}: Code, data processing scripts, and metric computation tools are available at [repository link]. All experiments use 10 random seeds with statistical significance testing.

@@ -1,0 +1,239 @@
+\section*{Appendix B: Hyperparameter Settings}
+
+All models were trained with consistent hyperparameters to ensure fair comparison. This appendix details both model hyperparameters and FSD diagnostic computation parameters.
+
+\subsection*{B.1 NAA-GNN Configuration}
+
+\textbf{Architecture hyperparameters}:
+\begin{itemize}
+\item Hidden dimension: $d_h = 128$
+\item Number of layers: $L = 2$
+\item Attention heads: $K = 4$ (concatenation mode)
+\item Dropout rate: $p = 0.5$ (applied to all layers)
+\end{itemize}
+
+\textbf{NAA-specific parameters}:
+\begin{itemize}
+\item Numerical similarity weight: $\beta = 0.1$ (initialized, learnable during training)
+\item Feature similarity function: $S_{\text{feat}}$ = Log-Cosine (default) or Cosine (for low-dim features)
+\item Log-scale base: $b = 10$ for log-magnitude computation
+\item Numerical stability constant: $\epsilon = 10^{-8}$
+\item Gating activation: sigmoid function
+\end{itemize}
+
+\textbf{$S_{\text{feat}}$ selection guideline}:
+\begin{itemize}
+\item \textbf{Log-Cosine}: For high-dimensional features ($d > 50$) with multi-scale numerical values (financial transactions, bag-of-words). Computes cosine similarity on log-transformed features: $S_{\text{log-cos}}(\mathbf{x}_i, \mathbf{x}_j) = \cos(\log(1+|\mathbf{x}_i|), \log(1+|\mathbf{x}_j|))$
+\item \textbf{Standard Cosine}: For low-dimensional features ($d \leq 50$) or normalized features
+\item \textbf{NAA-Numerical}: When features span many orders of magnitude (e.g., transaction amounts from \$1 to \$10M)
+\end{itemize}
+
+\textbf{Optimization hyperparameters}:
+\begin{itemize}
+\item Optimizer: Adam with $\beta_1 = 0.9$, $\beta_2 = 0.999$
+\item Learning rate: $\alpha = 0.001$
+\item Weight decay: $\lambda = 5 \times 10^{-4}$
+\item Batch size: full-batch for Elliptic/Amazon; mini-batch (2048) for DGraphFin subgraph
+\item Early stopping patience: 50 epochs (monitor validation F1)
+\item Maximum epochs: 200
+\end{itemize}
+
+\subsection*{B.2 Baseline Models}
+
+All baselines share common settings where applicable:
+\begin{itemize}
+\item Hidden dimension: $d_h = 128$
+\item Number of layers: $L = 2$
+\item Dropout: $p = 0.5$
+\item Learning rate: $\alpha = 0.001$
+\item Weight decay: $\lambda = 5 \times 10^{-4}$
+\end{itemize}
+
+\textbf{GAT}~\cite{velivckovic2018gat}:
+\begin{itemize}
+\item Attention heads: $K = 4$
+\item LeakyReLU negative slope: $0.2$
+\end{itemize}
+
+\textbf{GCN}~\cite{kipf2017gcn}:
+\begin{itemize}
+\item Normalization: symmetric ($\tilde{D}^{-1/2}\tilde{A}\tilde{D}^{-1/2}$)
+\item Self-loops: added to adjacency matrix
+\end{itemize}
+
+\textbf{GraphSAGE}~\cite{hamilton2017graphsage}:
+\begin{itemize}
+\item Aggregator type: mean aggregation
+\item Neighborhood sampling: full neighborhood
+\end{itemize}
+
+\subsection*{B.3 Class Imbalance Handling}
+
+\textbf{Weighted cross-entropy loss}:
+\begin{equation}
+w_{\text{fraud}} = \frac{N_{\text{total}}}{2 \cdot N_{\text{fraud}}}, \quad w_{\text{non-fraud}} = 1.0
+\end{equation}
+
+Applied consistently across all models and datasets.
+
+\subsection*{B.4 Dataset-Specific Settings}
+
+\textbf{Elliptic Bitcoin}:
+\begin{itemize}
+\item Temporal split: train (timesteps 1--34), val (35--43), test (44--49)
+\item No random seed variation (fixed split from dataset)
+\item Class weights: $w_{\text{fraud}} = 4.3$ (based on 11.6\% train fraud rate)
+\end{itemize}
+
+\textbf{Amazon Fraud}:
+\begin{itemize}
+\item Random split: 60/20/20 train/val/test with stratification
+\item 3 random seeds: 42, 123, 456
+\item Class weights: $w_{\text{fraud}} = 3.7$ (based on 13.6\% fraud rate)
+\end{itemize}
+
+\textbf{DGraphFin}:
+\begin{itemize}
+\item Official PyG splits preserved
+\item 3 random seeds for model initialization
+\item Class weights: $w_{\text{fraud}} = 172.4$ (based on 0.29\% fraud rate)
+\end{itemize}
+
+\subsection*{B.5 Training Environment}
+
+\begin{itemize}
+\item Hardware: NVIDIA RTX 3090 GPU (24GB VRAM)
+\item Software: PyTorch 2.0, PyTorch Geometric 2.3
+\item CUDA version: 11.8
+\item Precision: FP32 (single precision)
+\end{itemize}
+
+\subsection*{B.6 YelpChi SOTA Comparison Settings}
+
+For YelpChi experiments comparing against recent SOTA models:
+
+\textbf{Dataset}: YelpChi (45,954 nodes, 98,630 edges using only rur relation for efficiency)
+\begin{itemize}
+\item Features: 32-dimensional
+\item Fraud rate: 14.5\%
+\item Official split: 27,572 train / 9,190 val / 9,192 test
+\end{itemize}
+
+\textbf{Model-specific settings}:
+\begin{itemize}
+\item \textbf{H2GCN}~\cite{zhu2020beyond}: 2 layers, 64 hidden, 0.3 dropout, separate ego-neighbor aggregation
+\item \textbf{MixHop}~\cite{abu2019mixhop}: Powers [0, 1, 2], 64 hidden per power, 0.3 dropout
+\item \textbf{GATv2}~\cite{brody2022gatv2}: 2 layers, 4 heads, 64 hidden, 0.3 dropout
+\item \textbf{FAGCN}~\cite{bo2021beyond}: 2 layers, 64 hidden, 0.3 dropout, learned frequency adaptation
+\end{itemize}
+
+\textbf{Statistical validation}:
+\begin{itemize}
+\item 5 random seeds: 42, 123, 456, 789, 1024
+\item Paired t-tests for significance (scipy.stats.ttest\_rel)
+\item 95\% confidence intervals reported
+\end{itemize}
+
+\subsection*{B.7 Computational Cost}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Dataset} & \textbf{Model} & \textbf{Time/Epoch} & \textbf{Total Time} \\
+\midrule
+\multirow{2}{*}{Elliptic (203k)} & GAT & 2.1s & $\sim$7 min \\
+& GAT+NAA & 2.4s & $\sim$8 min \\
+\midrule
+\multirow{2}{*}{Amazon (14k)} & GAT & 0.3s & $\sim$1 min \\
+& GAT+NAA & 0.4s & $\sim$1.5 min \\
+\midrule
+\multirow{6}{*}{YelpChi (46k)} & GCN & 5.3ms & $\sim$1 min \\
+& H2GCN & 6.7ms & $\sim$1.3 min \\
+& MixHop & 6.7ms & $\sim$1.3 min \\
+& NAA-GCN & 16.2ms & $\sim$3.2 min \\
+& NAA-GAT & 22.4ms & $\sim$4.5 min \\
+\midrule
+\multirow{2}{*}{DGraphFin (208k)} & GAT & 1.8s & $\sim$6 min \\
+& GAT+NAA & 2.1s & $\sim$7 min \\
+\bottomrule
+\end{tabular}
+\caption{Training time comparison. NAA adds $\sim$3$\times$ overhead vs GCN; H2GCN adds only 1.25$\times$.}
+\end{table}
+
+\textbf{Pareto Frontier Analysis}: On YelpChi, H2GCN achieves best AUC (0.9114) with only 1.25$\times$ GCN overhead, making it Pareto-optimal for dense heterophilous graphs. NAA-GCN trades 3$\times$ overhead for 21\% higher precision.
+
+\subsection*{B.8 Reproducibility}
+
+\textbf{Experiment Scripts}:
+\begin{itemize}
+\item \texttt{run\_stability\_experiments.py}: 5-seed stability and significance tests
+\item \texttt{run\_sota\_comparison.py}: SOTA model comparison with paired t-tests
+\item \texttt{run\_efficiency\_comparison.py}: Computational efficiency benchmarking
+\item \texttt{generate\_sota\_figures.py}: Visualization generation
+\end{itemize}
+
+\textbf{Result Files} (JSON format with full statistics):
+\begin{itemize}
+\item \texttt{stability\_experiment\_results\_*.json}: 5-seed raw results
+\item \texttt{sota\_comparison\_results\_*.json}: SOTA comparison metrics
+\item \texttt{efficiency\_comparison\_results\_*.json}: Timing benchmarks
+\end{itemize}
+
+\textbf{To reproduce results}:
+\begin{enumerate}
+\item Set random seeds: \texttt{torch.manual\_seed(42)} (and 123, 456, 789, 1024 for 5-seed experiments)
+\item Use exact software versions: PyTorch 2.0, PyTorch Geometric 2.3, CUDA 11.8
+\item Use hyperparameters from this appendix
+\item For YelpChi: report mean $\pm$ std over 5 seeds with p-values
+\end{enumerate}
+
+Code and data available at: \texttt{https://github.com/MengdanXue/trust-regions-gnn}
+
+\subsection*{B.9 FSD Diagnostic Computation}
+
+Parameters for computing the Feature-Structure Alignment score ($\rho_{\text{FS}}$) as described in Algorithm~\ref{alg:fs_alignment}:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Non-edge sampling ratio & $M = 2 \times |\mathcal{E}|$ (or max 500,000) \\
+Feature similarity function & Log-Cosine (default) \\
+Feature normalization & StandardScaler (zero mean, unit variance) \\
+Log transform base & $b = 10$ \\
+Numerical stability $\epsilon$ & $10^{-8}$ \\
+Random seed for sampling & 42 (fixed for reproducibility) \\
+\bottomrule
+\end{tabular}
+\caption{$\rho_{\text{FS}}$ computation parameters}
+\end{table}
+
+\textbf{Complexity}:
+\begin{itemize}
+\item Time: $O(|\mathcal{E}| \cdot d_f + M \cdot d_f)$ for similarity computation
+\item Space: $O(N \cdot d_f)$ for feature storage
+\item For graphs with $>10^6$ edges, use streaming computation (batch size 100,000)
+\end{itemize}
+
+\textbf{Estimation error}:
+With $M = 500{,}000$ non-edge samples and $|\mathcal{E}| = 200{,}000$ edges, the 95\% confidence interval (via bootstrap) is approximately $\pm 0.004$.
+
+\subsection*{B.10 Decision Framework Implementation}
+
+The practical decision framework (Section~\ref{sec:discussion}) uses the following thresholds:
+
+\begin{enumerate}
+\item Compute $\rho_{\text{FS}}$ using Algorithm~\ref{alg:fs_alignment}
+\item \textbf{If $\rho_{\text{FS}} > 0.15$ AND feature dim $> 50$}: Use NAA (feature-dominant regime)
+\item \textbf{If $\rho_{\text{FS}} < -0.05$}: Use H2GCN or MixHop (heterophily regime)
+\item \textbf{If $-0.05 \leq \rho_{\text{FS}} \leq 0.15$}: Both approaches viable; consider other factors (class balance, latency)
+\item \textbf{If class imbalance $> 100{:}1$}: Prioritize data-level solutions (focal loss, SMOTE, meta-learning)
+\end{enumerate}
+
+\textbf{Threshold justification}: The threshold $\rho_{\text{FS}} = 0.15$ was determined empirically as the point where NAA consistently outperforms baselines across our four datasets. The negative threshold $-0.05$ identifies graphs where structural neighbors are systematically feature-dissimilar.
+

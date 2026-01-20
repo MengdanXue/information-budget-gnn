@@ -1,0 +1,35 @@
+{
+  "only_delta_agg_fails": [
+    "Texas",
+    "Actor",
+    "Cornell",
+    "Wisconsin"
+  ],
+  "only_h_fails": [],
+  "both_fail": [
+    "cSBM-NoisyF",
+    "cSBM-MidH",
+    "cSBM-CleanF"
+  ],
+  "neither_fails": [
+    "cSBM-LowH",
+    "PubMed",
+    "cSBM-HighH",
+    "CiteSeer",
+    "Inj-Cora",
+    "Elliptic",
+    "Flickr",
+    "Cora",
+    "Squirrel",
+    "Chameleon",
+    "Inj-Flickr",
+    "Inj-Amazon"
+  ],
+  "counts": {
+    "only_delta_agg_fails": 4,
+    "only_h_fails": 0,
+    "both_fail": 3,
+    "neither_fails": 12,
+    "total": 19
+  }
+}

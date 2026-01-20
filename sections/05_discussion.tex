@@ -1,0 +1,148 @@
+\section{Discussion}
+\label{sec:discussion}
+
+We discuss the implications of our extended Feature-Structure Disentanglement framework, its predictive power, limitations, and broader impact on GNN research.
+
+\subsection{The Predictive Power of Extended FSD}
+
+The most striking finding of our work is that the three-metric diagnostic ($\rho_{\text{FS}}$, $\delta_{\text{agg}}$, $h$) achieves \textbf{5/5 correct a priori predictions} across diverse fraud detection benchmarks. Notably, IEEE-CIS demonstrates the necessity of the extended framework---$\rho_{\text{FS}}$ alone would predict ``no clear winner,'' but $\delta_{\text{agg}} = 11.25$ correctly predicts that sampling/concatenation methods dominate.
+
+\textbf{Why does this matter?} Current GNN research often proceeds by proposing a new method, benchmarking on several datasets, and reporting average performance. This paradigm has two problems:
+\begin{enumerate}
+    \item \textbf{No guidance for practitioners}: Which method should I use for \textit{my} graph?
+    \item \textbf{No understanding of failures}: Why does method X fail on dataset Y?
+\end{enumerate}
+
+The extended FSD framework addresses both: given a new graph, compute ($\rho_{\text{FS}}$, $\delta_{\text{agg}}$, $h$) to select an appropriate method \textit{without exhaustive benchmarking}.
+
+\subsection{Understanding Method Success and Failure}
+
+\paragraph{Why NAA Succeeds on Elliptic and Amazon}
+
+Both datasets have:
+\begin{itemize}
+    \item High feature dimension (165, 767): Rich numerical information to exploit
+    \item \textbf{Low $\delta_{\text{agg}}$} (0.94, $\approx$5.0): Mean aggregation causes minimal information loss
+    \item Positive $\rho_{\text{FS}}$ (0.28, 0.18): Structural neighbors are feature-similar
+\end{itemize}
+
+NAA's log-scale normalization and explicit numerical similarity are precisely designed for this regime. The low dilution means NAA's attention improvements are not overwhelmed by aggregation noise.
+
+\paragraph{Why H2GCN/GraphSAGE Win on YelpChi and IEEE-CIS}
+
+Both datasets have:
+\begin{itemize}
+    \item \textbf{High $\delta_{\text{agg}}$} (12.57, 11.25): Severe information loss during mean aggregation
+    \item High average degree (167, 48): Degree amplifies dissimilarity effects
+\end{itemize}
+
+The key insight from Theorem~\ref{thm:single_layer} is that high-degree nodes lose their ego information: $\mathbf{h}_i^{(1)} \approx \bar{\mathbf{h}}_{\mathcal{N}(i)}$ when $d_i \gg 1$. GraphSAGE bounds this by sampling; H2GCN preserves ego via concatenation.
+
+Crucially, \textbf{$\rho_{\text{FS}}$ alone cannot distinguish these cases}:
+\begin{itemize}
+    \item YelpChi: $\rho_{\text{FS}} = 0.01$ (near-zero)
+    \item IEEE-CIS: $\rho_{\text{FS}} = 0.06$ (near-zero)
+\end{itemize}
+Both have ambiguous alignment, but the high $\delta_{\text{agg}}$ reveals the dominant failure mode.
+
+\paragraph{Why All Methods Fail on DGraphFin}
+
+DGraphFin has:
+\begin{itemize}
+    \item Very low feature dimension (17): Minimal information
+    \item Near-zero $\rho_{\text{FS}}$ (0.05): No useful alignment
+    \item Extreme class imbalance (0.29\%): Overwhelms all other factors
+\end{itemize}
+
+This case illustrates the limits of architectural solutions. When class imbalance is 300:1, the optimal strategy (predicting all negative) achieves 99.7\% accuracy. No attention mechanism can overcome this fundamental data challenge.
+
+\subsection{NAA and H2GCN: Orthogonal Solutions}
+
+Our analysis reveals that NAA and H2GCN address \textbf{orthogonal} challenges:
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Method} & \textbf{Challenge Addressed} & \textbf{Mechanism} \\
+\hline
+NAA & Feature information loss & Explicit feature similarity \\
+H2GCN & Heterophily (adversarial neighbors) & Ego-neighbor separation \\
+\end{tabular}
+\end{center}
+
+\textbf{Implication}: These methods are not competitors but complementary tools for different graph regimes. A future hybrid approach could combine both:
+\begin{equation}
+\mathbf{h}_{\text{hybrid}} = \text{H2GCN-Aggregate}(\text{NAA}(\mathbf{h}_{\text{ego}}), \text{NAA}(\mathbf{h}_{1\text{-hop}}), \text{NAA}(\mathbf{h}_{2\text{-hop}}))
+\end{equation}
+
+However, as noted in Section~\ref{sec:cross_dataset}, our preliminary hybrid experiments showed no improvement on YelpChi, suggesting that the challenges are mutually exclusive rather than additive on this dataset.
+
+\subsection{Practical Decision Framework}
+
+Based on the extended FSD analysis, we provide an updated decision tree for practitioners:
+
+\begin{enumerate}
+    \item \textbf{Compute ($\rho_{\text{FS}}$, $\delta_{\text{agg}}$, $h$)} for your graph
+    \item \textbf{If $\delta_{\text{agg}} > 10$}: Use sampling (GraphSAGE) or concatenation (H2GCN) methods---mean aggregation will cause severe information loss
+    \item \textbf{If $\delta_{\text{agg}} < 5$ and feature dim $> 100$}: Use NAA-enhanced models---low dilution allows attention benefits
+    \item \textbf{If $\rho_{\text{FS}} < -0.05$ (negative alignment)}: Use H2GCN or MixHop regardless of dilution
+    \item \textbf{If class imbalance $>$ 100:1}: Focus on data-level solutions first (SMOTE, focal loss, meta-learning)
+    \item \textbf{If precision is critical}: NAA provides 20\%+ higher precision than H2GCN
+    \item \textbf{If latency is critical}: Use GraphSAGE (0.6$\times$ GCN overhead)
+\end{enumerate}
+
+\textbf{Key addition}: The $\delta_{\text{agg}}$ check (step 2) should come \textit{before} checking $\rho_{\text{FS}}$. This is because high dilution dominates other considerations---even positive $\rho_{\text{FS}}$ cannot save mean aggregation when dilution is severe.
+
+\subsection{Generalization to Standard Benchmarks}
+
+To validate FSD's applicability beyond financial fraud detection, we compute $\rho_{\text{FS}}$ on standard citation network benchmarks.
+
+\begin{table}[h]
+\centering
+\caption{FSD Analysis on Standard Citation Network Benchmarks}
+\label{tab:citation_fsd}
+\small
+\begin{tabular}{lccccl}
+\toprule
+\textbf{Dataset} & \textbf{Nodes} & \textbf{Features} & $\rho_{\text{FS}}$ & \textbf{Homophily} & \textbf{FSD Prediction} \\
+\midrule
+Cora & 2,708 & 1,433 & 0.52 & 0.81 & Structure-based (high $\rho_{\text{FS}}$) \\
+Citeseer & 3,327 & 3,703 & 0.48 & 0.74 & Structure-based (high $\rho_{\text{FS}}$) \\
+Pubmed & 19,717 & 500 & 0.41 & 0.80 & Structure-based (high $\rho_{\text{FS}}$) \\
+\midrule
+Texas & 183 & 1,703 & -0.18 & 0.11 & Heterophily-aware \\
+Wisconsin & 251 & 1,703 & -0.21 & 0.21 & Heterophily-aware \\
+Cornell & 183 & 1,703 & -0.15 & 0.30 & Heterophily-aware \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Observations}:
+\begin{itemize}
+\item \textbf{Homophilous citation networks} (Cora, Citeseer, Pubmed): High positive $\rho_{\text{FS}}$ ($>$0.4) indicates strong feature-structure alignment. This explains why standard GCN/GAT perform well on these benchmarks---structural aggregation implicitly captures feature similarity.
+
+\item \textbf{Heterophilous networks} (Texas, Wisconsin, Cornell): Negative $\rho_{\text{FS}}$ ($<$-0.1) indicates that edges connect feature-dissimilar nodes. This aligns with known heterophily in these datasets and explains why H2GCN significantly outperforms GCN.
+
+\item \textbf{FSD correctly explains existing results}: The literature consistently shows GCN excelling on Cora/Citeseer/Pubmed and struggling on Texas/Wisconsin/Cornell. FSD's $\rho_{\text{FS}}$ provides a \textit{quantitative} explanation for this pattern.
+\end{itemize}
+
+\textbf{Implication}: FSD is not specific to financial graphs. It provides a general framework for understanding GNN performance across domains. The key insight---that $\rho_{\text{FS}}$ predicts optimal aggregation strategy---generalizes beyond our primary application domain.
+
+\subsection{Limitations}
+
+\textbf{1. $\delta_{\text{agg}}$ Computation}: Computing exact $\delta_{\text{agg}}$ requires sampling node-neighbor pairs, which scales with edge count. For billion-edge graphs, approximate methods (e.g., sampling high-degree nodes) may be necessary.
+
+\textbf{2. Threshold Sensitivity}: While $\delta_{\text{agg}} \approx 10$ serves as a useful threshold, the exact value may depend on other graph properties (feature distribution, label noise) not captured in our analysis. The threshold should be treated as guidance, not a hard rule.
+
+\textbf{3. Five-Dataset Validation}: While diverse (spanning blockchain, e-commerce, social networks, and payment systems), five datasets cannot cover all possible graph regimes. Additional validation on molecular graphs, social networks, and knowledge graphs would strengthen the framework.
+
+\textbf{4. NAA's Computational Overhead}: NAA adds approximately 1.25$\times$ overhead to GCN due to similarity computation. For real-time applications, approximate similarity or learned embeddings could reduce this.
+
+\textbf{5. Within-Dataset Heterogeneity}: Our stratified analysis (Table~\ref{tab:stratified_cross}) shows that global $\delta_{\text{agg}}$ masks within-dataset variation. Future work could explore node-level adaptive aggregation strategies.
+
+\subsection{Broader Impact}
+
+\textbf{For GNN Research}: The FSD framework suggests a paradigm shift from "proposing better methods" to "understanding when methods work." Future papers could report $\rho_{\text{FS}}$ alongside performance metrics, enabling more meaningful comparisons.
+
+\textbf{For Practitioners}: Rather than defaulting to the latest architecture, practitioners can now diagnose their graph's characteristics and select appropriate methods. This reduces wasted experimentation and improves deployment success.
+
+\textbf{For Financial ML}: Our comprehensive evaluation on fraud detection benchmarks provides actionable guidelines. The key insight---that different fraud scenarios (heterophily-dominant vs. feature-dominant) require different approaches---has immediate practical value.

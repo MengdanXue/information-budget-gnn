@@ -1,0 +1,34 @@
+{
+  "mid_h_datasets": [
+    {
+      "name": "Flickr",
+      "h": 0.3194977343082428,
+      "delta_agg": 6.860347270965576,
+      "rho_fs": 0.006264001131057739,
+      "gt": "B"
+    },
+    {
+      "name": "cSBM-MidH",
+      "h": 0.5061678886413574,
+      "delta_agg": 4.923999786376953,
+      "rho_fs": 0.0020032525062561035,
+      "gt": "B"
+    },
+    {
+      "name": "cSBM-NoisyF",
+      "h": 0.5061678886413574,
+      "delta_agg": 4.923999786376953,
+      "rho_fs": 0.0019153356552124023,
+      "gt": "B"
+    },
+    {
+      "name": "cSBM-CleanF",
+      "h": 0.5061678886413574,
+      "delta_agg": 4.923999786376953,
+      "rho_fs": 0.0019843578338623047,
+      "gt": "B"
+    }
+  ],
+  "rho_fs_helpful": false,
+  "reason": "rho_FS is essentially zero for all mid-h synthetic datasets"
+}

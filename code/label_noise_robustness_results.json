@@ -1,0 +1,245 @@
+{
+  "experiment": "Label Noise Robustness",
+  "noise_rates": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.3
+  ],
+  "datasets": {
+    "Cora": {
+      "homophily_true": 0.8099659085273743,
+      "num_classes": 7,
+      "noise_experiments": [
+        {
+          "noise_rate": 0.0,
+          "h_noisy": 0.8099659085273743,
+          "spi_true": 0.6199318170547485,
+          "spi_noisy": 0.6199318170547485,
+          "mlp_acc": 0.7524862051010132,
+          "mlp_std": 0.011208206943824576,
+          "gcn_acc": 0.8777164101600647,
+          "gcn_std": 0.017571811308335558,
+          "gcn_advantage": 0.12523020505905158,
+          "spi_prediction": "GCN",
+          "actual_winner": "GCN",
+          "prediction_correct": true
+        },
+        {
+          "noise_rate": 0.05,
+          "h_noisy": 0.7359605669975281,
+          "spi_true": 0.6199318170547485,
+          "spi_noisy": 0.4719211339950562,
+          "mlp_acc": 0.6843462288379669,
+          "mlp_std": 0.09268750390213674,
+          "gcn_acc": 0.8729281783103943,
+          "gcn_std": 0.0143599162014732,
+          "gcn_advantage": 0.18858194947242735,
+          "spi_prediction": "GCN",
+          "actual_winner": "GCN",
+          "prediction_correct": true
+        },
+        {
+          "noise_rate": 0.1,
+          "h_noisy": 0.6680181741714477,
+          "spi_true": 0.6199318170547485,
+          "spi_noisy": 0.3360363483428954,
+          "mlp_acc": 0.7152854561805725,
+          "mlp_std": 0.010776250525094877,
+          "gcn_acc": 0.8736648321151733,
+          "gcn_std": 0.01806665578595848,
+          "gcn_advantage": 0.15837937593460083,
+          "spi_prediction": "GCN",
+          "actual_winner": "GCN",
+          "prediction_correct": true
+        },
+        {
+          "noise_rate": 0.2,
+          "h_noisy": 0.5468738079071045,
+          "spi_true": 0.6199318170547485,
+          "spi_noisy": 0.09374761581420898,
+          "mlp_acc": 0.6651933789253235,
+          "mlp_std": 0.011728688114424759,
+          "gcn_acc": 0.8567219376564026,
+          "gcn_std": 0.015513408821562819,
+          "gcn_advantage": 0.1915285587310791,
+          "spi_prediction": "GCN",
+          "actual_winner": "GCN",
+          "prediction_correct": true
+        },
+        {
+          "noise_rate": 0.3,
+          "h_noisy": 0.43857520818710327,
+          "spi_true": 0.6199318170547485,
+          "spi_noisy": 0.12284958362579346,
+          "mlp_acc": 0.6051565527915954,
+          "mlp_std": 0.015302080170283205,
+          "gcn_acc": 0.8187845349311829,
+          "gcn_std": 0.026112068167708533,
+          "gcn_advantage": 0.21362798213958745,
+          "spi_prediction": "GCN",
+          "actual_winner": "GCN",
+          "prediction_correct": true
+        }
+      ]
+    },
+    "CiteSeer": {
+      "homophily_true": 0.7355008721351624,
+      "num_classes": 6,
+      "noise_experiments": [
+        {
+          "noise_rate": 0.0,
+          "h_noisy": 0.7355008721351624,
+          "spi_true": 0.4710017442703247,
+          "spi_noisy": 0.4710017442703247,
+          "mlp_acc": 0.6966966986656189,
+          "mlp_std": 0.010271844554068703,
+          "gcn_acc": 0.7399399757385254,
+          "gcn_std": 0.008461858502045222,
+          "gcn_advantage": 0.04324327707290654,
+          "spi_prediction": "GCN",
+          "actual_winner": "GCN",
+          "prediction_correct": true
+        },
+        {
+          "noise_rate": 0.05,
+          "h_noisy": 0.6710457086563111,
+          "spi_true": 0.4710017442703247,
+          "spi_noisy": 0.34209141731262216,
+          "mlp_acc": 0.6840840935707092,
+          "mlp_std": 0.010935213575814496,
+          "gcn_acc": 0.739639675617218,
+          "gcn_std": 0.008202097383687195,
+          "gcn_advantage": 0.05555558204650879,
+          "spi_prediction": "GCN",
+          "actual_winner": "GCN",
+          "prediction_correct": true
+        },
+        {
+          "noise_rate": 0.1,
+          "h_noisy": 0.6049209356307983,
+          "spi_true": 0.4710017442703247,
+          "spi_noisy": 0.2098418712615966,
+          "mlp_acc": 0.6744744896888732,
+          "mlp_std": 0.008024253004489402,
+          "gcn_acc": 0.7360360741615295,
+          "gcn_std": 0.007318949155253808,
+          "gcn_advantage": 0.06156158447265625,
+          "spi_prediction": "GCN",
+          "actual_winner": "GCN",
+          "prediction_correct": true
+        },
+        {
+          "noise_rate": 0.2,
+          "h_noisy": 0.4839630901813507,
+          "spi_true": 0.4710017442703247,
+          "spi_noisy": 0.032073819637298606,
+          "mlp_acc": 0.6633633852005005,
+          "mlp_std": 0.011529334761882259,
+          "gcn_acc": 0.7252252578735352,
+          "gcn_std": 0.00800176243197145,
+          "gcn_advantage": 0.06186187267303467,
+          "spi_prediction": "GCN",
+          "actual_winner": "GCN",
+          "prediction_correct": true
+        },
+        {
+          "noise_rate": 0.3,
+          "h_noisy": 0.3861599326133728,
+          "spi_true": 0.4710017442703247,
+          "spi_noisy": 0.22768013477325444,
+          "mlp_acc": 0.6105105161666871,
+          "mlp_std": 0.024128904672411643,
+          "gcn_acc": 0.7018018007278443,
+          "gcn_std": 0.00893865897612721,
+          "gcn_advantage": 0.0912912845611572,
+          "spi_prediction": "GCN",
+          "actual_winner": "GCN",
+          "prediction_correct": true
+        }
+      ]
+    },
+    "PubMed": {
+      "homophily_true": 0.8023869395256042,
+      "num_classes": 3,
+      "noise_experiments": [
+        {
+          "noise_rate": 0.0,
+          "h_noisy": 0.8023869395256042,
+          "spi_true": 0.6047738790512085,
+          "spi_noisy": 0.6047738790512085,
+          "mlp_acc": 0.8693204641342163,
+          "mlp_std": 0.002338171668150796,
+          "gcn_acc": 0.8639959335327149,
+          "gcn_std": 0.004310646757769973,
+          "gcn_advantage": -0.005324530601501398,
+          "spi_prediction": "GCN",
+          "actual_winner": "Tie",
+          "prediction_correct": true
+        },
+        {
+          "noise_rate": 0.05,
+          "h_noisy": 0.7344734191894531,
+          "spi_true": 0.6047738790512085,
+          "spi_noisy": 0.46894683837890616,
+          "mlp_acc": 0.865010118484497,
+          "mlp_std": 0.005192756132947048,
+          "gcn_acc": 0.8630831360816955,
+          "gcn_std": 0.0037021756122855264,
+          "gcn_advantage": -0.0019269824028015359,
+          "spi_prediction": "GCN",
+          "actual_winner": "Tie",
+          "prediction_correct": true
+        },
+        {
+          "noise_rate": 0.1,
+          "h_noisy": 0.6700658440589905,
+          "spi_true": 0.6047738790512085,
+          "spi_noisy": 0.340131688117981,
+          "mlp_acc": 0.8597362875938416,
+          "mlp_std": 0.004105308396164198,
+          "gcn_acc": 0.8601926803588867,
+          "gcn_std": 0.0033198415178701847,
+          "gcn_advantage": 0.000456392765045166,
+          "spi_prediction": "GCN",
+          "actual_winner": "Tie",
+          "prediction_correct": true
+        },
+        {
+          "noise_rate": 0.2,
+          "h_noisy": 0.5633291125297546,
+          "spi_true": 0.6047738790512085,
+          "spi_noisy": 0.1266582250595092,
+          "mlp_acc": 0.8420892238616944,
+          "mlp_std": 0.005410535258295476,
+          "gcn_acc": 0.8505070805549622,
+          "gcn_std": 0.0050317890370033735,
+          "gcn_advantage": 0.008417856693267778,
+          "spi_prediction": "GCN",
+          "actual_winner": "Tie",
+          "prediction_correct": true
+        },
+        {
+          "noise_rate": 0.3,
+          "h_noisy": 0.4758505403995514,
+          "spi_true": 0.6047738790512085,
+          "spi_noisy": 0.04829891920089724,
+          "mlp_acc": 0.8031439900398254,
+          "mlp_std": 0.007899372237454292,
+          "gcn_acc": 0.8320486664772033,
+          "gcn_std": 0.004405071586636048,
+          "gcn_advantage": 0.02890467643737793,
+          "spi_prediction": "GCN",
+          "actual_winner": "GCN",
+          "prediction_correct": true
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_experiments": 15,
+    "correct_predictions": 15,
+    "accuracy": 1.0
+  }
+}

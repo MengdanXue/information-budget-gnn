@@ -1,0 +1,39 @@
+{
+  "neutral_threshold": 0.1,
+  "zones": {
+    "gnn_friendly": [
+      "Squirrel",
+      "Chameleon",
+      "Photo"
+    ],
+    "gnn_hostile": [
+      "Texas",
+      "Wisconsin",
+      "Cornell",
+      "PubMed"
+    ],
+    "neutral": [
+      "Actor",
+      "Cora",
+      "CiteSeer",
+      "Computers"
+    ]
+  },
+  "accuracy": {
+    "gnn_friendly": "3/3",
+    "gnn_hostile": "4/4",
+    "overall_excluding_neutral": "7/7"
+  },
+  "correlations": {
+    "all_heterophilic": {
+      "r": 0.9002650391869818,
+      "p": 0.0144245586728095,
+      "n": 6
+    },
+    "excluding_neutral": {
+      "r": 0.9191552914732205,
+      "p": 0.027256707895709446,
+      "n": 5
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "overall": {
+    "correct": 15,
+    "total": 15,
+    "accuracy": 1.0,
+    "bootstrap_ci": [
+      1.0,
+      1.0
+    ],
+    "wilson_ci": [
+      0.7961166989641515,
+      1
+    ]
+  },
+  "q2": {
+    "correct": 4,
+    "total": 4,
+    "wilson_ci": [
+      0.5101091635454027,
+      1
+    ]
+  },
+  "bonferroni": {
+    "original_alpha": 0.05,
+    "corrected_alpha": 0.0125,
+    "significant": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "n_significant": 4.0
+  }
+}

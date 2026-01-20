@@ -1,0 +1,241 @@
+% ============================================================
+% Section 4 (Continued): Advanced Theoretical Results
+% Rigorous extensions: sparse limit, KS connection, concentration bounds
+% ============================================================
+
+\subsection{Rigorous Foundations: Sparse Limit and Local Independence}
+\label{subsec:sparse_limit}
+
+The SNR ratio theorem (Theorem~\ref{thm:snr_ratio}) relies on the conditional independence of neighbor labels. We now establish this rigorously.
+
+\begin{definition}[Sparse Symmetric SBM]
+\label{def:sparse_sbm}
+Consider a two-class symmetric SBM on $n$ vertices with hidden labels $\sigma_i \in \{+1, -1\}$ i.i.d.\ uniform. Given $\sigma$, edges are generated independently:
+\begin{equation}
+    \mathbb{P}(A_{ij} = 1 \mid \sigma) =
+    \begin{cases}
+        a/n, & \sigma_i = \sigma_j \\
+        b/n, & \sigma_i \neq \sigma_j
+    \end{cases}
+    \quad (i < j)
+\end{equation}
+where $a, b = O(1)$ are constants. The average degree is $k = (a+b)/2$ and the correlation parameter is:
+\begin{equation}
+    \rho := \frac{a - b}{a + b} \in [-1, 1]
+\end{equation}
+\end{definition}
+
+\begin{lemma}[Local Independence in Sparse SBM]
+\label{lem:local_independence}
+In the sparse symmetric SBM (Definition~\ref{def:sparse_sbm}), let $B_r(v)$ denote the radius-$r$ neighborhood of vertex $v$ (including nodes, edges, and labels). As $n \to \infty$ with $a, b = O(1)$ fixed:
+\begin{equation}
+    B_r(v) \xRightarrow{d} \mathcal{T}_r
+\end{equation}
+where $\mathcal{T}_r$ is the depth-$r$ truncation of a \textbf{labeled Galton-Watson tree}:
+\begin{itemize}
+    \item Root label $\sigma_v \in \{+1, -1\}$ uniform
+    \item Each node has $\mathrm{Pois}(k)$ children
+    \item Child labels follow a binary symmetric channel:
+    \begin{equation}
+        \mathbb{P}(\sigma_{\mathrm{child}} = \sigma_{\mathrm{parent}}) = \frac{1+\rho}{2}, \quad
+        \mathbb{P}(\sigma_{\mathrm{child}} \neq \sigma_{\mathrm{parent}}) = \frac{1-\rho}{2}
+    \end{equation}
+    \item Given parent label and tree structure, child labels are \textbf{conditionally independent}
+\end{itemize}
+\end{lemma}
+
+\begin{proof}[Proof Sketch]
+This is a standard consequence of local weak convergence (Benjamini-Schramm convergence) for sparse random graphs. The key observation is that cycles in a fixed-radius neighborhood occur with probability $O(1/n) \to 0$.
+\end{proof}
+
+\begin{remark}
+Lemma~\ref{lem:local_independence} rigorously justifies assumption (A1) in Theorem~\ref{thm:snr_ratio}: in the sparse limit, neighbor labels are conditionally independent given the center node's label.
+\end{remark}
+
+\subsection{Unified View: One-Hop SNR vs.\ Kesten-Stigum Threshold}
+\label{subsec:unified_ks}
+
+We now clarify the relationship between our threshold $\rho^2 k = 1$ and the classical KS threshold $(k-1)\rho^2 = 1$.
+
+\begin{proposition}[One-Step Aggregation SNR Gain]
+\label{prop:one_step_snr}
+On the limiting tree $\mathcal{T}$, let $v$ be the root with children $\mathcal{C}(v)$, where $|\mathcal{C}(v)| \sim \mathrm{Pois}(k)$. Consider the one-hop aggregation statistic:
+\begin{equation}
+    S_v := \sum_{u \in \mathcal{C}(v)} X_u
+\end{equation}
+where $X_u$ satisfies $\mathbb{E}[X_u \mid \sigma_u] = m \cdot \sigma_u$ and $\mathrm{Var}(X_u \mid \sigma_u) = \tau^2$, with $(X_u)_{u \in \mathcal{C}(v)}$ conditionally independent given $\sigma_v$. Then:
+\begin{equation}
+    \mathrm{SNR}(S_v; \sigma_v) = \frac{(\mathbb{E}[S_v \mid \sigma_v = +1] - \mathbb{E}[S_v \mid \sigma_v = -1])^2}{\mathrm{Var}(S_v \mid \sigma_v)} = 4(\rho^2 k) \cdot \frac{m^2}{\tau^2}
+\end{equation}
+The one-hop SNR gain factor is proportional to $\rho^2 k$.
+\end{proposition}
+
+\begin{theorem}[Kesten-Stigum Threshold via Non-Backtracking]
+\label{thm:ks_nonbacktrack}
+In the sparse symmetric SBM, consider the optimal reconstruction of root label $\sigma_v$ from depth-$t$ observations. Positive correlation reconstruction is possible if and only if:
+\begin{equation}
+    (k-1)\rho^2 > 1
+\end{equation}
+When $(k-1)\rho^2 < 1$, the correlation of any estimator decays to zero as $t \to \infty$.
+\end{theorem}
+
+\begin{remark}[When to Use $k$ vs.\ $k-1$]
+\label{rem:k_vs_k_minus_1}
+The two thresholds arise from different mechanisms:
+\begin{itemize}
+    \item \textbf{Use $k$}: For \textit{single-layer aggregation} where all $k$ neighbors contribute independent evidence. No multi-step iteration is involved.
+    \item \textbf{Use $k-1$}: For \textit{multi-layer iterative propagation} where non-backtracking is required. Excluding the parent node leaves $k-1$ ``new directions'' for information to propagate.
+\end{itemize}
+
+Physical interpretation:
+\begin{itemize}
+    \item $\rho^2 k$: ``How much SNR improvement does one-hop aggregation provide?''
+    \item $(k-1)\rho^2$: ``Can information survive deep propagation without being washed out by returning echoes?''
+\end{itemize}
+\end{remark}
+
+\subsection{Finite-Sample Concentration Bounds}
+\label{subsec:concentration}
+
+We establish concentration bounds for the empirical estimates of $k$, $\rho$, and $\kappa$.
+
+\begin{lemma}[Concentration of Average Degree]
+\label{lem:degree_concentration}
+Let $\hat{k} := \frac{2|E|}{n}$ be the empirical average degree. For any $\delta \in (0, 1)$, there exists $C > 0$ such that for sufficiently large $n$:
+\begin{equation}
+    \mathbb{P}\left(|\hat{k} - k| \geq C\sqrt{\frac{k \log(1/\delta)}{n}}\right) \leq \delta
+\end{equation}
+\end{lemma}
+
+\begin{lemma}[Concentration of Empirical $\rho$ (Known Labels)]
+\label{lem:rho_concentration}
+Define empirical estimates using edge counts:
+\begin{equation}
+    E_{\mathrm{in}} := \sum_{i < j} \mathbf{1}\{\sigma_i = \sigma_j\} A_{ij}, \quad
+    E_{\mathrm{out}} := \sum_{i < j} \mathbf{1}\{\sigma_i \neq \sigma_j\} A_{ij}
+\end{equation}
+and $\hat{\rho} := (E_{\mathrm{in}} - E_{\mathrm{out}}) / (E_{\mathrm{in}} + E_{\mathrm{out}})$. For any $\delta \in (0, 1)$:
+\begin{equation}
+    \mathbb{P}\left(|\hat{\rho} - \rho| \geq C\sqrt{\frac{\log(1/\delta)}{nk}}\right) \leq \delta
+\end{equation}
+\end{lemma}
+
+\begin{corollary}[Finite-$n$ Deviation of $\hat{\kappa}$]
+\label{cor:kappa_concentration}
+Let $\hat{\kappa} := \hat{\rho}^2 \hat{k}$. For any $\delta \in (0, 1)$, with probability at least $1 - \delta$:
+\begin{equation}
+    |\hat{\kappa} - \kappa| \leq C\left(\sqrt{\frac{k \log(1/\delta)}{n}} + \sqrt{\frac{\log(1/\delta)}{nk}}\right)
+\end{equation}
+where $\kappa = \rho^2 k$. The deviation is $O(n^{-1/2})$.
+\end{corollary}
+
+\subsection{Extension to Sub-Gaussian Features}
+\label{subsec:subgaussian}
+
+The SNR framework extends beyond Gaussian features to sub-Gaussian distributions.
+
+\begin{definition}[Sub-Gaussian Features]
+\label{def:subgaussian}
+Node features satisfy $x_i = \mu \sigma_i + \varepsilon_i$ where $\varepsilon_i$ are independent, zero-mean, and sub-Gaussian: for some $\sigma_\varepsilon > 0$ and all unit vectors $u \in \mathbb{S}^{d-1}$:
+\begin{equation}
+    \|u^\top \varepsilon_i\|_{\psi_2} \leq \sigma_\varepsilon
+\end{equation}
+\end{definition}
+
+\begin{theorem}[SNR Recursion under Sub-Gaussian Noise]
+\label{thm:subgaussian_snr}
+Under the sparse SBM with sub-Gaussian features (Definition~\ref{def:subgaussian}), consider one-layer linear aggregation:
+\begin{equation}
+    h_v := \sum_{u \in \mathcal{N}(v)} w_{vu} x_u
+\end{equation}
+For any unit projection direction $u \in \mathbb{S}^{d-1}$, conditional on $\sigma_v$:
+\begin{equation}
+    u^\top h_v = (\text{signal}) + (\text{noise})
+\end{equation}
+where:
+\begin{itemize}
+    \item Signal mean scales as $\rho \sum_{u} w_{vu}$ (same as Gaussian case)
+    \item Noise remains sub-Gaussian with parameter $\|u^\top(\text{noise})\|_{\psi_2} \leq C\sigma_\varepsilon (\sum_u w_{vu}^2)^{1/2}$
+\end{itemize}
+When $w_{vu} = 1$ and $|\mathcal{N}(v)| \approx k$, the SNR gain factor is $\kappa = \rho^2 k$, identical to the Gaussian case. The only difference is that tail bounds use sub-Gaussian concentration instead of Gaussian.
+\end{theorem}
+
+\begin{remark}
+Gaussianity is not essential. The key requirements are: (1) independence, (2) sub-Gaussian tails, and (3) variance control. Under these conditions, aggregated noise satisfies the same concentration bounds, and the SNR recursion remains valid.
+\end{remark}
+
+\subsection{Degree Heterogeneity: Degree-Corrected SBM}
+\label{subsec:dcsbm}
+
+When degrees are heterogeneous, we extend to the degree-corrected SBM (DC-SBM).
+
+\begin{definition}[Degree-Corrected SBM]
+\label{def:dcsbm}
+Given degree parameters $\theta_i > 0$, edge probabilities are:
+\begin{equation}
+    \mathbb{P}(A_{ij} = 1 \mid \sigma, \theta) = \frac{\theta_i \theta_j}{n} \left(c_{\mathrm{in}} \mathbf{1}\{\sigma_i = \sigma_j\} + c_{\mathrm{out}} \mathbf{1}\{\sigma_i \neq \sigma_j\}\right)
+\end{equation}
+Assume $\frac{1}{n}\sum_i \theta_i \to \mathbb{E}[\Theta]$ and $\frac{1}{n}\sum_i \theta_i^2 \to \mathbb{E}[\Theta^2] < \infty$. Define:
+\begin{equation}
+    \rho := \frac{c_{\mathrm{in}} - c_{\mathrm{out}}}{c_{\mathrm{in}} + c_{\mathrm{out}}}, \quad
+    k := \frac{c_{\mathrm{in}} + c_{\mathrm{out}}}{2} \mathbb{E}[\Theta]^2
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Effective $\kappa$ under Degree Heterogeneity]
+\label{thm:dcsbm_kappa}
+In the DC-SBM sparse limit, the local limit is a multi-type Galton-Watson tree with non-backtracking branching factor:
+\begin{equation}
+    \beta := k \cdot \frac{\mathbb{E}[\Theta^2]}{\mathbb{E}[\Theta]^2}
+\end{equation}
+The effective $\kappa$ depends on the analysis type:
+\begin{enumerate}
+    \item \textbf{One-hop aggregation} (no non-backtracking):
+    \begin{equation}
+        \bar{\kappa}_{\mathrm{1-hop}} := \rho^2 \mathbb{E}[D] = \rho^2 k
+    \end{equation}
+    where $D$ is a random node's degree with $\mathbb{E}[D] = k$.
+
+    \item \textbf{Deep propagation / detectability} (KS-type):
+    \begin{equation}
+        \kappa_{\mathrm{KS,het}} := \rho^2 \mathbb{E}[D_{\mathrm{excess}}] = \rho^2 \beta = \rho^2 k \cdot \frac{\mathbb{E}[\Theta^2]}{\mathbb{E}[\Theta]^2}
+    \end{equation}
+    The detectability threshold is $\kappa_{\mathrm{KS,het}} > 1$.
+\end{enumerate}
+\end{theorem}
+
+\begin{remark}[Size-Bias Effect]
+The factor $\mathbb{E}[\Theta^2]/\mathbb{E}[\Theta]^2 \geq 1$ (with equality iff constant degree) captures the \textbf{size-bias}: traversing a random edge, the arrived node has degree distributed as the size-biased version. This makes deep propagation easier in heterogeneous-degree graphs (larger $\beta$), but one-hop aggregation still uses the simple average $k$.
+\end{remark}
+
+\subsection{Complete Theoretical Framework: Summary}
+\label{subsec:complete_summary}
+
+\begin{table}[t]
+\centering
+\caption{Complete SNR-Based Theoretical Framework}
+\label{tab:complete_summary}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Result} & \textbf{Formula} & \textbf{Conditions} \\
+\midrule
+\multicolumn{3}{l}{\textit{Core Results (Homogeneous Degree)}} \\
+SNR ratio (1-hop) & $\kappa = \rho^2 k$ & Sparse SBM, local independence \\
+Bayes error & $P_e = \Phi(-\frac{1}{2}\sqrt{d_x \cdot \mathrm{SNR}})$ & Gaussian / sub-Gaussian \\
+Multi-layer SNR & $\mathrm{SNR}^{(t)} = \kappa^t \cdot \mathrm{SNR}_X$ & No layer noise \\
+Critical threshold & $|\rho| = 1/\sqrt{k}$ & 1-hop aggregation \\
+\midrule
+\multicolumn{3}{l}{\textit{Extensions}} \\
+GCN effective degree & $\kappa_i^{\mathrm{GCN}} = \rho^2 k_{\mathrm{eff}}(i)$ & Normalized weights \\
+Concatenation & $\mathrm{SNR}_{\mathrm{concat}} = (1+\kappa) \mathrm{SNR}_X$ & Uncorrelated noise \\
+Finite-sample deviation & $|\hat{\kappa} - \kappa| = O(n^{-1/2})$ & Bernstein bounds \\
+DC-SBM (1-hop) & $\bar{\kappa} = \rho^2 k$ & Degree heterogeneity \\
+DC-SBM (KS) & $\kappa_{\mathrm{KS}} = \rho^2 k \cdot \mathbb{E}[\Theta^2]/\mathbb{E}[\Theta]^2$ & Non-backtracking \\
+\midrule
+\multicolumn{3}{l}{\textit{KS Connection}} \\
+1-hop threshold & $\rho^2 k = 1$ & All neighbors used \\
+Deep propagation & $(k-1)\rho^2 = 1$ & Non-backtracking \\
+\bottomrule
+\end{tabular}
+\end{table}
+

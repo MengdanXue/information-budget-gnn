@@ -1,0 +1,504 @@
+% ============================================================
+% Section 3: Theoretical Framework - Feature Contrast Theory
+% Core theoretical contribution: FCS, AIL, and Type A/B criteria
+% ============================================================
+
+\section{Theoretical Framework}
+\label{sec:theory}
+
+We develop a theoretical framework that explains \textit{when} and \textit{why} graph structure helps node classification. Our key insight is that the relationship between homophily and GNN performance depends critically on the \textbf{feature contrast} between different-class neighbors.
+
+\subsection{Framework Overview}
+
+Our framework consists of three complementary components, each addressing a different aspect of GNN behavior:
+
+\begin{enumerate}
+    \item \textbf{Feature Contrast Score (FCS)}: A graph-level metric characterizing the geometric relationship between features of different-class neighbors. FCS determines whether low-homophily graphs exhibit U-shaped or monotonic GNN performance curves.
+
+    \item \textbf{Aggregation Information Loss (AIL)}: An information-theoretic quantity measuring how much label-predictive information is destroyed by neighborhood aggregation. We prove AIL $\geq 0$ via Data Processing Inequality, and empirically observe that AIL peaks at mid-homophily ($h \approx 0.5$).
+
+    \item \textbf{Two-Type Heterophily Criterion}: A classification of low-homophily graphs into Type A (recoverable via 2-hop) and Type B (irrecoverable), based on the 2-hop recovery ratio $R = h_2/h_1$.
+\end{enumerate}
+
+\textbf{Design Philosophy}: We deliberately separate \textit{rigorous theory} (DPI-based AIL non-negativity) from \textit{empirical observations} (AIL scaling, ADR peak location). This transparency allows readers to evaluate which claims are proven versus empirically validated.
+
+\subsection{Preliminaries and Notation}
+
+Let $G = (V, E)$ be an undirected graph with $n = |V|$ nodes. Each node $v \in V$ has a feature vector $\mathbf{x}_v \in \mathbb{R}^d$ and a label $y_v \in \{1, \ldots, C\}$. The edge homophily ratio is defined as:
+\begin{equation}
+    h = \frac{|\{(u,v) \in E : y_u = y_v\}|}{|E|}
+\end{equation}
+
+For a GNN with mean aggregation, the updated representation of node $v$ is:
+\begin{equation}
+    \tilde{\mathbf{x}}_v = \sigma\left(\mathbf{W} \cdot \frac{1}{|\mathcal{N}(v)|} \sum_{u \in \mathcal{N}(v)} \mathbf{x}_u\right)
+\end{equation}
+where $\mathcal{N}(v)$ denotes the neighbors of $v$ and $\mathbf{W}$ is a learnable weight matrix.
+
+\subsection{Feature Contrast Score (FCS)}
+
+We introduce a novel metric that characterizes the geometric relationship between features of different-class neighbors.
+
+\begin{definition}[Feature Contrast Score]
+\label{def:fcs}
+The \textbf{Feature Contrast Score (FCS)} of a graph $G$ is defined as:
+\begin{equation}
+    \text{FCS}(G) = \mathbb{E}_{(u,v) \in E, y_u \neq y_v}\left[\cos(\mathbf{x}_u, \mathbf{x}_v)\right]
+\end{equation}
+where $\cos(\mathbf{x}_u, \mathbf{x}_v) = \frac{\mathbf{x}_u^\top \mathbf{x}_v}{\|\mathbf{x}_u\| \|\mathbf{x}_v\|}$ is the cosine similarity.
+\end{definition}
+
+FCS measures the average feature similarity between connected nodes of different classes. Based on FCS, we categorize different-class neighbor relationships:
+
+\begin{definition}[Neighbor Feature Types]
+\label{def:neighbor_types}
+For a threshold $\epsilon > 0$ (we use $\epsilon = 0.1$ in practice):
+\begin{itemize}
+    \item \textbf{Opposite}: $\text{FCS} < -\epsilon$ (features point in opposite directions)
+    \item \textbf{Orthogonal}: $|\text{FCS}| \leq \epsilon$ (features are uncorrelated)
+    \item \textbf{Similar}: $\text{FCS} > \epsilon$ (features point in similar directions)
+\end{itemize}
+\end{definition}
+
+\subsection{The U-Shape Condition Theorem}
+
+Our central theoretical result establishes when the U-shaped relationship between homophily and GNN performance occurs.
+
+\begin{theorem}[U-Shape Condition]
+\label{thm:ushape_condition}
+Let $\Delta_{\text{GNN}}(h) = \text{Acc}_{\text{GNN}}(h) - \text{Acc}_{\text{MLP}}$ denote the GNN advantage as a function of homophily $h$. Under mean aggregation with sufficient model capacity:
+
+\begin{enumerate}
+    \item If $\text{FCS} < -\epsilon$ (opposite neighbors), then $\Delta_{\text{GNN}}(h)$ exhibits a \textbf{U-shape}: positive at both $h \to 0$ and $h \to 1$, with minimum near $h = 0.5$.
+
+    \item If $|\text{FCS}| \leq \epsilon$ (orthogonal neighbors), then $\Delta_{\text{GNN}}(h)$ is \textbf{monotonically increasing} in $h$ (J-shape).
+
+    \item If $\text{FCS} > \epsilon$ (similar neighbors), then $\Delta_{\text{GNN}}(h) \leq 0$ for all $h < h^*$ where $h^*$ depends on feature discriminability.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+We prove each case by analyzing the information content of aggregated features.
+
+\textbf{Case 1 (Opposite, $\text{FCS} < -\epsilon$):}
+When neighbors of different classes have opposite features, low homophily provides a contrastive signal. At $h \to 0$, most neighbors belong to different classes with features $\mathbf{x}_u \approx -\mathbf{x}_v$. The aggregated representation becomes:
+\begin{equation}
+    \tilde{\mathbf{x}}_v \propto -\mathbf{x}_v
+\end{equation}
+This inverted signal is still informative: a classifier can learn to use the negation. Thus, GNN can exploit structure at both extremes.
+
+At $h = 0.5$, neighbors are a random mix of same-class ($\mathbf{x}_u \approx \mathbf{x}_v$) and opposite-class ($\mathbf{x}_u \approx -\mathbf{x}_v$) features. The aggregation yields:
+\begin{equation}
+    \tilde{\mathbf{x}}_v \approx \frac{h \cdot \mathbf{x}_v + (1-h) \cdot (-\mathbf{x}_v)}{1} = (2h-1)\mathbf{x}_v
+\end{equation}
+At $h = 0.5$, this becomes $\tilde{\mathbf{x}}_v \approx \mathbf{0}$, destroying all information.
+
+\textbf{Case 2 (Orthogonal, $|\text{FCS}| \leq \epsilon$):}
+When different-class neighbors have orthogonal features, they contribute noise rather than contrastive signal. At low $h$, most neighbors are different-class with $\mathbf{x}_u \perp \mathbf{x}_v$. The aggregation adds random noise:
+\begin{equation}
+    \tilde{\mathbf{x}}_v = h \cdot \mathbf{x}_v + (1-h) \cdot \mathbf{n}
+\end{equation}
+where $\mathbf{n}$ is an orthogonal noise vector. This strictly degrades the signal-to-noise ratio. As $h$ increases, more same-class neighbors contribute, improving SNR monotonically.
+
+\textbf{Case 3 (Similar, $\text{FCS} > \epsilon$):}
+When different-class neighbors have similar features, aggregation at any $h < 1$ mixes class-discriminative information. The benefit only emerges when $h$ is high enough that same-class neighbors dominate.
+\end{proof}
+
+\subsection{Aggregation Information Loss (AIL)}
+
+We propose an \textit{empirical information criterion} to characterize the information loss caused by neighborhood aggregation.
+
+\begin{definition}[Aggregation Information Loss]
+\label{def:ail}
+The \textbf{Aggregation Information Loss (AIL)} quantifies the reduction in label-predictive information due to aggregation:
+\begin{equation}
+    \text{AIL} = I(Y; X) - I(Y; \tilde{X})
+\end{equation}
+where $X$ and $\tilde{X}$ denote the original and aggregated feature random variables, and $I(\cdot; \cdot)$ is mutual information.
+\end{definition}
+
+\begin{proposition}[AIL Non-Negativity via Data Processing Inequality]
+\label{prop:ail_dpi}
+Since aggregation can be viewed as a Markov chain $Y \to X \to \tilde{X}$, the Data Processing Inequality guarantees:
+\begin{equation}
+    I(Y; \tilde{X}) \leq I(Y; X)
+\end{equation}
+Thus $\text{AIL} \geq 0$: aggregation can only lose (or at best preserve) label-predictive information.
+\end{proposition}
+
+\begin{remark}[On the Markov Chain Assumption]
+\label{rem:markov_assumption}
+The Markov chain $Y \to X \to \tilde{X}$ holds when the aggregation function depends only on neighbor features $X$, not directly on labels $Y$. This is satisfied by standard GNN aggregation schemes (mean, sum, attention over features). The assumption may be violated if aggregation explicitly uses label information (e.g., label propagation).
+\end{remark}
+
+\subsubsection{Empirical Characterization of AIL}
+
+We now present an \textbf{empirical observation} about how AIL scales with homophily. This is \textit{not} a theorem, but a pattern consistently observed in experiments.
+
+\begin{observation}[AIL Scaling with Homophily]
+\label{obs:ail_scaling}
+Under controlled experiments with Gaussian mixture features, mean aggregation, and binary classification, we observe that AIL approximately follows:
+\begin{equation}
+    \text{AIL} \approx I(Y; X) \cdot 4h(1-h)
+\end{equation}
+This scaling achieves $R^2 > 0.9$ fit across diverse synthetic configurations.
+\end{observation}
+
+\subsubsection{Binary Symmetric Channel Interpretation}
+
+We provide \textbf{intuitive justification} for the $4h(1-h)$ scaling by modeling neighbor aggregation as information transmission through a \textbf{Binary Symmetric Channel (BSC)}. This is a \textit{simplified model} that captures the essential mechanism, not a claim of formal equivalence.
+
+\begin{proposition}[BSC Channel Capacity---Simplified Model]
+\label{prop:bsc_capacity}
+Consider a \textbf{toy model} where neighbor aggregation is analogous to transmitting label information through a BSC with crossover probability $q = 1 - h$. Under this analogy, the effective channel capacity is:
+\begin{equation}
+    C(h) = 1 - H_2(1-h) = 1 - H_2(h)
+\end{equation}
+where $H_2(p) = -p\log_2 p - (1-p)\log_2(1-p)$ is binary entropy. For small deviations from $h = 0.5$:
+\begin{equation}
+    C(h) \approx \frac{(2h-1)^2}{2\ln 2} + O((2h-1)^4)
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+This follows directly from Shannon's BSC capacity formula. The Taylor expansion around $h = 0.5$ uses $H_2(0.5 + \delta) = 1 - \frac{2\delta^2}{\ln 2} + O(\delta^4)$ with $\delta = h - 0.5$.
+\end{proof}
+
+\begin{remark}[Scope of the BSC Analogy]
+\label{rem:bsc_scope}
+The BSC model is a \textbf{conceptual tool}, not a rigorous equivalence. Key limitations:
+\begin{enumerate}
+    \item \textbf{Linearity assumption}: Real GNNs include nonlinear activations (ReLU); the BSC model assumes linear signal mixing
+    \item \textbf{Binary labels}: The BSC directly models binary classification; multi-class requires extensions
+    \item \textbf{Independent neighbors}: The model assumes neighbors contribute independently; real graphs have correlations
+    \item \textbf{Feature-label alignment}: The model assumes features perfectly encode labels; real features are noisy
+\end{enumerate}
+Despite these limitations, the BSC analogy correctly predicts the \textit{qualitative behavior}: capacity peaks at extreme $h$ values and vanishes at $h = 0.5$. This qualitative prediction is validated experimentally with $R^2 > 0.9$ on synthetic data.
+\end{remark}
+
+\begin{remark}[Connection to AIL---Heuristic Interpretation]
+\label{rem:bsc_ail_connection}
+The BSC interpretation provides \textbf{intuition} for the $(2h-1)^2$ scaling:
+\begin{itemize}
+    \item At $h = 1$ (perfect homophily): $C(1) = 1$, full information preserved
+    \item At $h = 0$ (perfect heterophily): $C(0) = 1$, full information preserved (inverted signal)
+    \item At $h = 0.5$ (random): $C(0.5) = 0$, all information destroyed
+\end{itemize}
+The effective SNR after aggregation scales as $\text{SNR}_{\text{agg}} \propto (2h-1)^2 \cdot \text{SNR}_{\text{raw}}$, suggesting the observed $4h(1-h)$ loss pattern. This is a \textit{heuristic derivation}, not a proof.
+\end{remark}
+
+\begin{justification}[Signal Mixture Model Derivation]
+Under a simplified Gaussian mixture model where $X | Y=c \sim \mathcal{N}(\boldsymbol{\mu}_c, \sigma^2 \mathbf{I})$, the aggregated feature has conditional mean:
+\begin{equation}
+    \mathbb{E}[\tilde{X}_v | Y_v = c] \approx h \cdot \boldsymbol{\mu}_c + (1-h) \cdot \boldsymbol{\mu}_{1-c}
+\end{equation}
+
+The effective class separation after aggregation becomes:
+\begin{equation}
+    \|\mathbb{E}[\tilde{X} | Y=1] - \mathbb{E}[\tilde{X} | Y=0]\| = |2h-1| \cdot \|\boldsymbol{\mu}_1 - \boldsymbol{\mu}_0\|
+\end{equation}
+
+\textbf{Heuristic Approximation:} Near the critical point $h = 0.5$ where signal is minimized, mutual information can be approximated by the squared signal ratio in the low-SNR regime:
+\begin{equation}
+    \frac{I(Y; \tilde{X})}{I(Y; X)} \approx (2h-1)^2 + O((2h-1)^4)
+\end{equation}
+This yields $\text{AIL} \approx I(Y;X) \cdot [1 - (2h-1)^2] = I(Y;X) \cdot 4h(1-h)$.
+
+\textbf{Important Caveat}: The exact relationship is $I \propto \log(1 + \text{SNR})$, not $I \propto \text{SNR}$. The quadratic approximation $(2h-1)^2$ is only valid near $h = 0.5$ in the low-SNR limit. This derivation provides \textit{intuition}, not a rigorous proof.
+\end{justification}
+
+\begin{remark}[Scope and Limitations]
+\label{rem:ail_scope}
+The $4h(1-h)$ scaling is best understood as an \textbf{empirical regularity} with the following scope:
+\begin{itemize}
+    \item \textbf{Applies to}: Gaussian-like features, mean aggregation, binary classification, large neighborhoods
+    \item \textbf{May not apply to}: Non-Gaussian features (e.g., sparse bag-of-words), learned aggregation (e.g., attention), multi-class problems with complex geometry
+\end{itemize}
+We report this observation because it provides useful intuition for why mid-homophily is harmful, but we do not claim it as a general theorem.
+\end{remark}
+
+\begin{corollary}[Maximum Damage at $h = 0.5$]
+\label{cor:max_damage}
+Under the conditions of Observation~\ref{obs:ail_scaling}, AIL achieves its maximum at $h = 0.5$:
+\begin{equation}
+    \text{AIL}_{\max} = I(Y;X) \quad \text{when } h = 0.5
+\end{equation}
+At this point, the aggregated features have identical expected values across classes, destroying all class-discriminative information.
+\end{corollary}
+
+This provides an empirical foundation for why GNNs perform worst at mid-homophily: the aggregation process destroys the maximum amount of information when neighbors are an equal mix of same-class and different-class.
+
+\subsection{Aggregation Damage Ratio (ADR)}
+
+We define an empirically measurable proxy for AIL that quantifies the \textit{harm} caused by neighborhood aggregation.
+
+\begin{definition}[Aggregation Damage Ratio]
+\label{def:adr_theory}
+The \textbf{Aggregation Damage Ratio (ADR)} is a \textbf{damage metric} (higher values indicate greater harm):
+\begin{equation}
+    \text{ADR} = 1 - \frac{\text{Acc}_{\text{GNN}}}{\text{Acc}_{\text{MLP}}}
+\end{equation}
+\end{definition}
+
+\begin{remark}[Interpretation of ADR]
+\label{rem:adr_interpretation}
+ADR measures the \textbf{relative accuracy loss} due to aggregation:
+\begin{itemize}
+    \item $\text{ADR} > 0$: Aggregation \textit{harms} performance (GNN worse than MLP)
+    \item $\text{ADR} = 0$: Aggregation has no effect (GNN equals MLP)
+    \item $\text{ADR} < 0$: Aggregation \textit{helps} performance (GNN better than MLP)
+\end{itemize}
+\textbf{Important}: ADR is designed as a \textit{damage indicator}, not a benefit indicator. A high ADR signals that GNN should be avoided in favor of MLP.
+\end{remark}
+
+\begin{observation}[ADR Peaks at $h = 0.5$]
+\label{obs:adr_peak}
+Empirically, for mean-aggregation GNNs on binary classification tasks, ADR is maximized near $h = 0.5$.
+\end{observation}
+
+\begin{justification}
+This observation can be understood through a symmetry argument. Consider the classification problem on a graph with homophily $h$. By flipping all labels ($y \to 1-y$), we obtain an equivalent problem with homophily $1-h$. Since the two problems have identical classification difficulty (up to label permutation), any symmetric performance metric $f(h)$ must satisfy $f(h) = f(1-h)$.
+
+For mean aggregation with symmetric class means ($\mu_{\text{same}} = -\mu_{\text{diff}}$): the aggregated signal $Z(h) = h \cdot \mu_{\text{same}} + (1-h) \cdot \mu_{\text{diff}}$ vanishes at $h = 0.5$, i.e., $Z(0.5) = 0$. At this point, aggregation completely destroys the discriminative signal, leading to maximum damage.
+
+\textbf{Note}: This is an \textit{observation} supported by symmetry intuition, not a theorem. The argument requires: (1) symmetric class distributions, (2) mean aggregation, (3) no skip connections. Architectures with concatenation (e.g., GraphSAGE) or learned aggregation (e.g., GAT) may exhibit different behavior.
+\end{justification}
+
+\begin{remark}[Practical Implication]
+\label{rem:adr_practical}
+When $h \approx 0.5$ (mid-homophily), practitioners should expect ADR to be large and positive, indicating that standard GNNs will likely underperform MLP. This motivates using either: (1) MLP baseline, (2) architectures with skip connections, or (3) heterophily-aware methods.
+\end{remark}
+
+\subsection{Two-Type Heterophily: Formal Criterion}
+
+Not all low-homophily graphs are equal. We formalize the distinction between recoverable and irrecoverable heterophily.
+
+\begin{definition}[2-Hop Homophily]
+\label{def:2hop}
+The \textbf{2-hop homophily} $h_2$ is the probability that a node and its 2-hop neighbor share the same label:
+\begin{equation}
+    h_2 = P(y_u = y_w | \text{dist}(u, w) = 2)
+\end{equation}
+\end{definition}
+
+\begin{definition}[Recovery Ratio]
+\label{def:recovery_ratio}
+The \textbf{2-hop recovery ratio} is:
+\begin{equation}
+    R = \frac{h_2}{h_1}
+\end{equation}
+where $h_1 = h$ is the standard (1-hop) homophily.
+\end{definition}
+
+\begin{proposition}[Two-Type Heterophily Criterion]
+\label{prop:two_type}
+For low-homophily graphs ($h < 0.3$), we distinguish two heterophily types based on the 2-hop recovery ratio $R$:
+\begin{enumerate}
+    \item \textbf{Type A (Recoverable)}: If $R > 1$, then 2-hop neighborhoods contain more same-class information than 1-hop. Multi-hop methods (H2GCN, LINKX) can potentially exploit this structure.
+
+    \item \textbf{Type B (Irrecoverable)}: If $R \leq 1$, then no hop-level contains exploitable structure. MLP is likely optimal.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}[Justification]
+\textbf{Type A:} When $R > 1$, we have $h_2 > h_1$, indicating a bipartite-like structure where ``enemies of enemies are friends.'' Methods aggregating 2-hop information (H2GCN's $\mathbf{A}^2$ term) can exploit this pattern.
+
+\textbf{Type B:} When $R \leq 1$, 2-hop neighbors are no more likely to be same-class than 1-hop. By induction, no hop level provides useful aggregation signal---the graph structure is effectively uninformative for classification.
+\end{proof}
+
+\begin{remark}[On Practical Thresholds]
+\label{rem:threshold_empirical}
+The theoretical boundary between Type A and Type B is $R = 1$. In practice, we recommend using a \textbf{graph-dependent threshold} rather than a fixed constant:
+\begin{equation}
+    \tau(G) = 1 + \frac{c}{\sqrt{d_{\text{avg}}}}
+\end{equation}
+where $d_{\text{avg}}$ is the average degree and $c$ is a small constant (we use $c = 1$ in experiments). This accounts for:
+\begin{enumerate}
+    \item \textbf{Estimation noise}: $h_2$ estimates from finite samples have variance $\propto 1/\sqrt{d_{\text{avg}}}$
+    \item \textbf{Spectral noise floor}: The Kesten-Stigum detection limit suggests signals below $O(1/\sqrt{d})$ are undetectable
+\end{enumerate}
+For sparse graphs ($d_{\text{avg}} \approx 4$), this yields $\tau \approx 1.5$; for dense graphs ($d_{\text{avg}} \approx 100$), $\tau \approx 1.1$. We report results using both $R = 1$ (theoretical) and the graph-dependent threshold (practical).
+\end{remark}
+
+\subsection{Theoretical Predictions Summary}
+
+Our theory makes the following testable predictions:
+
+\begin{table}[t]
+\centering
+\caption{Theoretical Predictions by Feature Type}
+\label{tab:theory_predictions}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{FCS Type} & \textbf{Low $h$} & \textbf{Mid $h$} & \textbf{High $h$} \\
+\midrule
+Opposite ($<-0.1$) & GNN wins & GNN loses & GNN wins \\
+Orthogonal ($\approx 0$) & GNN loses & GNN loses & GNN wins \\
+Similar ($>0.1$) & GNN loses & GNN loses & GNN may win \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Heterophily Type Predictions}
+\label{tab:heterophily_predictions}
+\begin{tabular}{@{}lccl@{}}
+\toprule
+\textbf{Type} & \textbf{$R$ Range} & \textbf{Best Method} & \textbf{Example} \\
+\midrule
+A (Recoverable) & $R > 1.5$ & H2GCN/LINKX & Texas, Wisconsin \\
+B (Irrecoverable) & $R \leq 1.0$ & MLP/GraphSAGE & Chameleon, Squirrel \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These predictions are validated empirically in Section~\ref{sec:experiments}.
+
+\subsection{Unified Information-Dynamics Framework}
+
+We now synthesize the preceding theoretical components into a unified framework that bridges information theory and learning dynamics.
+
+\begin{definition}[Graph Information Budget]
+\label{def:graph_info_budget}
+The \textbf{Graph Information Budget} quantifies the additional predictive information that graph structure provides beyond features:
+\begin{equation}
+    \mathcal{B}_{\text{struct}} \triangleq I(Y; G | X)
+\end{equation}
+where $G$ represents graph structure (adjacency, aggregated messages) and $X$ represents node features.
+\end{definition}
+
+\begin{theorem}[Unified Information-Dynamics Bound]
+\label{thm:unified_bound}
+Let $\Delta P_e = P_e^{\text{GNN}} - P_e^{\text{MLP}}$ denote the change in classification error when using GNN versus MLP. Under mean aggregation with Gaussian mixture features, the error change is governed by:
+\begin{equation}
+    \Delta P_e \approx -\mathcal{J}\left( \underbrace{I(Y; G | X)}_{\text{Info Budget}} \cdot \underbrace{(2h-1)^2}_{\text{Channel Capacity}} - \underbrace{\lambda \cdot \Delta_{\text{agg}}}_{\text{Interference Cost}} \right)
+\end{equation}
+where:
+\begin{itemize}
+    \item $\mathcal{J}(\cdot)$ is a monotonically increasing function mapping information gain to error reduction
+    \item $(2h-1)^2$ is the effective channel capacity from BSC model (Proposition~\ref{prop:bsc_capacity})
+    \item $\Delta_{\text{agg}}$ captures aggregation-induced interference (related to ADR)
+    \item $\lambda > 0$ is a architecture-dependent coefficient
+\end{itemize}
+\end{theorem}
+
+\begin{proof}[Proof Sketch]
+The proof combines four key components:
+
+\textbf{Step 1 (Information Upper Bound):} From Proposition~\ref{prop:structure_bound}, the maximum error reduction is bounded by $I(Y; G | X) / \log C$. This establishes the ``budget ceiling.''
+
+\textbf{Step 2 (Channel Capacity Scaling):} From Proposition~\ref{prop:bsc_capacity}, the BSC interpretation shows that effective structural information scales as $(2h-1)^2$. At $h = 0.5$, channel capacity vanishes.
+
+\textbf{Step 3 (Signal-Noise Interaction):} Under Gaussian mixture assumptions, the aggregated SNR is:
+\begin{equation}
+    \text{SNR}_{\text{total}} \approx \text{SNR}_X + \alpha (2h-1)^2 \cdot \text{SNR}_G + 2\beta (2h-1) \cdot \rho_{XG}
+\end{equation}
+where $\rho_{XG} = \langle \boldsymbol{\mu}_X, \boldsymbol{\mu}_G \rangle / (\|\boldsymbol{\mu}_X\| \|\boldsymbol{\mu}_G\|)$ is the feature-structure correlation.
+
+\textbf{Step 4 (Error Function):} For Gaussian discriminant analysis, error rate is $P_e = \Phi(-\sqrt{\text{SNR}/2})$, where $\Phi$ is the standard normal CDF. The difference $\Delta P_e$ depends on the SNR change, yielding the stated form.
+\end{proof}
+
+\begin{corollary}[Conditions for GNN Benefit]
+\label{cor:gnn_benefit_condition}
+GNN outperforms MLP (i.e., $\Delta P_e < 0$) if and only if:
+\begin{equation}
+    I(Y; G | X) \cdot (2h-1)^2 > \lambda \cdot \Delta_{\text{agg}}
+\end{equation}
+This provides a principled criterion for model selection: structure benefit must exceed aggregation cost.
+\end{corollary}
+
+\begin{remark}[Interpretation of the Unified Framework]
+The unified bound reveals three regimes:
+\begin{enumerate}
+    \item \textbf{High homophily ($h > 0.7$)}: $(2h-1)^2$ is large, structure information is efficiently transmitted, GNN typically wins.
+    \item \textbf{Mid homophily ($h \approx 0.5$)}: $(2h-1)^2 \approx 0$, channel capacity vanishes, interference dominates, MLP wins.
+    \item \textbf{Low homophily with Type A ($h < 0.3$, $R > 1$)}: Despite low $h$, 2-hop recovery restores $(2h_2-1)^2$, specialized GNNs (H2GCN) can win.
+\end{enumerate}
+\end{remark}
+
+\begin{remark}[Assumptions and Limitations]
+\label{rem:unified_assumptions}
+The unified theorem requires:
+\begin{enumerate}
+    \item \textbf{Gaussian mixture features}: Class-conditional distributions are $\mathcal{N}(\boldsymbol{\mu}_c, \sigma^2 \mathbf{I})$
+    \item \textbf{Mean aggregation}: Standard GCN-style aggregation without attention or learned weights
+    \item \textbf{Binary classification}: Extension to multi-class requires matrix SNR formulation
+    \item \textbf{Large neighborhoods}: Central limit theorem approximation for aggregated features
+\end{enumerate}
+Violations of these assumptions may cause deviations, but the qualitative predictions (U-shape, mid-homophily damage) remain robust empirically.
+\end{remark}
+
+\subsection{The NOON Phenomenon: No Opposite Neighbors}
+\label{sec:noon}
+
+A critical empirical finding that refines our theoretical understanding is the \textbf{No Opposite Neighbors (NOON)} phenomenon---an \textit{empirical regularity} observed across diverse graph benchmarks.
+
+\begin{observation}[No Opposite Neighbors---NOON]
+\label{obs:noon}
+Across 9 benchmark datasets (both homophilic and heterophilic), the fraction of different-class neighbor pairs with opposite feature directions is effectively zero:
+\begin{equation}
+    P(\cos(\mathbf{x}_u, \mathbf{x}_v) < -0.1 \mid (u,v) \in E, y_u \neq y_v) \approx 0
+\end{equation}
+This holds universally: Cora (0\%), Texas (0\%), Actor (0\%), Chameleon (0\%), etc.
+\end{observation}
+
+\begin{remark}[Ruling Out Feature Artifacts]
+\label{rem:noon_artifact}
+One might suspect this phenomenon is an artifact of non-negative features (BOW/TF-IDF). We conducted rigorous experiments to rule this out:
+\begin{enumerate}
+    \item \textbf{Feature centering}: Subtracting per-dimension mean enables negative cosines. Result: average fraction below $-0.1$ increases only to 4.75\%.
+    \item \textbf{ZCA whitening}: Full decorrelation and variance normalization. Result: fraction increases to 6.81\%, still very low.
+    \item \textbf{Synthetic sanity check}: Creating data with true opposite features (class means at $+1$ and $-1$). Result: 100\% detected below $-0.5$, proving our method works.
+\end{enumerate}
+Conclusion: NOON is an \textbf{empirical regularity of real-world graphs}, not a measurement artifact. Like other empirical regularities in network science (power-law degree distributions, small-world property), NOON characterizes what is observed in practice without claiming universal physical necessity.
+\end{remark}
+
+\begin{theorem}[NOON Under Non-Negative Features]
+\label{thm:noon}
+For graphs with non-negative features $\mathbf{x} \in \mathbb{R}^d_{\geq 0}$ (e.g., BOW, TF-IDF, one-hot encodings), the cosine similarity between any two nodes is non-negative:
+\begin{equation}
+    \cos(\mathbf{x}_u, \mathbf{x}_v) = \frac{\sum_{i=1}^d x_{u,i} \cdot x_{v,i}}{\|\mathbf{x}_u\| \|\mathbf{x}_v\|} \geq 0
+\end{equation}
+since all terms in the sum are non-negative.
+\end{theorem}
+
+\begin{proposition}[Probabilistic NOON After Centering]
+\label{prop:noon_centered}
+For centered features $\tilde{\mathbf{x}} = \mathbf{x} - \bar{\mathbf{x}}$ with high-dimensional isotropic noise, the probability of strongly negative cosine similarity vanishes:
+\begin{equation}
+    P(\cos(\tilde{\mathbf{x}}_u, \tilde{\mathbf{x}}_v) < -\epsilon) \leq \exp\left(-\frac{d \cdot \epsilon^2}{2}\right)
+\end{equation}
+for $\epsilon > 0$ and dimension $d \gg 1$. This follows from concentration of measure in high dimensions.
+\end{proposition}
+
+\begin{corollary}[NOON Implication for U-Shape Theory]
+\label{cor:noon_ushape}
+The NOON phenomenon implies that Case 1 of Theorem~\ref{thm:ushape_condition} (U-shape from opposite neighbors) \textbf{does not occur in real-world graphs}. The observed behavior is:
+\begin{itemize}
+    \item \textbf{All real heterophilic graphs}: FCS $\geq 0$ (orthogonal or similar neighbors)
+    \item \textbf{Consequence}: J-shaped or monotonic GNN advantage curves, never U-shaped
+    \item \textbf{Synthetic data only}: True U-shape requires artificially constructed opposite features
+\end{itemize}
+This resolves the empirical puzzle of why U-shaped curves are not observed in practice.
+\end{corollary}
+
+\begin{remark}[Implication for Heterophily Research]
+\label{rem:noon_hetero}
+NOON fundamentally changes how we should understand heterophily:
+\begin{enumerate}
+    \item \textbf{Old view}: Heterophily means ``neighbors have opposite features''
+    \item \textbf{New view}: Heterophily means ``neighbors have orthogonal/weakly-similar features despite different labels''
+\end{enumerate}
+This distinction is critical: ``opposite'' implies contrastive signal could be exploited (signed GNNs, hard negatives), while ``orthogonal'' implies no such signal exists---aggregation simply adds noise.
+\end{remark}
+
+\begin{remark}[Type A vs Type B Under NOON]
+\label{rem:noon_types}
+The NOON finding refines our Type A/Type B heterophily classification:
+\begin{itemize}
+    \item \textbf{Type A (WebKB)}: Similar-but-different-label neighbors (FCS $> 0$). Features correlate despite label mismatch. H2GCN effective because 2-hop recovers same-class neighbors with correlated features.
+    \item \textbf{Type B (Wikipedia)}: Orthogonal-and-different-label neighbors (FCS $\approx 0$). Features provide no directional information for aggregation. MLP optimal because all aggregation adds only noise.
+\end{itemize}
+\end{remark}
+

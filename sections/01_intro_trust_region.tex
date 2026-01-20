@@ -1,0 +1,56 @@
+% ============================================================
+% Section 1: Introduction
+% Trust Regions of Graph Propagation
+% ============================================================
+
+\section{Introduction}
+\label{sec:intro}
+
+Graph Neural Networks (GNNs) have achieved remarkable success in node classification tasks by leveraging both node features and graph structure through message passing~\cite{kipf2017gcn,velivckovic2018gat,hamilton2017graphsage}. However, their performance varies dramatically across datasets, leading to an ongoing debate about when graph structure actually helps.
+
+\textbf{Why This Matters.} The choice between GNN and MLP is not merely academic---it has significant practical consequences. On datasets where structure helps, GNNs can outperform MLPs by over 20\%; on datasets where structure hurts, GNNs can \textit{underperform} MLPs by up to 19\%. Without principled guidance, practitioners face costly trial-and-error: training multiple architectures, tuning hyperparameters, and running extensive validation---a process that can take days on large graphs. A reliable diagnostic metric that predicts \textit{a priori} whether structure will help could save substantial computational resources and accelerate model deployment.
+
+The conventional explanation attributes GNN success to \textit{homophily}---the tendency of connected nodes to share the same label. Under this view, high homophily ($h \approx 1$) enables effective label propagation, while low homophily ($h \approx 0$, heterophily) causes aggregation to mix signals from different classes, degrading performance~\cite{zhu2020beyond}. This binary framing has spawned numerous heterophily-aware architectures~\cite{bo2021fagcn}.
+
+\textbf{Our Discovery.} We challenge this conventional wisdom with a surprising empirical finding: GNN performance follows a \textbf{U-shaped pattern} across the homophily spectrum. As shown in Figure~\ref{fig:ushape_main}, GNNs outperform feature-only methods (MLP) at \textit{both} homophily extremes---not just high homophily, but also very low homophily ($h < 0.3$). The performance valley occurs in the \textit{mid-range} ($0.3 < h < 0.7$), where GNNs underperform MLP by up to 19\%.
+
+This U-shape reveals that the key factor is not homophily \textit{direction} but structural \textit{predictability}:
+\begin{itemize}
+    \item At $h \approx 1$ (strong homophily): neighbors reliably share labels, providing positive correlation signal.
+    \item At $h \approx 0$ (strong heterophily): neighbors reliably differ in labels, providing negative correlation signal that sophisticated models can exploit.
+    \item At $h \approx 0.5$ (random): neighbor labels are unpredictable, making aggregation inject noise rather than signal.
+\end{itemize}
+
+\textbf{Cross-Model Analysis.} We further demonstrate that U-shape severity varies systematically with aggregation mechanism:
+\begin{itemize}
+    \item \textbf{GCN} (mean aggregation): strongest U-shape, 19.35\% amplitude
+    \item \textbf{GAT} (attention): moderate U-shape, 5.85\% amplitude
+    \item \textbf{GraphSAGE} (sampling): minimal U-shape, 0.75\% amplitude
+\end{itemize}
+This cross-model validation proves the U-shape is a \textit{data property}, not a model-specific artifact. Mean aggregation is most sensitive to homophily because it uniformly weights all neighbors; attention provides partial robustness by down-weighting uninformative neighbors; sampling-based methods are inherently robust due to neighbor subsampling.
+
+\textbf{Quantifying Structural Predictability.} To formalize the insight that \textit{predictability}---not direction---determines GNN success, we quantify structural predictability via the \textbf{Structural Predictability Index (SPI)}:
+\begin{equation}
+    \SPI = |2h - 1|
+\end{equation}
+where $h$ is edge homophily. While the formula is a simple transformation of $h$, its value lies in capturing the symmetry of the U-shape: SPI ranges from 0 (maximum uncertainty at $h=0.5$) to 1 (perfect predictability at $h=0$ or $h=1$). Importantly, we establish an information-theoretic foundation: mutual information $I(Y_u; Y_N) \propto \SPI^2$ via Taylor expansion of binary entropy (Appendix~\ref{sec:appendix_theory}). Empirically, SPI achieves $R^2 = 0.86$ in predicting GNN advantage over MLP ($p < 0.001$).
+
+\textbf{Trust Region Framework.} Based on SPI, we define \textbf{Trust Regions} for graph propagation:
+\begin{itemize}
+    \item \textbf{Trust Region} (SPI $> 0.4$): Graph structure provides reliable signal. Use GNN.
+    \item \textbf{Uncertainty Zone} (SPI $\leq 0.4$): Structure is noise. Use MLP or feature-only methods.
+\end{itemize}
+This corresponds to trusting structure when $h < 0.30$ or $h > 0.70$, and avoiding it when $0.30 \leq h \leq 0.70$.
+
+\textbf{Feature-Pattern Duality.} A critical question remains: does this U-shape hold in real-world graphs? Through semi-synthetic experiments (real features with rewired topology), we discover that \textbf{the U-shape is a synthetic artifact}. With real features, GNN advantage follows a \textit{monotonic} pattern---increasing with homophily, with crossover at $h \approx 0.5$. We provide mechanistic evidence through feature similarity analysis, revealing a \textbf{counter-intuitive negative correlation} ($r = -0.79$): at low homophily, the feature similarity gap between same-class and different-class neighbors is \textit{larger}, yet GNN performance is \textit{worse}. This proves that real heterophilic neighbors are feature-orthogonal (noise), not feature-opposite (contrastive signal). Even heterophily-aware architectures like H2GCN, while reducing damage by 22\%, cannot reverse this monotonic trend.
+
+\textbf{Contributions.} Our main contributions are:
+\begin{enumerate}
+    \item \textbf{The U-Shape Discovery and Feature-Pattern Duality}: We provide the first systematic demonstration that GNN advantage follows a U-shaped pattern across homophily under synthetic conditions, challenging the binary homophilic/heterophilic framing. Critically, we discover this U-shape is a \textit{synthetic artifact}---real features produce monotonic patterns, with mechanistic evidence from feature similarity analysis ($r = -0.79$ negative correlation).
+
+    \item \textbf{Trust Region Framework with Information-Theoretic Foundation}: We formalize structural predictability via SPI = $|2h-1|$ and establish its connection to mutual information ($I \propto \SPI^2$). This provides both theoretical understanding (why mid-homophily fails) and practical guidance (Trust Region vs. Uncertainty Zone), achieving $R^2 = 0.86$ in predicting GNN advantage.
+
+    \item \textbf{Two-Factor Decision Algorithm}: We develop an actionable decision framework combining homophily and feature sufficiency, achieving 93.8\% accuracy (15/16 decisive predictions) on 19 real-world datasets. The algorithm resolves the Chameleon-Squirrel paradox by identifying when ``bad information $>$ no information'' holds.
+\end{enumerate}
+
+The rest of this paper is organized as follows. Section~\ref{sec:related} reviews related work on homophily and GNN architecture selection. Section~\ref{sec:ushape} presents our U-shape discovery through controlled experiments. Section~\ref{sec:spi} formalizes the SPI metric and Trust Region framework. Section~\ref{sec:experiments} provides comprehensive experimental validation. Section~\ref{sec:discussion} discusses implications and limitations. Section~\ref{sec:conclusion} concludes.

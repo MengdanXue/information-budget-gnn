@@ -1,0 +1,145 @@
+% ============================================================
+% Section 3: The U-Shape Discovery
+% Trust Regions of Graph Propagation
+% ============================================================
+
+\section{The U-Shape Discovery}
+\label{sec:ushape}
+
+In this section, we present our central empirical finding: GNN performance follows a U-shaped pattern across the homophily spectrum.
+
+\subsection{Controlled H-Sweep Experiments}
+
+To isolate the effect of homophily on GNN performance, we design controlled synthetic experiments where we systematically vary edge homophily $h$ while keeping other factors constant.
+
+\textbf{Graph Generation.} For each target homophily $h \in \{0.1, 0.2, ..., 0.9\}$, we generate synthetic graphs with:
+\begin{itemize}
+    \item $n = 1000$ nodes with balanced binary labels
+    \item $d = 20$ dimensional features with controlled class separability
+    \item Approximately 7,500 edges generated to achieve target homophily
+\end{itemize}
+
+Features are generated from class-conditional Gaussians with separability parameter $s$:
+\begin{equation}
+    \mathbf{x}_i \sim \mathcal{N}(\boldsymbol{\mu}_{y_i} \cdot s, \mathbf{I})
+\end{equation}
+where $\boldsymbol{\mu}_c$ is the class center for class $c$. Higher $s$ means features alone are more discriminative.
+
+Edges are generated to achieve target homophily by controlling the ratio of same-class to different-class connections. This allows us to study GNN behavior across the full homophily spectrum with identical feature distributions.
+
+\textbf{Models.} We compare four models:
+\begin{itemize}
+    \item \textbf{MLP}: 2-layer MLP (baseline, ignores graph structure)
+    \item \textbf{GCN}: 2-layer Graph Convolutional Network (mean aggregation)
+    \item \textbf{GAT}: 2-layer Graph Attention Network (4 attention heads)
+    \item \textbf{GraphSAGE}: 2-layer GraphSAGE (mean aggregator)
+\end{itemize}
+
+All models use 64 hidden units, dropout 0.5, and are trained for 200 epochs with Adam optimizer (lr=0.01). We report mean accuracy over 5 runs with different random seeds.
+
+\subsection{Results: The U-Shaped Pattern}
+
+Figure~\ref{fig:ushape_main} presents our main finding. The left panel shows absolute accuracy; the right panel shows GNN advantage over MLP.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\columnwidth]{code/figures/cross_model_hsweep.pdf}
+    \caption{The U-shaped performance pattern. (a) Model accuracy across homophily spectrum. MLP (dashed) is constant; GNNs show characteristic U-shape. (b) GNN advantage over MLP. GCN shows strongest U-shape (valley: $-18.75\%$ at $h=0.5$), GAT moderate ($-5.3\%$), GraphSAGE minimal.}
+    \label{fig:ushape_main}
+\end{figure}
+
+\textbf{Key Observations:}
+
+\begin{enumerate}
+    \item \textbf{MLP is constant}: Since MLP ignores graph structure, its accuracy depends only on feature separability and remains constant across $h$ values.
+
+    \item \textbf{GCN shows strong U-shape}: GCN outperforms MLP at $h \leq 0.2$ and $h > 0.7$, but dramatically underperforms at $h \approx 0.5$ (valley depth: $-18.75\%$).
+
+    \item \textbf{GAT shows moderate U-shape}: Attention partially mitigates the mid-h degradation, with valley depth of $-5.3\%$.
+
+    \item \textbf{GraphSAGE is robust}: Sampling-based aggregation shows almost no U-shape, with performance consistently matching or exceeding MLP.
+\end{enumerate}
+
+Table~\ref{tab:hsweep_results} provides detailed numerical results.
+
+\begin{table}[t]
+\centering
+\caption{Cross-Model H-Sweep Results (Accuracy \%)}
+\label{tab:hsweep_results}
+\begin{tabular}{@{}ccccccc@{}}
+\toprule
+$h$ & MLP & GCN & GAT & SAGE & GCN$-$MLP & Zone \\
+\midrule
+0.1 & 99.2 & 99.8 & 99.7 & 99.9 & +0.6 & Trust \\
+0.2 & 99.2 & 99.2 & 99.2 & 99.8 & +0.0 & Trust \\
+0.3 & 99.2 & 96.1 & 98.9 & 99.7 & $-3.1$ & Boundary \\
+0.4 & 99.1 & 86.3 & 97.3 & 99.5 & $-12.8$ & Uncertain \\
+0.5 & 99.2 & 80.5 & 93.9 & 99.1 & $-18.8$ & Uncertain \\
+0.6 & 99.2 & 89.1 & 97.9 & 99.7 & $-10.1$ & Uncertain \\
+0.7 & 99.3 & 95.7 & 99.1 & 99.4 & $-3.6$ & Boundary \\
+0.8 & 99.3 & 99.4 & 99.3 & 99.5 & +0.1 & Trust \\
+0.9 & 99.4 & 99.8 & 99.6 & 99.6 & +0.4 & Trust \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{U-Shape Severity by Model}
+
+We quantify U-shape severity using three metrics:
+\begin{itemize}
+    \item \textbf{Valley Depth}: Worst GNN$-$MLP gap in mid-h zone
+    \item \textbf{Extreme Best}: Best GNN$-$MLP gain at extreme h
+    \item \textbf{Amplitude}: Valley Depth $-$ Extreme Best
+\end{itemize}
+
+\begin{table}[t]
+\centering
+\caption{U-Shape Severity by Model}
+\label{tab:ushape_severity}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Model & Valley Depth & Extreme Best & Amplitude \\
+\midrule
+GCN & $-18.75\%$ & $+0.60\%$ & \textbf{19.35\%} \\
+GAT & $-5.30\%$ & $+0.55\%$ & 5.85\% \\
+GraphSAGE & $-0.10\%$ & $+0.65\%$ & 0.75\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Insight}: U-shape severity correlates with aggregation aggressiveness:
+\begin{itemize}
+    \item \textbf{Mean aggregation} (GCN): Uniformly averages all neighbors, maximally sensitive to neighbor composition.
+    \item \textbf{Attention} (GAT): Can down-weight uninformative neighbors, providing partial robustness.
+    \item \textbf{Sampling} (GraphSAGE): Subsamples neighbors, inherently robust to noisy connections.
+\end{itemize}
+
+\subsection{Theoretical Explanation}
+
+Why does the U-shape emerge? We provide an intuitive explanation based on aggregation behavior.
+
+\begin{proposition}[Informal]
+Let $h$ be edge homophily. After one round of mean aggregation:
+\begin{itemize}
+    \item If $h \approx 1$: Aggregated features are similar to self features (reinforcement).
+    \item If $h \approx 0$: Aggregated features are systematically different (exploitable anti-correlation).
+    \item If $h \approx 0.5$: Aggregated features approach global mean (no discriminative information).
+\end{itemize}
+\end{proposition}
+
+At $h = 0.5$, the expected aggregated feature for any node approaches the population mean, destroying class-specific information. This explains why mid-h is harmful: aggregation injects noise.
+
+At extreme $h$, structure provides \textit{consistent} signal---either positively correlated ($h \approx 1$) or negatively correlated ($h \approx 0$). Both are exploitable by learnable models.
+
+\subsection{Robustness Across Feature Qualities}
+
+To verify the U-shape is not an artifact of specific feature settings, we repeat the H-sweep across four separability levels: $s \in \{0.3, 0.5, 0.7, 1.0\}$.
+
+\textbf{Result}: The U-shape pattern holds across all separability levels. Key findings:
+\begin{itemize}
+    \item $h = 0.5$ is always the valley (GCN disadvantage ranges from $-17\%$ to $-22\%$).
+    \item Better features $\rightarrow$ narrower GCN advantage zone at extremes.
+    \item Worse features $\rightarrow$ larger potential GCN gains when structure is predictable.
+\end{itemize}
+
+This confirms the U-shape is a robust phenomenon arising from the fundamental interaction between aggregation and homophily, not a quirk of experimental settings.

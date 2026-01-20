@@ -1,0 +1,14 @@
+{
+  "coefficient_source": {
+    "fitted_on": 15,
+    "validated_on": 11,
+    "slope": 1.1361918807387261,
+    "intercept": -0.36610476089059196
+  },
+  "loocv": {
+    "correlation": 0.6507637113000901,
+    "p_value": 0.030126500494977053
+  },
+  "actor_analysis": {
+    "residual": 0.07566843725157912,
+    "in_neutral_zone": 
