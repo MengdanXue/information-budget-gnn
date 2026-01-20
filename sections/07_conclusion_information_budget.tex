@@ -13,9 +13,9 @@ We present the \textbf{Information Budget} framework, a unified theoretical pers
 \textbf{1. The Conditional Enhancement Bound}: We establish that GNN improvement is upper-bounded by $\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$ under fair comparison conditions (equivalent model capacity, identical features, standard aggregation). This resolves the Same-$h$ Puzzle: Cora ($h=0.81$, Budget=24.9\%) gains +12.7\% from GCN, while Coauthor-CS ($h=0.81$, Budget=5.6\%) gains $-0.7\%$. Same homophily, opposite outcomes, different budgets. Validated on:
 \begin{itemize}
     \item 9 noise levels on Cora: All within budget bound (9/9)
-    \item 19 benchmark datasets: All satisfy the constraint (19/19)
-    \item Edge shuffle experiment: Causal validation (47.4\% drop when structure randomized)
-    \item 4 OGB datasets at million-node scale: All satisfy the constraint
+    \item 23 datasets (19 benchmark + 4 OGB): All satisfy the constraint (23/23)
+    \item Edge shuffle experiment: Interventional ablation consistent with causal dependence on structure (33.3\% average drop when edges randomized)
+    \item LODO cross-validation: 12/12 decisive predictions correct (95\% CI: 73.5\%--100\%)
 \end{itemize}
 
 \textbf{2. Aggregation Damage Ratio (ADR)}: We quantify how aggregation can \textit{destroy} information:
@@ -33,15 +33,16 @@ Key findings:
 
 \textbf{3. Dual Heterophily Types}: We identify two fundamentally different low-$h$ regimes:
 \begin{itemize}
-    \item \textbf{Type A} (Recoverable): $R_{2\text{-hop}} > 1.5\times$. H2GCN improves +28.1\% average. Examples: Texas, Wisconsin, Cornell.
+    \item \textbf{Type A} (Recoverable): $R_{2\text{-hop}} > 1.5\times$. H2GCN improves over GCN by +28.1\% average (vs MLP: only +0.8\%). Examples: Texas, Wisconsin, Cornell.
     \item \textbf{Type B} (Irrecoverable): $R_{2\text{-hop}} \leq 1.0\times$. MLP is optimal unless features are weak. Examples: Actor, Chameleon, Squirrel.
 \end{itemize}
 This resolves the Chameleon-Squirrel paradox: they are Type B with unusually weak features (MLP = 32--49\%), so ``bad information $>$ no information'' applies.
 
 \textbf{4. Unified Decision Framework}: Algorithm~\ref{alg:budget_decision} combines Budget, ADR, and Heterophily Type:
 \begin{itemize}
+    \item LODO cross-validation: 100\% accuracy on decisive predictions (12/12, 95\% CI: 73.5\%--100\%)
     \item CSBM controlled experiments: 88.9\% prediction accuracy (32/36)
-    \item External validation: 77.8\% accuracy (7/9 datasets)
+    \item External validation: 77.8\% accuracy (7/9 datasets, 95\% CI: 40.0\%--97.2\%)
     \item Key insight: Check budget first, then $h$, then heterophily type
 \end{itemize}
 
@@ -103,6 +104,23 @@ This work represents a shift in understanding GNN behavior:
 \textbf{3. Multi-Relational Graphs}: Different edge types may have different budgets and ADRs. Extending the framework to knowledge graphs is promising.
 
 \textbf{4. Learned Heterophily Type}: Automatic classification of Type A vs Type B without computing 2-hop homophily could accelerate method selection.
+
+\textbf{5. SNR Framework Scope}: The SNR discriminability analysis (Section~\ref{sec:snr_theory_rigorous}) is derived under a binary CSBM model. Note that:
+\begin{itemize}
+    \item The \textbf{Information Budget Theorem} itself is class-agnostic---$\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$ holds regardless of $C$
+    \item We provide an effective multi-class edge correlation $\rho_C = (Ch-1)/(C-1)$ that empirically works well
+    \item All 23 datasets (including $C = 40$ for ogbn-arxiv) satisfy our predictions
+\end{itemize}
+A rigorous multi-class SNR theory analyzing the full $C \times C$ label transition matrix would provide additional theoretical grounding but is not required for the framework's practical validity.
+
+\textbf{6. Empirical Scope Conditions}: Our framework predictions are validated under standard conditions. Predictions become less reliable under:
+\begin{itemize}
+    \item \textbf{Transition zones}: $0.25 < h < 0.35$ or $0.65 < h < 0.75$ (near regime boundaries)
+    \item \textbf{Extreme class imbalance}: Positive ratio $< 10\%$ or $> 90\%$
+    \item \textbf{Very small graphs}: $|V| < 500$ nodes (insufficient for statistical averaging)
+    \item \textbf{Highly irregular degree distributions}: Gini coefficient $> 0.6$
+\end{itemize}
+These conditions are documented in Section~\ref{sec:failure_analysis} with detailed failure case analysis.
 
 \subsection{Closing Remarks}
 

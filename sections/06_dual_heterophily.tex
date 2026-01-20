@@ -220,9 +220,10 @@ Squirrel & B & 25.8\% & 35.0\% & +9.2\% \\
 
 \textbf{Key Finding} (Table~\ref{tab:h2gcn_validation}):
 \begin{itemize}
-    \item \textbf{Type A}: H2GCN improves by +28.1\% on average (exploits 2-hop structure)
-    \item \textbf{Type B}: H2GCN improves by only +9.5\% (no 2-hop structure to exploit)
+    \item \textbf{Type A}: H2GCN improves over GCN by +28.1\% on average (exploits 2-hop structure)
+    \item \textbf{Type B}: H2GCN improves over GCN by only +9.5\% (no 2-hop structure to exploit)
 \end{itemize}
+\textbf{Note}: H2GCN vs MLP improvement is much smaller (+0.8\% average for Type A), because MLP is already strong on these datasets. The large H2GCN-GCN gap reflects that standard GCN \textit{damages} heterophilic information, while H2GCN preserves it.
 
 H2GCN's effectiveness is \textit{predictable} from the heterophily type, confirming our framework.
 
