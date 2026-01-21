@@ -1,0 +1,412 @@
+{
+  "datasets": {
+    "Elliptic": {
+      "delta_agg": 0.94,
+      "rho_fs": 0.28,
+      "n_features": 165,
+      "homophily": 0.71,
+      "actual_class": "A",
+      "actual_method": "NAA-GAT"
+    },
+    "Amazon": {
+      "delta_agg": 5.0,
+      "rho_fs": 0.18,
+      "n_features": 767,
+      "homophily": 0.45,
+      "actual_class": "A",
+      "actual_method": "NAA-GAT"
+    },
+    "YelpChi": {
+      "delta_agg": 12.57,
+      "rho_fs": 0.01,
+      "n_features": 32,
+      "homophily": 0.13,
+      "actual_class": "B",
+      "actual_method": "H2GCN"
+    },
+    "IEEE-CIS": {
+      "delta_agg": 11.25,
+      "rho_fs": 0.06,
+      "n_features": 133,
+      "homophily": 0.32,
+      "actual_class": "B",
+      "actual_method": "H2GCN"
+    }
+  },
+  "threshold_results": {
+    "5": {
+      "threshold": 5,
+      "predictions": [
+        {
+          "dataset": "Elliptic",
+          "delta_agg": 0.94,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "Amazon",
+          "delta_agg": 5.0,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "YelpChi",
+          "delta_agg": 12.57,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        },
+        {
+          "dataset": "IEEE-CIS",
+          "delta_agg": 11.25,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        }
+      ],
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0
+    },
+    "6": {
+      "threshold": 6,
+      "predictions": [
+        {
+          "dataset": "Elliptic",
+          "delta_agg": 0.94,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "Amazon",
+          "delta_agg": 5.0,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "YelpChi",
+          "delta_agg": 12.57,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        },
+        {
+          "dataset": "IEEE-CIS",
+          "delta_agg": 11.25,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        }
+      ],
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0
+    },
+    "7": {
+      "threshold": 7,
+      "predictions": [
+        {
+          "dataset": "Elliptic",
+          "delta_agg": 0.94,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "Amazon",
+          "delta_agg": 5.0,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "YelpChi",
+          "delta_agg": 12.57,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        },
+        {
+          "dataset": "IEEE-CIS",
+          "delta_agg": 11.25,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        }
+      ],
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0
+    },
+    "8": {
+      "threshold": 8,
+      "predictions": [
+        {
+          "dataset": "Elliptic",
+          "delta_agg": 0.94,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "Amazon",
+          "delta_agg": 5.0,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "YelpChi",
+          "delta_agg": 12.57,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        },
+        {
+          "dataset": "IEEE-CIS",
+          "delta_agg": 11.25,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        }
+      ],
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0
+    },
+    "9": {
+      "threshold": 9,
+      "predictions": [
+        {
+          "dataset": "Elliptic",
+          "delta_agg": 0.94,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "Amazon",
+          "delta_agg": 5.0,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "YelpChi",
+          "delta_agg": 12.57,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        },
+        {
+          "dataset": "IEEE-CIS",
+          "delta_agg": 11.25,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        }
+      ],
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0
+    },
+    "10": {
+      "threshold": 10,
+      "predictions": [
+        {
+          "dataset": "Elliptic",
+          "delta_agg": 0.94,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "Amazon",
+          "delta_agg": 5.0,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "YelpChi",
+          "delta_agg": 12.57,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        },
+        {
+          "dataset": "IEEE-CIS",
+          "delta_agg": 11.25,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        }
+      ],
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0
+    },
+    "11": {
+      "threshold": 11,
+      "predictions": [
+        {
+          "dataset": "Elliptic",
+          "delta_agg": 0.94,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "Amazon",
+          "delta_agg": 5.0,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "YelpChi",
+          "delta_agg": 12.57,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        },
+        {
+          "dataset": "IEEE-CIS",
+          "delta_agg": 11.25,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        }
+      ],
+      "correct": 4,
+      "total": 4,
+      "accuracy": 1.0
+    },
+    "12": {
+      "threshold": 12,
+      "predictions": [
+        {
+          "dataset": "Elliptic",
+          "delta_agg": 0.94,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "Amazon",
+          "delta_agg": 5.0,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "YelpChi",
+          "delta_agg": 12.57,
+          "predicted_class": "B",
+          "actual_class": "B",
+          "correct": true
+        },
+        {
+          "dataset": "IEEE-CIS",
+          "delta_agg": 11.25,
+          "predicted_class": "A",
+          "actual_class": "B",
+          "correct": false
+        }
+      ],
+      "correct": 3,
+      "total": 4,
+      "accuracy": 0.75
+    },
+    "15": {
+      "threshold": 15,
+      "predictions": [
+        {
+          "dataset": "Elliptic",
+          "delta_agg": 0.94,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "Amazon",
+          "delta_agg": 5.0,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "YelpChi",
+          "delta_agg": 12.57,
+          "predicted_class": "A",
+          "actual_class": "B",
+          "correct": false
+        },
+        {
+          "dataset": "IEEE-CIS",
+          "delta_agg": 11.25,
+          "predicted_class": "A",
+          "actual_class": "B",
+          "correct": false
+        }
+      ],
+      "correct": 2,
+      "total": 4,
+      "accuracy": 0.5
+    },
+    "20": {
+      "threshold": 20,
+      "predictions": [
+        {
+          "dataset": "Elliptic",
+          "delta_agg": 0.94,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "Amazon",
+          "delta_agg": 5.0,
+          "predicted_class": "A",
+          "actual_class": "A",
+          "correct": true
+        },
+        {
+          "dataset": "YelpChi",
+          "delta_agg": 12.57,
+          "predicted_class": "A",
+          "actual_class": "B",
+          "correct": false
+        },
+        {
+          "dataset": "IEEE-CIS",
+          "delta_agg": 11.25,
+          "predicted_class": "A",
+          "actual_class": "B",
+          "correct": false
+        }
+      ],
+      "correct": 2,
+      "total": 4,
+      "accuracy": 0.5
+    }
+  },
+  "summary": {
+    "n_thresholds_tested": 10,
+    "optimal_thresholds": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "best_accuracy": 1.0,
+    "worst_accuracy": 0.5
+  }
+}

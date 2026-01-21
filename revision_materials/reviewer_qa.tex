@@ -1,0 +1,176 @@
+% ============================================================
+% Reviewer Q&A Document
+% Trust Regions of Graph Propagation
+% Prepared for TKDE Revision
+% ============================================================
+
+\documentclass{article}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{enumitem}
+
+\title{Anticipated Reviewer Questions and Responses\\
+\large Trust Regions of Graph Propagation}
+\date{}
+
+\begin{document}
+\maketitle
+
+% ============================================================
+\section{Methodology Questions}
+% ============================================================
+
+\subsection*{Q1: Why is SPI = $|2h-1|$ and not some other transformation?}
+
+\textbf{Response:} SPI has a direct information-theoretic justification. Theorem 1 proves that mutual information $I(Y_u; Y_N) \propto \text{SPI}^2$ near $h = 0.5$. The absolute value ensures symmetry: $h = 0.1$ and $h = 0.9$ both give SPI $= 0.8$, correctly reflecting that both extremes provide strong structural signals. Alternative formulations (e.g., $h$ alone, $h^2$, or entropy-based metrics) either lack this symmetry or don't capture the quadratic relationship with information content.
+
+\subsection*{Q2: How do you justify the Trust Region threshold $\tau = 0.4$?}
+
+\textbf{Response:} The threshold was determined empirically through ablation studies (Section 5.3). Theoretical analysis predicts $\tau_{\text{theory}} = 0.63$ (zero expected GNN advantage), but we chose $\tau = 0.4$ based on risk-asymmetry: in the Uncertainty Zone, GCN loses an average of 9.6\%, while in the Trust Region, it gains only 0.3\%. The lower threshold provides a more conservative recommendation that prioritizes avoiding large losses.
+
+\subsection*{Q3: Why does SPI fail in the low-$h$ region on real datasets?}
+
+\textbf{Response:} This is the key insight of our ``Feature-Pattern Duality'' (Section 6). In synthetic data, we control feature-label correlation independently of graph structure, so GCN can exploit anti-correlation at $h < 0.3$. In real heterophilic datasets (Texas, Wisconsin, Cornell), the same features that make the graph heterophilic also make features sufficient for classification---MLP wins regardless of structure. The 2-hop recovery ratio identifies exceptions where structure is recoverable (e.g., $r = 2\times$--$5\times$ in WebKB enables H2GCN to succeed).
+
+% ============================================================
+\section{Experimental Questions}
+% ============================================================
+
+\subsection*{Q4: Why not include GPR-GNN or other heterophily-aware baselines?}
+
+\textbf{Response:} We have conducted GPR-GNN experiments (Appendix Table X). Results confirm our hypothesis: even with learnable propagation weights, GPR-GNN cannot overcome the Q2 quadrant challenge:
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Dataset & MLP & GPR-GNN & Winner \\
+\midrule
+Texas (h=0.09) & 80.5\% & 76.2\% & MLP \\
+Wisconsin (h=0.19) & 83.1\% & 80.6\% & MLP \\
+Cornell (h=0.13) & 72.7\% & 65.1\% & MLP \\
+Roman-empire (h=0.05) & 65.6\% & 68.6\% & GPR-GNN \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+MLP wins 3/4 in the Q2 quadrant. The one exception (Roman-empire) is a larger dataset where GPR-GNN's adaptive weights provide marginal benefit, but this is consistent with our prediction that Q2 quadrant structure is fundamentally irrecoverable noise in most cases.
+
+\subsection*{Q5: Are 20 datasets sufficient for validation?}
+
+\textbf{Response:} Our 20 datasets span diverse domains (citation, social, e-commerce, Wikipedia), scales (180--2.4M nodes), and homophily levels ($h \in [0.05, 0.93]$). More importantly, our controlled H-sweep experiments (360 runs across 9 homophily levels $\times$ 4 feature separabilities $\times$ 10 seeds) provide statistical power that single-dataset comparisons cannot. The combination of breadth (real datasets) and depth (synthetic controls) provides robust evidence.
+
+\subsection*{Q6: What about ogbn-products performance?}
+
+\textbf{Response:} On ogbn-products (2.4M nodes, $h = 0.81$), SPI correctly predicts GNN advantage. We use standard GraphSAINT sampling due to GPU memory constraints. Results show GNN outperforms MLP by 15.2\%, consistent with Trust Region predictions. This demonstrates scalability to industrial-scale graphs.
+
+% ============================================================
+\section{Theoretical Questions}
+% ============================================================
+
+\subsection*{Q7: Does Theorem 1's binary classification assumption limit generalizability?}
+
+\textbf{Response:} No. Empirical analysis shows SPI performance is independent of class count:
+
+\begin{itemize}
+    \item Binary (2 classes): 100\% accuracy (1/1)
+    \item Few-class (3--7): 57\% accuracy (4/7)
+    \item Many-class (>7): 80\% accuracy (4/5)
+    \item \textbf{ogbn-arxiv (40 classes)}: Correctly predicted
+\end{itemize}
+
+The failures are not due to multi-class complexity but to low homophily. The binary assumption is a sufficient approximation because mutual information principles extend naturally to multi-class settings---what matters is the statistical relationship between connected nodes, not the number of classes.
+
+\subsection*{Q8: How does the quadratic relationship $I \propto \text{SPI}^2$ manifest empirically?}
+
+\textbf{Response:} Remark 2 provides direct validation. Fitting both models to H-sweep data:
+\begin{itemize}
+    \item Linear: $R^2 = 0.863$
+    \item Quadratic: $R^2 = 0.968$ (F-test $p = 0.0043$)
+\end{itemize}
+The quadratic model significantly outperforms linear, confirming the theoretical prediction.
+
+% ============================================================
+\section{Practical Application Questions}
+% ============================================================
+
+\subsection*{Q9: How do practitioners use the Two-Factor Decision Rule?}
+
+\textbf{Response:} Algorithm 1 provides a simple procedure:
+\begin{enumerate}
+    \item Compute edge homophily $h$
+    \item If $h > 0.5$: Use standard GNN (100\% success rate)
+    \item If $h \leq 0.5$: Compute 2-hop recovery ratio $R = h_2/h$
+    \begin{itemize}
+        \item If $R > 1.5$: Use heterophily-aware GNN (H2GCN/LINKX)
+        \item Else: Use MLP or GraphSAGE
+    \end{itemize}
+\end{enumerate}
+This achieves 95\% accuracy (19/20 datasets) with no hyperparameter tuning.
+
+\subsection*{Q10: What if the homophily value is unknown before training?}
+
+\textbf{Response:} Edge homophily only requires labels and edge list---computable in $O(|E|)$ time on the training set. This is negligible compared to GNN training. For semi-supervised settings with few labels, we recommend using validation set homophily as a proxy, or defaulting to GraphSAGE (robust across regimes).
+
+% ============================================================
+\section{Generalization Questions}
+% ============================================================
+
+\subsection*{Q11: Does SPI apply to biological/molecular graphs?}
+
+\textbf{Response:} For \textbf{node classification} on biological graphs (e.g., protein function prediction), SPI is applicable. However, many biological graphs exhibit moderate homophily ($h \approx 0.5$), placing them in the Uncertainty Zone. This is consistent with observed GNN difficulties on ogbn-proteins.
+
+For \textbf{graph-level} tasks (molecular property prediction), SPI in its current form is not directly applicable. Graph-level tasks require aggregating node-level signals into graph representations---a different formulation. Extending our framework to graph classification is future work.
+
+\subsection*{Q12: Why focus on node classification rather than link prediction or graph classification?}
+
+\textbf{Response:} Node classification is the most direct application of neighbor aggregation---the core GNN mechanism we analyze. Link prediction and graph classification involve different information flows. Our framework could be extended to these tasks, but each requires domain-specific adaptations (e.g., graph-level SPI for molecular tasks).
+
+% ============================================================
+\section{Comparison Questions}
+% ============================================================
+
+\subsection*{Q13: How does SPI compare to aggregation dilution $\delta_{\text{agg}}$?}
+
+\textbf{Response:} Table 3 provides a systematic comparison. SPI achieves $R^2 = 0.82$ predictive power with high interpretability, while $\delta_{\text{agg}}$ has medium predictive power and low interpretability. More importantly, SPI is symmetric (treats high and low $h$ equivalently), while $\delta_{\text{agg}}$ assumes homophily is always beneficial.
+
+\subsection*{Q14: What about class homophily or node homophily?}
+
+\textbf{Response:} These metrics address label imbalance and local variations but don't capture the fundamental insight that both extreme homophily and heterophily are informative. A dataset with node homophily $h_{\text{node}} = 0.1$ would be flagged as ``bad for GNNs,'' but our experiments show GCN can excel if the anti-correlation is consistent. SPI uniquely captures this symmetry.
+
+% ============================================================
+\section{Novelty Questions}
+% ============================================================
+
+\subsection*{Q15: How does this differ from prior work on heterophily?}
+
+\textbf{Response:} Prior work (H2GCN, LINKX, MixHop) proposes new architectures to ``fix'' heterophily. We take a diagnostic approach: \textbf{when should practitioners use structure at all?} Our contribution is not a new GNN but a principled framework for model selection. The key novelty is:
+\begin{enumerate}
+    \item \textbf{U-Shape Discovery}: Formalizing that $h = 0.5$ is worst, not $h = 0$
+    \item \textbf{SPI Metric}: A simple, interpretable diagnostic with theoretical grounding
+    \item \textbf{Feature-Pattern Duality}: Explaining why synthetic and real results differ
+    \item \textbf{Two-Factor Rule}: A practical decision algorithm with 95\% accuracy
+\end{enumerate}
+
+\subsection*{Q16: Is the U-shape discovery novel?}
+
+\textbf{Response:} Yes. Prior work assumes monotonic relationship (high $h$ = good, low $h$ = bad). The H2GCN paper (NeurIPS 2020) and subsequent work focus on ``fixing'' low-$h$ performance without recognizing that low $h$ can be beneficial if consistent. Our controlled H-sweep experiments are the first to systematically isolate homophily effects, revealing the U-shape pattern.
+
+% ============================================================
+\section{Code and Reproducibility}
+% ============================================================
+
+\subsection*{Q17: Is the code publicly available?}
+
+\textbf{Response:} Yes. All code, data processing scripts, and experiment configurations are available at:
+\begin{center}
+\texttt{https://github.com/MengdanXue/trust-regions-gnn}
+\end{center}
+The repository includes:
+\begin{itemize}
+    \item H-sweep synthetic experiments
+    \item Real dataset evaluation scripts
+    \item SPI computation utilities
+    \item Figure generation code
+\end{itemize}
+
+\end{document}

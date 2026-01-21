@@ -1,0 +1,16 @@
+
+\begin{table}[t]
+\centering
+\caption{Model Selection: Linear vs Quadratic}
+\label{tab:model_selection}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Model & $R^2$ & AIC & BIC & LOO-CV RMSE \\
+\midrule
+Linear & 0.863 & 20.0 & 20.4 & 3.26\% \\
+Quadratic & 0.968 & 8.9 & 9.4 & 2.41\% \\
+\midrule
+\multicolumn{2}{l}{$\Delta$ (Quad$-$Linear)} & -11.2 & -11.0 & -0.85\% \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,21 @@
+
+IEEE-CIS Graph Dataset Summary
+==============================
+Nodes: 100000
+Edges: 4765352
+Features: 394
+Fraud Rate: 3.58%
+
+Feature-Structure Alignment (rho_FS): 0.0588
+  - Mean edge similarity: 0.7133
+  - Mean non-edge similarity: 0.6545
+
+FSD Prediction: Standard GCN/GAT (Structure-Dominant or Mixed)
+
+Edge Statistics:
+{'card1': 2848414, 'card2': 940944, 'addr1': 544520, 'P_emaildomain': 286498, 'DeviceInfo': 144976}
+
+Data Splits (temporal):
+  - Train: 70000 (3.60% fraud)
+  - Val: 15000 (3.56% fraud)
+  - Test: 15000 (3.49% fraud)

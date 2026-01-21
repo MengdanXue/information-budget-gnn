@@ -1,0 +1,90 @@
+# ========================================
+# 2024 SOTA Baselines Requirements
+# For FSD-GNN Paper Comparison Experiments
+# ========================================
+
+# Core PyTorch and PyG
+torch>=2.1.0,<2.2.0
+torchvision>=0.16.0
+torchaudio>=2.1.0
+torch-geometric>=2.3.0,<2.4.0
+torch-scatter>=2.1.0
+torch-sparse>=0.6.0
+torch-cluster>=1.6.0
+torch-spline-conv>=1.2.0
+
+# Data Processing
+numpy>=1.21.0,<1.25.0
+scipy>=1.7.0,<1.11.0
+pandas>=1.3.0,<2.0.0
+scikit-learn>=1.0.0,<1.3.0
+
+# Graph Libraries
+networkx>=2.6.0,<3.0.0
+dgl>=1.0.0  # For DGFraud and some baselines
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.11.0
+plotly>=5.0.0
+
+# Progress and Logging
+tqdm>=4.62.0
+wandb>=0.12.0  # Optional: for experiment tracking
+tensorboard>=2.8.0
+
+# Utilities
+pyyaml>=5.4.0
+argparse>=1.4.0
+joblib>=1.1.0
+
+# ========================================
+# Baseline-Specific Dependencies
+# ========================================
+
+# ARC (NeurIPS 2024) - Graph Anomaly Detection
+# Requires: CUDA 12.1 support
+# Install command:
+# pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu121
+# Then install PyG extensions for cu121
+
+# CARE-GNN (CIKM 2020) - Baseline
+# Uses standard PyTorch and PyG
+
+# PC-GNN (WWW 2021) - Baseline
+# Requires: argparse 1.1.0, networkx 1.11
+# Note: Original uses older versions, we adapt to current versions
+
+# GAGA (WWW 2023) - Baseline
+# Requires: Standard PyG setup
+# Dataset: YelpChi, Amazon (auto-download)
+
+# DGFraud Toolbox - Multiple Baselines
+# pip install dgl
+
+# ========================================
+# Data Format Requirements
+# ========================================
+# IEEE-CIS: PyG Data format with features, edge_index, labels, masks
+# YelpChi: DGL/PyG format, node features (32 or 100 dim), heterogeneous edges
+# Amazon: DGL/PyG format, similar structure to YelpChi
+# Elliptic: Temporal graph, PyG format with time steps
+
+# ========================================
+# Installation Notes
+# ========================================
+# 1. For GPU support (CUDA 12.1):
+#    pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu121
+#
+# 2. For PyG with CUDA 12.1:
+#    pip install --no-index torch-scatter -f https://pytorch-geometric.com/whl/torch-2.1.2+cu121.html
+#    pip install --no-index torch-sparse -f https://pytorch-geometric.com/whl/torch-2.1.2+cu121.html
+#    pip install --no-index torch-cluster -f https://pytorch-geometric.com/whl/torch-2.1.2+cu121.html
+#    pip install --no-index torch-spline-conv -f https://pytorch-geometric.com/whl/torch-2.1.2+cu121.html
+#    pip install torch-geometric==2.3.1
+#
+# 3. For CPU-only (development/testing):
+#    pip install -r requirements_baselines.txt
+#
+# 4. For DGL:
+#    pip install dgl -f https://data.dgl.ai/wheels/repo.html

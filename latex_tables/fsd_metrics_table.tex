@@ -1,0 +1,37 @@
+\begin{table}[t]
+\centering
+\caption{FSD Metrics for Fraud Detection Datasets}
+\label{tab:fsd_metrics}
+\begin{tabular}{lccccl}
+\toprule
+\textbf{Dataset} & \textbf{$\rho_{FS}$} & \textbf{$\delta_{agg}$} & \textbf{$h$} & \textbf{Features} & \textbf{Optimal Class} \\
+\midrule
+Elliptic & 0.00 & 3.04 & 0.76 & 166 & Class A (Mean-aggregation) \\
+Inj-Amazon & 0.14 & 3.53 & 0.91 & 767 & Class A (Mean-aggregation) \\
+Inj-Flickr & 0.01 & 0.97 & 0.91 & 500 & Class A (Mean-aggregation) \\
+Inj-Cora & 0.10 & 0.38 & 0.91 & 1433 & Class A (Mean-aggregation) \\
+Cornell & 0.06 & 2.70 & 0.13 & 1703 & Class B (Sampling/Concatenation) \\
+Texas & 0.05 & 2.64 & 0.11 & 1703 & Class B (Sampling/Concatenation) \\
+Wisconsin & 0.06 & 2.44 & 0.20 & 1703 & Class B (Sampling/Concatenation) \\
+Chameleon & 0.01 & 12.13 & 0.24 & 2325 & Class B (Sampling/Concatenation) \\
+Squirrel & -0.00 & 32.39 & 0.22 & 2089 & Class B (Sampling/Concatenation) \\
+Actor & -0.01 & 3.37 & 0.22 & 932 & Class B (Sampling/Concatenation) \\
+Cora & 0.11 & 0.74 & 0.81 & 1433 & Class A (Mean-aggregation) \\
+CiteSeer & 0.15 & 0.73 & 0.74 & 3703 & Class A (Mean-aggregation) \\
+PubMed & 0.20 & 0.89 & 0.80 & 500 & Class A (Mean-aggregation) \\
+Flickr & 0.01 & 6.86 & 0.32 & 500 & Class B (Sampling/Concatenation) \\
+cSBM-HighH & 0.29 & 0.94 & 0.91 & 100 & Class A (Mean-aggregation) \\
+cSBM-MidH & 0.00 & 4.92 & 0.51 & 100 & Class B (Sampling/Concatenation) \\
+cSBM-LowH & -0.28 & 8.92 & 0.10 & 100 & Class B (Sampling/Concatenation) \\
+cSBM-NoisyF & 0.00 & 4.92 & 0.51 & 100 & Class B (Sampling/Concatenation) \\
+cSBM-CleanF & 0.00 & 4.92 & 0.51 & 100 & Class B (Sampling/Concatenation) \\
+\bottomrule
+\end{tabular}
+\vspace{0.2cm}
+\begin{tablenotes}
+\small
+\item $\rho_{FS}$: Feature-Structure Alignment (Pearson correlation)
+\item $\delta_{agg}$: Aggregation Dilution (inter-class/intra-class edge ratio)
+\item $h$: Homophily (fraction of same-class edges)
+\end{tablenotes}
+\end{table}

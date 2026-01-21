@@ -1,0 +1,31 @@
+\begin{table}[t]
+\centering
+\caption{Sensitivity Analysis: Prediction Accuracy vs $\delta_{\mathrm{agg}}$ Threshold}
+\label{tab:sensitivity_analysis}
+\small
+\begin{tabular}{ccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Threshold $\tau_\delta$}} & \multicolumn{4}{c}{\textbf{Dataset Predictions}} & \multirow{2}{*}{\textbf{Correct}} & \multirow{2}{*}{\textbf{Accuracy}} \\
+\cmidrule(lr){2-5}
+& \textbf{Elliptic} & \textbf{Amazon} & \textbf{YelpChi} & \textbf{IEEE-CIS} & & \\
+\midrule
+\textbf{5} & A & A & B & B & \textbf{4/4} & \textbf{100\%} \\
+\textbf{6} & A & A & B & B & \textbf{4/4} & \textbf{100\%} \\
+\textbf{7} & A & A & B & B & \textbf{4/4} & \textbf{100\%} \\
+\textbf{8} & A & A & B & B & \textbf{4/4} & \textbf{100\%} \\
+\textbf{9} & A & A & B & B & \textbf{4/4} & \textbf{100\%} \\
+\textbf{10} & A & A & B & B & \textbf{4/4} & \textbf{100\%} \\
+\textbf{11} & A & A & B & B & \textbf{4/4} & \textbf{100\%} \\
+12 & A & A & B & \textcolor{red}{A} & 3/4 & 75\% \\
+15 & A & A & \textcolor{red}{A} & \textcolor{red}{A} & 2/4 & 50\% \\
+20 & A & A & \textcolor{red}{A} & \textcolor{red}{A} & 2/4 & 50\% \\
+\bottomrule
+\end{tabular}
+\vspace{2mm}
+\begin{tablenotes}
+\small
+\item \textbf{Note:} Class A = Mean-aggregation (GCN, GAT, NAA); Class B = Sampling/Concatenation (GraphSAGE, H2GCN). 
+\item Ground truth: Elliptic (¦Ä=0.94) ¡ú A, Amazon (¦Ä=5.0) ¡ú A, YelpChi (¦Ä=12.57) ¡ú B, IEEE-CIS (¦Ä=11.25) ¡ú B.
+\item Optimal threshold range: $\tau_\delta \in [6, 11]$ achieves 100\% accuracy.
+\end{tablenotes}
+\end{table}

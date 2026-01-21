@@ -1,0 +1,31 @@
+{
+  "homophily": 0.9305910665151284,
+  "degree_stats": {
+    "mean": 47.65352,
+    "std": 54.5984781070828,
+    "median": 20.0,
+    "max": 440.0,
+    "min": 0.0,
+    "skewness": 0.9874070852608051
+  },
+  "rho_fs_1hop": 0.058411598205566406,
+  "rho_fs_2hop": 0.02772533893585205,
+  "detailed_results": {
+    "rho_fs_1hop": {
+      "mean_sim": 0.7123059630393982,
+      "std_sim": 0.20583756268024445,
+      "same_class_ratio": 0.92964,
+      "n_pairs": 50000
+    },
+    "rho_fs_2hop": {
+      "mean_sim": 0.6816197037696838,
+      "std_sim": 0.2048233151435852,
+      "same_class_ratio": 0.91734,
+      "n_pairs": 50000
+    },
+    "non_edge": {
+      "mean_sim": 0.6538943648338318,
+      "std_sim": 0.20771685242652893
+    }
+  }
+}

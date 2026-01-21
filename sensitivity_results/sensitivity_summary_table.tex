@@ -1,0 +1,23 @@
+\begin{table}[t]
+\centering
+\caption{Sensitivity Analysis Summary: $\delta_{\mathrm{agg}}$ Threshold Robustness}
+\label{tab:sensitivity_summary}
+\begin{tabular}{ccl}
+\toprule
+\textbf{Threshold $\tau_\delta$} & \textbf{Accuracy} & \textbf{Status} \\
+\midrule
+\textbf{5} & \textbf{100\%} & \textcolor{green}{Optimal} \\
+\textbf{6} & \textbf{100\%} & \textcolor{green}{Optimal} \\
+\textbf{7} & \textbf{100\%} & \textcolor{green}{Optimal} \\
+\textbf{8} & \textbf{100\%} & \textcolor{green}{Optimal} \\
+\textbf{9} & \textbf{100\%} & \textcolor{green}{Optimal} \\
+\textbf{10} & \textbf{100\%} & \textcolor{green}{Optimal} \\
+\textbf{11} & \textbf{100\%} & \textcolor{green}{Optimal} \\
+12 & 75\% & Good \\
+15 & 50\% & \textcolor{red}{Fails on YelpChi, IEEE-CIS} \\
+20 & 50\% & \textcolor{red}{Fails on YelpChi, IEEE-CIS} \\
+\midrule
+\multicolumn{3}{l}{\textbf{Optimal Range:} $\tau_\delta \in [5, 11]$} \\
+\bottomrule
+\end{tabular}
+\end{table}

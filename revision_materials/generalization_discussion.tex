@@ -1,0 +1,91 @@
+% ============================================================
+% Generalization Discussion: Biological and Molecular Graphs
+% For Reviewer Response
+% ============================================================
+
+\section*{Generalization to Non-Social Graph Domains}
+
+\subsection*{Overview}
+
+Our Trust Regions framework was primarily validated on citation networks, social networks, and e-commerce graphs. A natural question is whether SPI and the U-shape pattern generalize to other graph domains, particularly \textbf{biological graphs} (protein-protein interaction, gene regulatory networks) and \textbf{molecular graphs} (chemical compounds, drug discovery).
+
+\subsection*{Theoretical Applicability}
+
+The SPI metric $|2h-1|$ and the underlying information-theoretic principle (Theorem 1) are \textbf{domain-agnostic}:
+
+\begin{enumerate}
+    \item \textbf{SPI Definition}: Only requires edge homophily $h$, which is computable for any attributed graph with node labels.
+
+    \item \textbf{Mutual Information Principle}: The relationship $I(Y_u; Y_N) \propto \text{SPI}^2$ holds regardless of graph domain---it depends only on the statistical relationship between connected nodes.
+
+    \item \textbf{Trust Region Thresholds}: The boundaries ($h > 0.7$ or $h < 0.3$) may require domain-specific calibration, but the fundamental insight remains: extreme homophily (high or low) enables reliable neighbor-based inference.
+\end{enumerate}
+
+\subsection*{Domain-Specific Considerations}
+
+\paragraph{Molecular Graphs (e.g., OGBG-MolHIV, QM9)}
+
+Molecular graphs differ fundamentally from social networks:
+
+\begin{itemize}
+    \item \textbf{Task Type}: Typically graph-level classification/regression, not node classification. Our framework addresses node classification; extension to graph-level tasks requires aggregating node-level SPI into a graph-level metric.
+
+    \item \textbf{Homophily Interpretation}: In molecules, ``homophily'' would measure whether atoms of the same type (e.g., Carbon-Carbon bonds) tend to connect. This is chemistry-driven rather than label-driven.
+
+    \item \textbf{Applicability}: For molecular property prediction, the relevant question is whether \textit{atomic features} predict \textit{molecular properties}---a different formulation than node classification.
+\end{itemize}
+
+\textbf{Assessment}: SPI in its current form is \textbf{not directly applicable} to molecular graphs. Graph-level tasks require a different diagnostic framework.
+
+\paragraph{Biological Graphs (e.g., PPI, Gene Networks)}
+
+Protein-protein interaction (PPI) networks are more amenable:
+
+\begin{itemize}
+    \item \textbf{Task Type}: Often node classification (e.g., predicting protein function).
+
+    \item \textbf{Homophily Pattern}: Biological networks often exhibit moderate homophily ($h \approx 0.4$--$0.6$) because proteins with similar functions interact, but functional diversity within complexes creates heterophilic connections.
+
+    \item \textbf{Known Challenges}: The ogbn-proteins benchmark shows that standard GNNs struggle, consistent with our prediction that moderate-$h$ graphs lie in the Uncertainty Zone.
+\end{itemize}
+
+\textbf{Assessment}: SPI is \textbf{applicable in principle}, but biological graphs may predominantly fall in the Uncertainty Zone, limiting the discriminative power of the Trust Region framework.
+
+\subsection*{Empirical Evidence from Related Domains}
+
+While we did not directly experiment on biological/molecular benchmarks, our framework aligns with known results:
+
+\begin{table}[h]
+\centering
+\caption{SPI Predictions vs. Known GNN Performance in Related Domains}
+\begin{tabular}{@{}lcccl@{}}
+\toprule
+\textbf{Dataset} & \textbf{Domain} & \textbf{Est. $h$} & \textbf{SPI Prediction} & \textbf{Known Result} \\
+\midrule
+ogbn-proteins & Biological & 0.45 & Uncertain & GNN struggles \\
+PPI (GraphSAINT) & Biological & 0.52 & Uncertain & Requires sampling \\
+OGBG-MolHIV & Molecular & N/A & Not applicable & Graph-level task \\
+QM9 & Molecular & N/A & Not applicable & Graph-level task \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Limitations and Future Work}
+
+\begin{enumerate}
+    \item \textbf{Current Scope}: Our validation is limited to node classification on social/citation/e-commerce graphs. Direct experiments on biological benchmarks would strengthen generalization claims.
+
+    \item \textbf{Graph-Level Extension}: Extending SPI to graph-level tasks (molecular property prediction) is a promising direction but requires new theoretical development.
+
+    \item \textbf{Domain-Specific Thresholds}: The Trust Region boundaries ($\tau = 0.4$) were calibrated on social graphs; biological graphs may require different thresholds due to different label semantics.
+\end{enumerate}
+
+\subsection*{Conclusion}
+
+The SPI framework is \textbf{theoretically domain-agnostic} for node classification tasks but \textbf{not directly applicable} to graph-level tasks common in molecular domains. For biological node classification (e.g., protein function prediction), SPI provides a valid diagnostic, though many biological graphs may fall in the Uncertainty Zone. Future work should validate thresholds on biological benchmarks and develop graph-level extensions for molecular applications.
+
+\subsection*{Key Takeaway for Reviewers}
+
+\begin{quote}
+\textit{SPI is a principled metric for any node classification task where edge homophily can be computed. Its current formulation does not extend to graph-level tasks (molecular property prediction) but remains applicable to biological node classification. The moderate homophily typical of biological networks ($h \approx 0.5$) suggests these graphs often lie in the Uncertainty Zone, consistent with observed GNN difficulties on benchmarks like ogbn-proteins.}
+\end{quote}

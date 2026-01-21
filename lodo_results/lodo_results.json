@@ -1,0 +1,100 @@
+{
+  "timestamp": "2025-12-22T23:35:25.848482",
+  "n_datasets": 4,
+  "predictions": [
+    {
+      "dataset": "Elliptic",
+      "fsd_metrics": {
+        "delta_agg": 0.94,
+        "rho_fs": 0.28,
+        "n_features": 165,
+        "homophily": 0.71
+      },
+      "training_datasets": [
+        "Amazon",
+        "YelpChi",
+        "IEEE-CIS"
+      ],
+      "n_rules": 3,
+      "matched_rule": "delta_agg < 6.0 AND n_features > 100",
+      "predicted_class": "A",
+      "prediction_confidence": 1.0,
+      "actual_class": "A",
+      "actual_method": "NAA-GAT",
+      "correct": true
+    },
+    {
+      "dataset": "Amazon",
+      "fsd_metrics": {
+        "delta_agg": 5.0,
+        "rho_fs": 0.18,
+        "n_features": 767,
+        "homophily": 0.45
+      },
+      "training_datasets": [
+        "Elliptic",
+        "YelpChi",
+        "IEEE-CIS"
+      ],
+      "n_rules": 3,
+      "matched_rule": "delta_agg < 6.0 AND n_features > 100",
+      "predicted_class": "A",
+      "prediction_confidence": 1.0,
+      "actual_class": "A",
+      "actual_method": "NAA-GAT",
+      "correct": true
+    },
+    {
+      "dataset": "YelpChi",
+      "fsd_metrics": {
+        "delta_agg": 12.57,
+        "rho_fs": 0.01,
+        "n_features": 32,
+        "homophily": 0.13
+      },
+      "training_datasets": [
+        "Elliptic",
+        "Amazon",
+        "IEEE-CIS"
+      ],
+      "n_rules": 3,
+      "matched_rule": "delta_agg > 10.0",
+      "predicted_class": "B",
+      "prediction_confidence": 1.0,
+      "actual_class": "B",
+      "actual_method": "H2GCN",
+      "correct": true
+    },
+    {
+      "dataset": "IEEE-CIS",
+      "fsd_metrics": {
+        "delta_agg": 11.25,
+        "rho_fs": 0.06,
+        "n_features": 133,
+        "homophily": 0.32
+      },
+      "training_datasets": [
+        "Elliptic",
+        "Amazon",
+        "YelpChi"
+      ],
+      "n_rules": 3,
+      "matched_rule": "delta_agg > 10.0",
+      "predicted_class": "B",
+      "prediction_confidence": 1.0,
+      "actual_class": "B",
+      "actual_method": "H2GCN",
+      "correct": true
+    }
+  ],
+  "summary": {
+    "accuracy": 1.0,
+    "correct": 4,
+    "total": 4,
+    "method_classes": {
+      "A": "Mean-aggregation (GCN, GAT, NAA)",
+      "B": "Sampling/Concatenation (GraphSAGE, H2GCN)",
+      "C": "No structure (MLP)"
+    }
+  }
+}

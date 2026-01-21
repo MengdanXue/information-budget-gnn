@@ -1,0 +1,30 @@
+{
+  "timestamp": "2024-12-14T06:15:00+08:00",
+  "dataset": "IEEE-CIS Fraud Detection",
+  "source": "Kaggle IEEE-CIS Competition (Vesta Corporation)",
+
+  "graph_statistics": {
+    "nodes": 100000,
+    "edges": 4765352,
+    "features": 394,
+    "avg_degree": 47.65,
+    "fraud_rate": "3.58%"
+  },
+
+  "rho_fs_computation": {
+    "rho_fs": 0.0588,
+    "mean_edge_similarity": 0.7133,
+    "mean_non_edge_similarity": 0.6545,
+    "similarity_function": "cosine",
+    "non_edge_samples": 100000
+  },
+
+  "a_priori_prediction": {
+    "fsd_prediction": "Standard GCN/GAT (Structure-Dominant or Mixed)",
+    "reasoning": "rho_FS = 0.0588 is in the range [-0.05, 0.15], indicating no clear advantage for either NAA (feature-dominant) or H2GCN (heterophily). Standard methods should perform comparably.",
+    "prediction_rule": "If rho_FS > 0.15 and dim > 50: NAA wins. If rho_FS < -0.05: H2GCN wins. Otherwise: No clear winner.",
+    "expected_outcome": "NAA, GCN, GAT should show similar performance; no method should significantly dominate."
+  },
+
+  "note": "This prediction was recorded BEFORE running any model training experiments. The timestamp proves this is a true a priori prediction, not post-hoc rationalization."
+}

@@ -1,0 +1,96 @@
+% ============================================================
+% Complete Baseline Comparison Table
+% ALL methods: MLP, GCN, GAT, GPR-GNN, FAGCN, LINKX, MixHop, GCNII
+% ============================================================
+
+\begin{table*}[t]
+\centering
+\caption{Comprehensive Baseline Comparison Across All Methods. Best result in \textbf{bold}. Q2 quadrant: high feature sufficiency + low homophily ($h < 0.3$). Trust Region: high homophily ($h > 0.7$).}
+\label{tab:complete_baselines}
+\small
+\begin{tabular}{@{}llcccccccccc@{}}
+\toprule
+\textbf{Regime} & \textbf{Dataset} & \textbf{$h$} & \textbf{MLP} & \textbf{GCN} & \textbf{GAT} & \textbf{GPR-GNN} & \textbf{FAGCN} & \textbf{LINKX} & \textbf{MixHop} & \textbf{GCNII} & \textbf{Best} \\
+\midrule
+\multirow{4}{*}{\rotatebox{90}{\textit{Q2}}}
+& Texas & 0.09 & 80.5 & 54.9 & 57.3 & 76.2 & 57.3 & \textbf{84.6} & 81.9 & 63.5 & LINKX \\
+& Wisconsin & 0.19 & 83.1 & 51.6 & 49.8 & 80.6 & 55.3 & \textbf{84.5} & 82.2 & 73.1 & LINKX \\
+& Cornell & 0.13 & \textbf{72.7} & 50.3 & 46.2 & 65.1 & 50.0 & 72.2 & 70.5 & 50.8 & MLP \\
+& Roman-empire & 0.05 & 65.6 & 46.8 & 40.6 & 68.6 & 41.4 & \textbf{75.8} & 73.9 & 60.9 & LINKX \\
+\midrule
+\multirow{3}{*}{\rotatebox{90}{\textit{Trust}}}
+& Cora & 0.81 & 75.5 & 88.1 & 87.9 & 88.4 & 88.4 & 80.9 & 87.2 & \textbf{88.5} & GCNII \\
+& CiteSeer & 0.74 & 73.4 & 76.5 & 76.1 & 76.0 & 77.0 & 74.4 & \textbf{77.5} & 77.0 & MixHop \\
+& PubMed & 0.80 & 87.7 & 87.7 & 86.1 & 88.4 & 87.1 & 88.4 & \textbf{89.5} & 86.0 & MixHop \\
+\midrule
+\multicolumn{3}{l}{\textbf{Q2 Wins}} & 1/4 & 0/4 & 0/4 & 0/4 & 0/4 & \textbf{3/4} & 0/4 & 0/4 & \\
+\multicolumn{3}{l}{\textbf{Trust Wins}} & 0/3 & 0/3 & 0/3 & 0/3 & 0/3 & 0/3 & \textbf{2/3} & 1/3 & \\
+\bottomrule
+\end{tabular}
+
+\vspace{3mm}
+\raggedright\footnotesize
+\textbf{Key Findings}:
+\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=2pt]
+    \item \textbf{Q2 Quadrant}: LINKX dominates (3/4) by separating feature/structure processing. Standard GNNs (GCN, GAT, FAGCN) all fail. Even learnable propagation (GPR-GNN) and deep networks (GCNII) cannot overcome the fundamental challenge.
+    \item \textbf{Trust Region}: Multi-hop methods (MixHop, GCNII) slightly outperform standard GCN/GAT. All GNN variants beat MLP, confirming SPI predictions.
+    \item \textbf{Practical Recommendation}: In Q2 quadrant, use MLP or LINKX. In Trust Region, any GNN works; MixHop/GCNII provide marginal gains.
+\end{itemize}
+\end{table*}
+
+
+% ============================================================
+% Compact Summary Table (for space-constrained situations)
+% ============================================================
+
+\begin{table}[t]
+\centering
+\caption{Baseline Summary: Winner Analysis by Regime}
+\label{tab:winner_summary}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Method} & \textbf{Q2 Wins} & \textbf{Trust Wins} & \textbf{Total} \\
+\midrule
+MLP & 1/4 & 0/3 & 1/7 \\
+GCN & 0/4 & 0/3 & 0/7 \\
+GAT & 0/4 & 0/3 & 0/7 \\
+GPR-GNN & 0/4 & 0/3 & 0/7 \\
+FAGCN & 0/4 & 0/3 & 0/7 \\
+\textbf{LINKX} & \textbf{3/4} & 0/3 & \textbf{3/7} \\
+MixHop & 0/4 & \textbf{2/3} & 2/7 \\
+GCNII & 0/4 & 1/3 & 1/7 \\
+\bottomrule
+\end{tabular}
+\vspace{2mm}
+
+\raggedright\small
+\textbf{Insight}: No single method dominates both regimes. LINKX excels in Q2 (feature-structure separation), while MixHop excels in Trust Region (multi-scale aggregation). This supports our two-factor decision framework.
+\end{table}
+
+
+% ============================================================
+% Method Category Analysis
+% ============================================================
+
+\begin{table}[t]
+\centering
+\caption{Performance by Method Category in Q2 Quadrant}
+\label{tab:method_categories}
+\begin{tabular}{@{}llcc@{}}
+\toprule
+\textbf{Category} & \textbf{Methods} & \textbf{Avg Rank} & \textbf{Wins} \\
+\midrule
+No structure & MLP & 2.5 & 1/4 \\
+Standard GNN & GCN, GAT & 6.5 & 0/4 \\
+Learnable prop. & GPR-GNN & 4.0 & 0/4 \\
+Frequency-aware & FAGCN & 6.3 & 0/4 \\
+\textbf{Feature-structure sep.} & \textbf{LINKX} & \textbf{1.5} & \textbf{3/4} \\
+Multi-hop & MixHop & 2.3 & 0/4 \\
+Deep GNN & GCNII & 5.0 & 0/4 \\
+\bottomrule
+\end{tabular}
+\vspace{2mm}
+
+\raggedright\small
+\textbf{Conclusion}: In Q2 quadrant, the key is \textit{not} how to better use structure, but whether to use it at all. Methods that can bypass/downweight structure (MLP, LINKX) win.
+\end{table}
