@@ -1,0 +1,21 @@
+
+\begin{table}[t]
+\centering
+\caption{Information Budget Theory: Evidence Summary}
+\label{tab:evidence_summary}
+\small
+\begin{tabular}{llcc}
+\toprule
+\textbf{Experiment} & \textbf{Hypothesis} & \textbf{Result} & \textbf{Accuracy} \\
+\midrule
+Edge Shuffle & Structure $\rightarrow$ GNN advantage & \checkmark & 3/3 (100\%) \\
+Feature Degradation & GNN$_{\text{adv}} \leq$ Budget & \checkmark & 9/9 (100\%) \\
+Same-h Pairs & MLP determines GNN utility & \checkmark & 7/7 (100\%) \\
+CSBM Prediction & Frozen rules predict winner & \checkmark & 32/36 (89\%) \\
+Symmetric Tuning & Fair baseline comparison & \checkmark & Confirmed \\
+External Validation & Generalize to new datasets & \checkmark & 7/9 (78\%) \\
+\midrule
+\multicolumn{4}{l}{\textbf{Core Principle:} $\text{GNN}_{\text{max\_gain}} \leq (1 - \text{MLP}_{\text{accuracy}})$} \\
+\bottomrule
+\end{tabular}
+\end{table}

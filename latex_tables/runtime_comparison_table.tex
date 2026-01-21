@@ -1,0 +1,32 @@
+% Runtime Comparison Table
+% Training and inference time comparison for GNN methods
+
+\begin{table}[t]
+\centering
+\caption{Runtime Comparison: Training Time (seconds) and Inference Time (ms)}
+\label{tab:runtime_comparison}
+\small
+\begin{tabular}{l|cc|cc|cc}
+\toprule
+\textbf{Model} & \multicolumn{2}{c|}{\textbf{Small (Cora)}} & \multicolumn{2}{c|}{\textbf{Medium (PubMed)}} & \multicolumn{2}{c}{\textbf{Large (Questions)}} \\
+ & Train & Infer & Train & Infer & Train & Infer \\
+\midrule
+MLP & 0.39s & 0.14ms & 0.52s & 0.13ms & 0.11s & 0.14ms \\
+GCN & 0.96s & 1.23ms & 1.25s & 1.92ms & 0.34s & 2.96ms \\
+GraphSAGE & 0.44s & 0.65ms & 1.69s & 0.67ms & 0.51s & 0.61ms \\
+GAT & 1.09s & 1.99ms & 2.02s & 2.52ms & 0.63s & 5.94ms \\
+LINKX & 1.08s & 0.60ms & 1.50s & 0.59ms & 0.70s & 0.64ms \\
+\midrule
+BernNet & 3.29s & 5.70ms & 9.34s & 13.16ms & 4.24s & 38.76ms \\
+JacobiNet & 3.71s & 5.44ms & 10.27s & 8.53ms & 4.27s & 24.45ms \\
+\midrule
+\textit{Speedup} & \multicolumn{2}{c|}{BernNet 8.4$\times$ slower} & \multicolumn{2}{c|}{BernNet 7.5$\times$ slower} & \multicolumn{2}{c}{BernNet 38$\times$ slower} \\
+\bottomrule
+\end{tabular}
+\vspace{1mm}
+
+\footnotesize
+\textit{Note:} Spectral methods (BernNet, JacobiNet) require polynomial expansion which incurs significant overhead.
+LINKX achieves comparable inference time to standard message-passing despite feature-structure separation.
+All experiments on NVIDIA GPU.
+\end{table}

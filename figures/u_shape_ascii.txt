@@ -1,0 +1,29 @@
+
+    GCN Advantage over MLP (%)
+    |
+ +8%|  *                                              * * * *
+    |   *                                           *
+ +4%|    *                                        *
+    |                                            *
+  0%|------*----------------------------------*-----------
+    |       \                                /
+ -4%|        \                              /
+    |         \                            /
+ -8%|          \                          /
+    |           \                        /
+-12%|            \                      /
+    |             \                    /
+-16%|              \        *        /
+    |               \      / \      /
+-20%|                *    /   *    /
+    |                 \  /     \  /
+    +-------------------------------------------------> h
+    0.1  0.2  0.3  0.4  0.5  0.6  0.7  0.8  0.9  1.0
+
+    |<-- GCN WINS -->|<-- MLP WINS -->|<-- GCN WINS -->|
+       (Predictable      (Uncertain)      (Predictable
+        Anti-corr)                          Corr)
+
+    KEY INSIGHT: It's not about homophily being "good" or "bad"
+                 It's about structure being PREDICTABLE.
+    

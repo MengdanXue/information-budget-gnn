@@ -1,0 +1,33 @@
+{
+  "H2GCN_Comparison": {
+    "heterophilic_datasets": 6,
+    "h2gcn_wins": 6,
+    "gcn_wins": 0,
+    "avg_gcn_vs_mlp": -17.6,
+    "avg_h2gcn_vs_mlp": 1.2,
+    "h2gcn_improvement_over_gcn": 18.8,
+    "paired_ttest_p": 0.011
+  },
+  "Cohen_d_Analysis": {
+    "d_h09_vs_h05": 10.88,
+    "ci_95_low": 6.46,
+    "ci_95_high": 31.29,
+    "interpretation": "Extremely large effect (d > 0.8)",
+    "explanation": "Reflects genuine performance reversal, not artifact"
+  },
+  "Model_Selection": {
+    "linear_R2": 0.8632,
+    "quadratic_R2": 0.9683,
+    "delta_AIC": -11.17,
+    "delta_BIC": -10.97,
+    "loo_rmse_linear": 3.26,
+    "loo_rmse_quadratic": 2.41,
+    "selected_model": "Quadratic"
+  },
+  "Residual_Diagnostics": {
+    "shapiro_w": 0.8644,
+    "shapiro_p": 0.107,
+    "normality_passed": "True",
+    "figure_saved": "figures/residual_diagnostics.pdf"
+  }
+}

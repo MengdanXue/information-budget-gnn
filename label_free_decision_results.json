@@ -1,0 +1,161 @@
+{
+  "rule": "label_free_spi_decision",
+  "h_threshold_for_h2gcn": 0.25,
+  "spi_threshold": 0.4,
+  "accuracy": 1.0,
+  "details": [
+    {
+      "dataset": "cora",
+      "h": 0.8099659085273743,
+      "spi": 0.6199318170547485,
+      "pred_model": "GCN",
+      "pred_acc": 0.8048000454902648,
+      "best_acc": 0.8048000454902648,
+      "correct": true
+    },
+    {
+      "dataset": "citeseer",
+      "h": 0.7355008721351624,
+      "spi": 0.4710017442703247,
+      "pred_model": "GCN",
+      "pred_acc": 0.6914000511169434,
+      "best_acc": 0.6914000511169434,
+      "correct": true
+    },
+    {
+      "dataset": "pubmed",
+      "h": 0.8023869395256042,
+      "spi": 0.6047738790512085,
+      "pred_model": "GCN",
+      "pred_acc": 0.7850000381469726,
+      "best_acc": 0.7850000381469726,
+      "correct": true
+    },
+    {
+      "dataset": "texas",
+      "h": 0.10769230872392654,
+      "spi": 0.7846153825521469,
+      "pred_model": "H2GCN",
+      "pred_acc": 0.7891891956329345,
+      "best_acc": 0.8054054260253907,
+      "correct": true
+    },
+    {
+      "dataset": "wisconsin",
+      "h": 0.19611650705337524,
+      "spi": 0.6077669858932495,
+      "pred_model": "H2GCN",
+      "pred_acc": 0.7960784435272217,
+      "best_acc": 0.7960784435272217,
+      "correct": true
+    },
+    {
+      "dataset": "cornell",
+      "h": 0.13087248802185059,
+      "spi": 0.7382550239562988,
+      "pred_model": "H2GCN",
+      "pred_acc": 0.762162184715271,
+      "best_acc": 0.762162184715271,
+      "correct": true
+    },
+    {
+      "dataset": "actor",
+      "h": 0.21876144409179688,
+      "spi": 0.5624771118164062,
+      "pred_model": "H2GCN",
+      "pred_acc": 0.3588158071041107,
+      "best_acc": 0.3588158071041107,
+      "correct": true
+    },
+    {
+      "dataset": "chameleon",
+      "h": 0.23500734567642212,
+      "spi": 0.5299853086471558,
+      "pred_model": "H2GCN",
+      "pred_acc": 0.5228070259094239,
+      "best_acc": 0.5228070259094239,
+      "correct": true
+    },
+    {
+      "dataset": "squirrel",
+      "h": 0.2239430993795395,
+      "spi": 0.552113801240921,
+      "pred_model": "H2GCN",
+      "pred_acc": 0.3502401471138,
+      "best_acc": 0.369836688041687,
+      "correct": true
+    },
+    {
+      "dataset": "elliptic_weber_split",
+      "h": 0.7634479999542236,
+      "spi": 0.5268959999084473,
+      "pred_model": "GCN",
+      "pred_acc": 0.9322499990463257,
+      "best_acc": 0.9432499766349792,
+      "correct": true
+    },
+    {
+      "dataset": "inj_amazon",
+      "h": 0.9069900512695312,
+      "spi": 0.8139801025390625,
+      "pred_model": "GCN",
+      "pred_acc": 0.953108012676239,
+      "best_acc": 0.953108012676239,
+      "correct": true
+    },
+    {
+      "dataset": "inj_cora",
+      "h": 0.906690776348114,
+      "spi": 0.813381552696228,
+      "pred_model": "GCN",
+      "pred_acc": 0.9540000557899475,
+      "best_acc": 0.9540000557899475,
+      "correct": true
+    },
+    {
+      "dataset": "csbm_high_homo",
+      "h": 0.9050779342651367,
+      "spi": 0.8101558685302734,
+      "pred_model": "GCN",
+      "pred_acc": 0.997000002861023,
+      "best_acc": 1.0,
+      "correct": true
+    },
+    {
+      "dataset": "csbm_mid_homo",
+      "h": 0.5061678886413574,
+      "spi": 0.012335777282714844,
+      "pred_model": "MLP",
+      "pred_acc": 1.0,
+      "best_acc": 1.0,
+      "correct": true
+    },
+    {
+      "dataset": "csbm_low_homo",
+      "h": 0.10424827039241791,
+      "spi": 0.7915034592151642,
+      "pred_model": "H2GCN",
+      "pred_acc": 1.0,
+      "best_acc": 1.0,
+      "correct": true
+    },
+    {
+      "dataset": "csbm_noisy_feat",
+      "h": 0.5061678886413574,
+      "spi": 0.012335777282714844,
+      "pred_model": "MLP",
+      "pred_acc": 1.0,
+      "best_acc": 1.0,
+      "correct": true
+    },
+    {
+      "dataset": "csbm_clean_feat",
+      "h": 0.5061678886413574,
+      "spi": 0.012335777282714844,
+      "pred_model": "MLP",
+      "pred_acc": 1.0,
+      "best_acc": 1.0,
+      "correct": true
+    }
+  ]
+}

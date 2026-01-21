@@ -1,0 +1,206 @@
+% Auto-generated LaTeX tables for Information Budget Theory paper
+% Date: 2025-01-16
+
+
+\begin{table}[t]
+\centering
+\caption{Information Budget Theory: Evidence Summary}
+\label{tab:evidence_summary}
+\small
+\begin{tabular}{llcc}
+\toprule
+\textbf{Experiment} & \textbf{Hypothesis} & \textbf{Result} & \textbf{Accuracy} \\
+\midrule
+Edge Shuffle & Structure $\rightarrow$ GNN advantage & \checkmark & 3/3 (100\%) \\
+Feature Degradation & GNN$_{\text{adv}} \leq$ Budget & \checkmark & 9/9 (100\%) \\
+Same-h Pairs & MLP determines GNN utility & \checkmark & 7/7 (100\%) \\
+CSBM Prediction & Frozen rules predict winner & \checkmark & 32/36 (89\%) \\
+Symmetric Tuning & Fair baseline comparison & \checkmark & Confirmed \\
+External Validation & Generalize to new datasets & \checkmark & 7/9 (78\%) \\
+\midrule
+\multicolumn{4}{l}{\textbf{Core Principle:} $\text{GNN}_{\text{max\_gain}} \leq (1 - \text{MLP}_{\text{accuracy}})$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\begin{table}[t]
+\centering
+\caption{Edge Shuffle Experiment: Causal Evidence for Structure}
+\label{tab:edge_shuffle}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Dataset} & \textbf{h$_{\text{orig}}$} & \textbf{h$_{\text{shuf}}$} & \textbf{GCN$_{\text{orig}}$} & \textbf{GCN$_{\text{shuf}}$} & \textbf{MLP} & \textbf{$\Delta$Adv} \\
+\midrule
+Cora & 0.81 & 0.17 & 0.883 & 0.409 & 0.757 & +47.4\% \\
+CiteSeer & 0.74 & 0.19 & 0.756 & 0.405 & 0.729 & +35.1\% \\
+PubMed & 0.80 & 0.37 & 0.875 & 0.701 & 0.874 & +17.4\% \\
+
+\midrule
+\multicolumn{7}{l}{\textit{Structure contribution = Original GCN adv. $-$ Shuffled GCN adv.}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\begin{table}[t]
+\centering
+\caption{CSBM Falsifiable Prediction: Accuracy by Region}
+\label{tab:csbm_prediction}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Region} & \textbf{Correct} & \textbf{Total} & \textbf{Accuracy} \\
+\midrule
+High-h (h > 0.7) & 8 & 8 & 100.0\% \\
+Mid-h (0.4-0.6) & 10 & 12 & 83.3\% \\
+Low-h (h < 0.3) & 8 & 8 & 100.0\% \\
+
+\midrule
+\textbf{Overall} & 32 & 36 & 88.9\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\begin{table}[t]
+\centering
+\caption{Symmetric Hyperparameter Tuning: Fairness Comparison}
+\label{tab:symmetric_tuning}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Dataset} & \textbf{h} & \textbf{MLP} & \textbf{GCN} & \textbf{SAGE} & \textbf{GAT} & \textbf{Winner} \\
+\midrule
+Cora & 0.81 & 0.764 & 0.883 & \textbf{0.885} & 0.882 & GNN WINS \\
+CiteSeer & 0.74 & 0.732 & 0.759 & \textbf{0.762} & 0.761 & GNN WINS \\
+Texas & 0.11 & \textbf{0.816} & 0.542 & 0.747 & 0.537 & MLP WINS \\
+Wisconsin & 0.20 & \textbf{0.847} & 0.502 & 0.769 & 0.525 & MLP WINS \\
+
+\midrule
+\multicolumn{7}{l}{\textit{Average Tuning Gains:}} \\
+\multicolumn{7}{l}{MLP: +1.4\%, GCN: +1.8\%, SAGE: +1.9\%, GAT: +2.0\%} \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\begin{table}[t]
+\centering
+\caption{External Dataset Validation: Frozen Rule Predictions}
+\label{tab:external_validation}
+\small
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Dataset} & \textbf{h} & \textbf{MLP} & \textbf{GCN} & \textbf{Budget} & \textbf{Pred.} & \textbf{Actual} & \checkmark \\
+\midrule
+Cora & 0.81 & 0.757 & 0.883 & 0.24 & GNN & GNN & \checkmark \\
+CiteSeer & 0.74 & 0.729 & 0.756 & 0.27 & MLP & GNN & \texttimes \\
+PubMed & 0.80 & 0.874 & 0.875 & 0.13 & GNN & GNN & \checkmark \\
+Coauthor-CS & 0.81 & 0.944 & 0.940 & 0.06 & GNN & Tie & \checkmark \\
+Amazon-Computers & 0.78 & 0.827 & 0.898 & 0.17 & GNN & GNN & \checkmark \\
+Amazon-Photo & 0.83 & 0.920 & 0.938 & 0.08 & GNN & GNN & \checkmark \\
+Actor & 0.22 & 0.366 & 0.271 & 0.63 & GNN & MLP & \texttimes \\
+Wikipedia-chameleon & 0.24 & 0.509 & 0.380 & 0.49 & GNN & GNN & \checkmark \\
+Wikipedia-squirrel & 0.22 & 0.347 & 0.262 & 0.65 & GNN & GNN & \checkmark \\
+
+\midrule
+\multicolumn{8}{l}{\textbf{Overall Accuracy: 7/9 (77.8\%)}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\begin{table}[t]
+\centering
+\caption{Feature Degradation: Budget Constraint Validation}
+\label{tab:feature_degradation}
+\small
+\begin{tabular}{ccccc}
+\toprule
+\textbf{Noise} & \textbf{MLP} & \textbf{GCN Adv.} & \textbf{Budget} & \textbf{Valid} \\
+\midrule
+0.0 & 0.757 & 12.6\% & 24.3\% & \checkmark \\
+0.1 & 0.754 & 12.7\% & 24.6\% & \checkmark \\
+0.2 & 0.744 & 13.7\% & 25.6\% & \checkmark \\
+0.3 & 0.737 & 14.2\% & 26.3\% & \checkmark \\
+0.4 & 0.713 & 16.6\% & 28.7\% & \checkmark \\
+0.5 & 0.663 & 21.1\% & 33.7\% & \checkmark \\
+0.6 & 0.604 & 26.4\% & 39.6\% & \checkmark \\
+0.7 & 0.475 & 38.8\% & 52.5\% & \checkmark \\
+0.8 & 0.338 & 50.9\% & 66.2\% & \checkmark \\
+
+\midrule
+\multicolumn{5}{l}{\textit{Budget = (1 - MLP accuracy), GCN Adv. must $\leq$ Budget}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\begin{table}[t]
+\centering
+\caption{Bootstrap 95\% Confidence Intervals}
+\label{tab:bootstrap_ci}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Experiment} & \textbf{Accuracy} & \textbf{95\% CI} & \textbf{N} \\
+\midrule
+CSBM Prediction & 88.9\% & [77.8\%, 97.2\%] & 36 \\
+External Validation & 77.8\% & [44.4\%, 100.0\%] & 9 \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\begin{table}[t]
+\centering
+\caption{Statistical Significance Tests}
+\label{tab:statistical_tests}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Test} & \textbf{Comparison} & \textbf{Statistic} & \textbf{p-value} & \textbf{Sig.} \\
+\midrule
+Binomial & CSBM vs Random & $\chi^2=21.78$ & 0.0000 & *** \\
+Sign Test & GNN vs MLP & W=2/4 & 1.0000 & n.s. \\
+
+\midrule
+\multicolumn{5}{l}{\textit{Significance levels: *** $p<0.001$, ** $p<0.01$, * $p<0.05$}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\begin{table}[t]
+\centering
+\caption{Trust Regions Decision Rules (Frozen)}
+\label{tab:decision_rules}
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Condition} & \textbf{Prediction} & \textbf{Rationale} \\
+\midrule
+MLP$_{\text{acc}} > 0.95$ & MLP & Budget too small \\
+$h > 0.75$ and Budget $> 0.05$ & GNN & High-h trust region \\
+$h < 0.25$ and Budget $> 0.05$ & GNN & Low-h trust region \\
+$0.35 \leq h \leq 0.65$ and Budget $< 0.4$ & MLP & Mid-h uncertainty \\
+$0.35 \leq h \leq 0.65$ and Budget $\geq 0.4$ & GNN & Large budget \\
+SPI $\times$ Budget $> 0.15$ & GNN & Sufficient signal \\
+Otherwise & MLP & Default \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+

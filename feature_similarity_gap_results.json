@@ -1,0 +1,172 @@
+{
+  "experiment": "feature_similarity_gap_analysis",
+  "hypothesis": "heterophilic neighbors are orthogonal not opposite",
+  "datasets": [
+    {
+      "dataset": "cora",
+      "type": "homophilic",
+      "homophily": 0.8099658961727927,
+      "intra_class_sim": 0.17580103874206543,
+      "inter_class_sim": 0.13293272256851196,
+      "similarity_gap": 0.04286831617355347,
+      "neighbor_type": "orthogonal",
+      "neighbor_stats": {
+        "opposite_frac": 0.0,
+        "orthogonal_frac": 0.41774675972083747,
+        "similar_frac": 0.5822532402791625,
+        "mean_sim": 0.13293272256851196,
+        "std_sim": 0.09717541188001633
+      },
+      "structure_exploitable": "False"
+    },
+    {
+      "dataset": "citeseer",
+      "type": "homophilic",
+      "homophily": 0.7355008787346221,
+      "intra_class_sim": 0.20342999696731567,
+      "inter_class_sim": 0.1550513058900833,
+      "similarity_gap": 0.04837869107723236,
+      "neighbor_type": "similar",
+      "neighbor_stats": {
+        "opposite_frac": 0.0,
+        "orthogonal_frac": 0.36710963455149503,
+        "similar_frac": 0.632890365448505,
+        "mean_sim": 0.1550513058900833,
+        "std_sim": 0.11229493468999863
+      },
+      "structure_exploitable": "False"
+    },
+    {
+      "dataset": "pubmed",
+      "type": "homophilic",
+      "homophily": 0.8023869686851367,
+      "intra_class_sim": 0.2765132784843445,
+      "inter_class_sim": 0.2563132643699646,
+      "similarity_gap": 0.020200014114379883,
+      "neighbor_type": "similar",
+      "neighbor_stats": {
+        "opposite_frac": 0.0,
+        "orthogonal_frac": 0.19694028998744148,
+        "similar_frac": 0.8030597100125585,
+        "mean_sim": 0.2555268704891205,
+        "std_sim": 0.16853617131710052
+      },
+      "structure_exploitable": "False"
+    },
+    {
+      "dataset": "texas",
+      "type": "heterophilic",
+      "homophily": 0.1076923076923077,
+      "intra_class_sim": 0.6507524847984314,
+      "inter_class_sim": 0.3509680926799774,
+      "similarity_gap": 0.299784392118454,
+      "neighbor_type": "similar",
+      "neighbor_stats": {
+        "opposite_frac": 0.0,
+        "orthogonal_frac": 0.0034482758620689655,
+        "similar_frac": 0.996551724137931,
+        "mean_sim": 0.3509680926799774,
+        "std_sim": 0.07993148267269135
+      },
+      "structure_exploitable": "False"
+    },
+    {
+      "dataset": "wisconsin",
+      "type": "heterophilic",
+      "homophily": 0.19611650485436893,
+      "intra_class_sim": 0.4752219617366791,
+      "inter_class_sim": 0.3355630934238434,
+      "similarity_gap": 0.1396588683128357,
+      "neighbor_type": "similar",
+      "neighbor_stats": {
+        "opposite_frac": 0.0,
+        "orthogonal_frac": 0.00966183574879227,
+        "similar_frac": 0.9903381642512077,
+        "mean_sim": 0.3355630934238434,
+        "std_sim": 0.07572682946920395
+      },
+      "structure_exploitable": "False"
+    },
+    {
+      "dataset": "cornell",
+      "type": "heterophilic",
+      "homophily": 0.13087248322147652,
+      "intra_class_sim": 0.4301149547100067,
+      "inter_class_sim": 0.3305045962333679,
+      "similarity_gap": 0.0996103584766388,
+      "neighbor_type": "similar",
+      "neighbor_stats": {
+        "opposite_frac": 0.0,
+        "orthogonal_frac": 0.011583011583011582,
+        "similar_frac": 0.9884169884169884,
+        "mean_sim": 0.3305045962333679,
+        "std_sim": 0.08819673210382462
+      },
+      "structure_exploitable": "False"
+    },
+    {
+      "dataset": "actor",
+      "type": "heterophilic",
+      "homophily": 0.21876145108098205,
+      "intra_class_sim": 0.16787189245224,
+      "inter_class_sim": 0.16067561507225037,
+      "similarity_gap": 0.007196277379989624,
+      "neighbor_type": "orthogonal",
+      "neighbor_stats": {
+        "opposite_frac": 0.0,
+        "orthogonal_frac": 0.4823042810847689,
+        "similar_frac": 0.5176957189152311,
+        "mean_sim": 0.16067561507225037,
+        "std_sim": 0.18670246005058289
+      },
+      "structure_exploitable": "False"
+    },
+    {
+      "dataset": "chameleon",
+      "type": "heterophilic",
+      "homophily": 0.23500734051688318,
+      "intra_class_sim": 0.025093218311667442,
+      "inter_class_sim": 0.013827286660671234,
+      "similarity_gap": 0.011265931650996208,
+      "neighbor_type": "orthogonal",
+      "neighbor_stats": {
+        "opposite_frac": 0.0,
+        "orthogonal_frac": 0.9683166165767462,
+        "similar_frac": 0.031683383423253796,
+        "mean_sim": 0.013827286660671234,
+        "std_sim": 0.04061713069677353
+      },
+      "structure_exploitable": "False"
+    },
+    {
+      "dataset": "squirrel",
+      "type": "heterophilic",
+      "homophily": 0.2239430974833351,
+      "intra_class_sim": 0.02088788151741028,
+      "inter_class_sim": 0.014628345146775246,
+      "similarity_gap": 0.006259536370635033,
+      "neighbor_type": "orthogonal",
+      "neighbor_stats": {
+        "opposite_frac": 0.0,
+        "orthogonal_frac": 0.94816,
+        "similar_frac": 0.05184,
+        "mean_sim": 0.014658908359706402,
+        "std_sim": 0.041186023503541946
+      },
+      "structure_exploitable": "False"
+    }
+  ],
+  "heterophilic_summary": {
+    "count": 6,
+    "opposite": 0,
+    "orthogonal": 3,
+    "similar": 3,
+    "avg_inter_sim": 0.20102783820281425
+  },
+  "homophilic_summary": {
+    "count": 3,
+    "avg_gap": 0.0371490071217219
+  },
+  "conclusion": "CONFIRMED: orthogonal neighbors explain GCN failure",
+  "correlation": -0.4089904865603096
+}

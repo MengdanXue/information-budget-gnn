@@ -1,0 +1,18 @@
+{
+  "zones": {
+    "Low (h < 0.3)": 7,
+    "Mid (0.3 <= h < 0.7)": 4,
+    "High (h >= 0.7)": 8
+  },
+  "problem_datasets": [
+    "cSBM-MidH",
+    "cSBM-NoisyF",
+    "cSBM-CleanF"
+  ],
+  "best_thresholds": [
+    0.6,
+    3.0
+  ],
+  "best_accuracy": 0.8421052631578947,
+  "total_datasets": 19
+}

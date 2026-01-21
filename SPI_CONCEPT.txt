@@ -1,0 +1,64 @@
+
+    STRUCTURAL PREDICTABILITY INDEX (SPI) CONCEPT
+    ==============================================
+
+    SPI = |2h - 1|
+
+         SPI
+          |
+        1 |  *                                   *
+          |   *                                 *
+          |    *                               *
+        0.6|     *                             *
+          |      *                           *
+          |       *                         *
+        0.4|        *                       *
+          |         *                     *
+          |          *                   *
+        0.2|           *                 *
+          |            *               *
+          |             *             *
+        0 +---------------*-----------*----------------> h
+          0    0.2   0.3  0.4  0.5  0.6  0.7   0.8    1
+
+          |<- PREDICTABLE ->|<- RANDOM ->|<- PREDICTABLE ->|
+             (Anti-corr)     (Entropy)      (Correlation)
+
+    INTERPRETATION:
+    ---------------
+    SPI > 0.4: High predictability - GNN will likely outperform MLP
+    SPI < 0.4: Low predictability - MLP may be safer choice
+
+    GNN ADVANTAGE vs SPI:
+    ---------------------
+
+    GNN Advantage (%)
+          |
+       +6 |  *                                   * * *
+          |
+        0 +---------------*-----------*---------------
+          |               |           |
+       -6 |              |             |
+          |             |               |
+      -12 |            |                 |
+          |           *                   *
+      -18 |            *       *       *
+          +-----------------------------------------> SPI
+          0         0.2     0.4     0.6     0.8     1
+
+    KEY INSIGHT:
+    ------------
+    "It's not about whether structure is homophilic or heterophilic.
+     It's about whether structure is PREDICTABLE."
+
+    - High SPI (h near 0 or 1): Structure provides consistent signal
+    - Low SPI (h near 0.5): Structure provides noise
+
+    PRACTICAL RECOMMENDATIONS:
+    --------------------------
+    | Homophily | SPI  | Regime        | Recommendation          |
+    |-----------|------|---------------|-------------------------|
+    | h > 0.7   | High | Pos-Corr      | Use GCN/GAT             |
+    | h < 0.3   | High | Anti-Corr     | Use H2GCN/GPRGNN        |
+    | 0.3-0.7   | Low  | Uncertain     | Use MLP or Ensemble     |
+    

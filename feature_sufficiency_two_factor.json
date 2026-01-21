@@ -1,0 +1,92 @@
+{
+  "experiment": "feature_sufficiency_two_factor",
+  "key_finding": "Two-Factor Rule achieves 100% accuracy by considering both h and MLP accuracy",
+  "results": [
+    {
+      "name": "Chameleon",
+      "homophily": 0.231,
+      "mlp_mean": 0.49,
+      "gcn_mean": 0.644,
+      "delta": 0.154,
+      "winner": "GCN",
+      "source": "Wikipedia",
+      "feature_gap": 0.0036
+    },
+    {
+      "name": "Squirrel",
+      "homophily": 0.222,
+      "mlp_mean": 0.328,
+      "gcn_mean": 0.492,
+      "delta": 0.164,
+      "winner": "GCN",
+      "source": "Wikipedia",
+      "feature_gap": 0.0014
+    },
+    {
+      "name": "Texas",
+      "homophily": 0.087,
+      "mlp_mean": 0.778,
+      "gcn_mean": 0.535,
+      "delta": -0.243,
+      "winner": "MLP",
+      "source": "WebKB",
+      "feature_gap": 0.0607
+    },
+    {
+      "name": "Wisconsin",
+      "homophily": 0.192,
+      "mlp_mean": 0.796,
+      "gcn_mean": 0.49,
+      "delta": -0.306,
+      "winner": "MLP",
+      "source": "WebKB",
+      "feature_gap": 0.0993
+    },
+    {
+      "name": "Cornell",
+      "homophily": 0.127,
+      "mlp_mean": 0.714,
+      "gcn_mean": 0.47,
+      "delta": -0.243,
+      "winner": "MLP",
+      "source": "WebKB",
+      "feature_gap": 0.0637
+    },
+    {
+      "name": "Cora",
+      "homophily": 0.81,
+      "mlp_mean": 0.751,
+      "gcn_mean": 0.878,
+      "delta": 0.127,
+      "winner": "GCN",
+      "source": "Planetoid",
+      "feature_gap": 0.0199
+    },
+    {
+      "name": "CiteSeer",
+      "homophily": 0.736,
+      "mlp_mean": 0.738,
+      "gcn_mean": 0.771,
+      "delta": 0.032,
+      "winner": "GCN",
+      "source": "Planetoid",
+      "feature_gap": 0.0189
+    },
+    {
+      "name": "PubMed",
+      "homophily": 0.802,
+      "mlp_mean": 0.876,
+      "gcn_mean": 0.878,
+      "delta": 0.001,
+      "winner": "Tie",
+      "source": "Planetoid",
+      "feature_gap": 0.0294
+    }
+  ],
+  "two_factor_accuracy": 1.0,
+  "insights": {
+    "wikipedia_pattern": "Low-h + Low-MLP -> GCN wins (bad info > no info)",
+    "webkb_pattern": "Low-h + High-MLP -> MLP wins (noise < signal)",
+    "high_h_pattern": "High-h -> GCN wins (structure is reliable)"
+  }
+}

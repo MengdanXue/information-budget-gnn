@@ -1,0 +1,28 @@
+% OGB Large-Scale Benchmark Table
+% Information Budget Theory validation on OGB datasets
+
+\begin{table}[t]
+\centering
+\caption{OGB Large-Scale Benchmark: Information Budget Theory Validation}
+\label{tab:ogb_validation}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Dataset} & \textbf{|V|} & \textbf{h} & \textbf{MLP} & \textbf{Best GNN} & \textbf{Budget} & \textbf{Valid} \\
+\midrule
+ogbn-arxiv & 169K & 0.66 & 55.5\% & 71.7\% (GCN) & 44.5\% & \checkmark \\
+ogbn-products & 2.4M & 0.81 & 61.2\% & 79.5\% (GAT) & 38.8\% & \checkmark \\
+ogbn-proteins & 133K & 0.66 & 72.0\% & 77.7\% (SAGE) & 28.0\% & \checkmark \\
+ogbn-mag & 1.9M & 0.77 & 26.6\% & 52.3\% (NARS) & 73.4\% & \checkmark \\
+\midrule
+\multicolumn{7}{l}{\textbf{Budget Constraint:} GNN Advantage $\leq$ (1 - MLP accuracy)} \\
+\multicolumn{7}{l}{\textbf{Result:} 4/4 datasets satisfy budget constraint (100\%)} \\
+\bottomrule
+\end{tabular}
+\vspace{1mm}
+
+\footnotesize
+\textit{Note:} Results from OGB official leaderboard~\cite{hu2020ogb}.
+Budget = theoretical maximum GNN improvement over MLP.
+All GNN advantages are within the information budget.
+\end{table}

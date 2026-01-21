@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\caption{IEEE-CIS Fraud Detection Results ($\delta_{\text{agg}} = 11.25$, 10 seeds). H2GCN and GraphSAGE (Class B) significantly outperform mean-aggregation methods (Class A), as predicted by FSD framework.}
+\label{tab:ieee_cis_results}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Method} & \textbf{AUC-ROC} & \textbf{F1} & \textbf{Precision} & \textbf{Recall} \\
+\midrule
+\textbf{H2GCN} & \textbf{0.818}$\pm$0.004 & 0.184 & 0.105 & 0.709 \\
+GraphSAGE & 0.815$\pm$0.003 & 0.190 & 0.110 & 0.685 \\
+NAA-GCN & 0.749$\pm$0.003 & 0.169 & 0.099 & 0.571 \\
+GCN & 0.746$\pm$0.004 & 0.168 & 0.099 & 0.568 \\
+GAT & 0.746$\pm$0.017 & 0.156 & 0.090 & 0.624 \\
+\bottomrule
+\end{tabular}
+\end{table}

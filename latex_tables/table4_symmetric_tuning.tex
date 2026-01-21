@@ -1,0 +1,22 @@
+
+\begin{table}[t]
+\centering
+\caption{Symmetric Hyperparameter Tuning: Fairness Comparison}
+\label{tab:symmetric_tuning}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Dataset} & \textbf{h} & \textbf{MLP} & \textbf{GCN} & \textbf{SAGE} & \textbf{GAT} & \textbf{Winner} \\
+\midrule
+Cora & 0.81 & 0.764 & 0.883 & \textbf{0.885} & 0.882 & GNN WINS \\
+CiteSeer & 0.74 & 0.732 & 0.759 & \textbf{0.762} & 0.761 & GNN WINS \\
+Texas & 0.11 & \textbf{0.816} & 0.542 & 0.747 & 0.537 & MLP WINS \\
+Wisconsin & 0.20 & \textbf{0.847} & 0.502 & 0.769 & 0.525 & MLP WINS \\
+
+\midrule
+\multicolumn{7}{l}{\textit{Average Tuning Gains:}} \\
+\multicolumn{7}{l}{MLP: +1.4\%, GCN: +1.8\%, SAGE: +1.9\%, GAT: +2.0\%} \\
+
+\bottomrule
+\end{tabular}
+\end{table}

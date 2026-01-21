@@ -1,0 +1,114 @@
+{
+  "finding": "Direction is highly correlated with Homophily (r=0.908)",
+  "salvage": "Direction_Residual captures local-global mismatch",
+  "wikipedia_avg_residual": 0.13797644829569694,
+  "webkb_avg_residual": -0.15707753647381548,
+  "new_metric_formula": "Direction_Residual = Direction - (1.136 * h - 0.366)",
+  "results": [
+    {
+      "dataset": "Texas",
+      "homophily": 0.08710801393728224,
+      "direction": -0.5081967213114753,
+      "direction_residual": -0.2410633786036992,
+      "category": "heterophilic"
+    },
+    {
+      "dataset": "Wisconsin",
+      "homophily": 0.19213973799126638,
+      "direction": -0.2549800796812749,
+      "direction_residual": -0.10718292906362595,
+      "category": "heterophilic"
+    },
+    {
+      "dataset": "Cornell",
+      "homophily": 0.12746858168761221,
+      "direction": -0.3442622950819672,
+      "direction_residual": -0.12298630175412131,
+      "category": "heterophilic"
+    },
+    {
+      "dataset": "Squirrel",
+      "homophily": 0.2224086925406833,
+      "direction": 0.034224187656219957,
+      "direction_residual": 0.1476299978763719,
+      "category": "heterophilic"
+    },
+    {
+      "dataset": "Chameleon",
+      "homophily": 0.23053892215568864,
+      "direction": 0.024154589371980673,
+      "direction_residual": 0.128322898715022,
+      "category": "heterophilic"
+    },
+    {
+      "dataset": "Actor",
+      "homophily": 0.21810114021456253,
+      "direction": -0.04263157894736841,
+      "direction_residual": 0.07566843725157912,
+      "category": "heterophilic"
+    },
+    {
+      "dataset": "Cora",
+      "homophily": 0.8099658961727927,
+      "direction": 0.5612998522895125,
+      "direction_residual": 0.007127938273311374,
+      "category": "homophilic"
+    },
+    {
+      "dataset": "CiteSeer",
+      "homophily": 0.7355008787346221,
+      "direction": 0.522145049060736,
+      "direction_residual": 0.05257968325685192,
+      "category": "homophilic"
+    },
+    {
+      "dataset": "PubMed",
+      "homophily": 0.8023869686851367,
+      "direction": 0.41948572298016934,
+      "direction_residual": -0.12607507515984956,
+      "category": "homophilic"
+    },
+    {
+      "dataset": "Computers",
+      "homophily": 0.7772155811617133,
+      "direction": 0.5345850666907807,
+      "direction_residual": 0.01762379468180353,
+      "category": "homophilic"
+    },
+    {
+      "dataset": "Photo",
+      "homophily": 0.8272436408830964,
+      "direction": 0.6776613711177901,
+      "direction_residual": 0.10385862384426536,
+      "category": "homophilic"
+    },
+    {
+      "dataset": "CS",
+      "homophily": 0.8080567562947224,
+      "direction": 0.6941580756013745,
+      "direction_residual": 0.14215531081383137,
+      "category": "homophilic"
+    },
+    {
+      "dataset": "Physics",
+      "homophily": 0.9314451407877014,
+      "direction": 0.4540051604673413,
+      "direction_residual": -0.23819048495859274,
+      "category": "homophilic"
+    },
+    {
+      "dataset": "Cora_Full",
+      "homophily": 0.5670361552167263,
+      "direction": 0.6249179002677714,
+      "direction_residual": 0.3467607855158148,
+      "category": "homophilic"
+    },
+    {
+      "dataset": "DBLP",
+      "homophily": 0.8279266839427242,
+      "direction": 0.3883495145631068,
+      "direction_residual": -0.18622930068896187,
+      "category": "homophilic"
+    }
+  ]
+}

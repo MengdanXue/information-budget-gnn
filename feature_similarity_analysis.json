@@ -1,0 +1,80 @@
+{
+  "Cora": [
+    {
+      "actual_h": 0.18,
+      "intra_class_sim": 0.176,
+      "inter_class_sim": 0.062,
+      "similarity_gap": 0.115
+    },
+    {
+      "actual_h": 0.38,
+      "intra_class_sim": 0.174,
+      "inter_class_sim": 0.07,
+      "similarity_gap": 0.104
+    },
+    {
+      "actual_h": 0.58,
+      "intra_class_sim": 0.177,
+      "inter_class_sim": 0.081,
+      "similarity_gap": 0.097
+    },
+    {
+      "actual_h": 0.78,
+      "intra_class_sim": 0.173,
+      "inter_class_sim": 0.127,
+      "similarity_gap": 0.046
+    }
+  ],
+  "CiteSeer": [
+    {
+      "actual_h": 0.18,
+      "intra_class_sim": 0.197,
+      "inter_class_sim": 0.063,
+      "similarity_gap": 0.134
+    },
+    {
+      "actual_h": 0.38,
+      "intra_class_sim": 0.203,
+      "inter_class_sim": 0.077,
+      "similarity_gap": 0.126
+    },
+    {
+      "actual_h": 0.58,
+      "intra_class_sim": 0.205,
+      "inter_class_sim": 0.105,
+      "similarity_gap": 0.1
+    },
+    {
+      "actual_h": 0.74,
+      "intra_class_sim": 0.203,
+      "inter_class_sim": 0.154,
+      "similarity_gap": 0.049
+    }
+  ],
+  "PubMed": [
+    {
+      "actual_h": 0.44,
+      "intra_class_sim": 0.273,
+      "inter_class_sim": 0.115,
+      "similarity_gap": 0.159
+    },
+    {
+      "actual_h": 0.43,
+      "intra_class_sim": 0.283,
+      "inter_class_sim": 0.115,
+      "similarity_gap": 0.168
+    },
+    {
+      "actual_h": 0.58,
+      "intra_class_sim": 0.28,
+      "inter_class_sim": 0.133,
+      "similarity_gap": 0.147
+    },
+    {
+      "actual_h": 0.78,
+      "intra_class_sim": 0.277,
+      "inter_class_sim": 0.241,
+      "similarity_gap": 0.036
+    }
+  ]
+}

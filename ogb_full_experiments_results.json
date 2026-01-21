@@ -1,0 +1,97 @@
+{
+  "experiment": "OGB Full Experiments for Information Budget Paper",
+  "date": "2026-01-20 23:52:02",
+  "device": "cuda",
+  "datasets": {
+    "ogbn-arxiv": {
+      "dataset": "ogbn-arxiv",
+      "n_nodes": 169343,
+      "n_edges": 1166243,
+      "n_features": 128,
+      "n_classes": 40,
+      "homophily": 0.655083031580897,
+      "models": {
+        "MLP": {
+          "test_acc_mean": 0.5571123867525324,
+          "test_acc_std": 0.0003997857921469704,
+          "val_acc_mean": 0.5768202512388559,
+          "val_acc_std": 0.0015182575311597805,
+          "train_time_mean": 5.738353808720906,
+          "all_test_accs": [
+            0.556673456371006,
+            0.5570232290187849,
+            0.5576404748678065
+          ],
+          "all_val_accs": [
+            0.577703949796973,
+            0.574683714218598,
+            0.5780730897009967
+          ]
+        },
+        "GCN": {
+          "test_acc_mean": 0.5534843528177272,
+          "test_acc_std": 0.002618967879318876,
+          "val_acc_mean": 0.6155911272190342,
+          "val_acc_std": 0.0019733803722258186,
+          "train_time_mean": 49.04742018381754,
+          "all_test_accs": [
+            0.5497808777235973,
+            0.5552949406415242,
+            0.5553772400880604
+          ],
+          "all_val_accs": [
+            0.6140474512567535,
+            0.6183764555857579,
+            0.6143494748145911
+          ]
+        },
+        "GraphSAGE": {
+          "test_acc_mean": 0.565527505160861,
+          "test_acc_std": 0.002198228162460719,
+          "val_acc_mean": 0.6369341253062183,
+          "val_acc_std": 0.0012654590848662271,
+          "train_time_mean": 34.66860636075338,
+          "all_test_accs": [
+            0.5650062753327983,
+            0.5684422772256856,
+            0.5631339629240993
+          ],
+          "all_val_accs": [
+            0.637336823383335,
+            0.6382428940568475,
+            0.6352226584784725
+          ]
+        },
+        "GAT": {
+          "test_acc_mean": 0.5477919744323052,
+          "test_acc_std": 0.0028091196143140745,
+          "val_acc_mean": 0.6042932089443717,
+          "val_acc_std": 0.00354874925804547,
+          "train_time_mean": 225.7285393079122,
+          "all_test_accs": [
+            0.551509166100858,
+            0.5447194617616197,
+            0.5471472954344382
+          ],
+          "all_val_accs": [
+            0.6086781435618644,
+            0.6042149065404879,
+            0.5999865767307627
+          ]
+        }
+      },
+      "information_budget_analysis": {
+        "mlp_accuracy": 0.5571123867525324,
+        "information_budget": 0.4428876132474676,
+        "best_gnn": "GraphSAGE",
+        "best_gnn_accuracy": 0.565527505160861,
+        "gnn_advantage": 0.008415118408328648,
+        "within_budget": true,
+        "budget_utilization": 0.019000572959412664
+      }
+    },
+    "ogbn-products": {
+      "error": "CUDA out of memory. Tried to allocate 120.32 GiB. GPU 0 has a total capacity of 8.00 GiB of which 0 bytes is free. Of the allocated memory 7.50 GiB is allocated by PyTorch, and 2.69 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+    }
+  }
+}

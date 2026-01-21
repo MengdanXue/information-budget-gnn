@@ -1,0 +1,26 @@
+% Label Noise Robustness Table
+% Shows SPI prediction accuracy under various label noise levels
+
+\begin{table}[t]
+\centering
+\caption{Label Noise Robustness: SPI Predictions Under Noisy Labels}
+\label{tab:label_noise_robustness}
+\small
+\begin{tabular}{l|ccccc|c}
+\toprule
+\textbf{Dataset} & \textbf{0\%} & \textbf{5\%} & \textbf{10\%} & \textbf{20\%} & \textbf{30\%} & \textbf{Correct} \\
+\midrule
+Cora (h=0.81) & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & 5/5 \\
+CiteSeer (h=0.74) & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & 5/5 \\
+PubMed (h=0.80) & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & 5/5 \\
+\midrule
+\multicolumn{6}{r|}{\textbf{Overall SPI Accuracy:}} & \textbf{100\%} (15/15) \\
+\bottomrule
+\end{tabular}
+\vspace{1mm}
+
+\footnotesize
+\textit{Note:} \checkmark indicates SPI correctly predicted GNN vs MLP winner.
+Key finding: GCN shows increasing advantage as noise increases (denoising effect through aggregation).
+At 30\% noise, Cora GCN advantage grows from +12.5\% to +21.4\%.
+\end{table}

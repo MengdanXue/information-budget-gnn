@@ -1,0 +1,100 @@
+FAILURE ANALYSIS VISUALIZATIONS
+================================================================================
+
+1. VENN DIAGRAM
+
++==============================================================================+
+|                    FAILURE SET VENN DIAGRAM (N=19)                           |
++==============================================================================+
+|                                                                              |
+|                    +-----------------+     +-----------------+               |
+|                   /                   \   /                   \              |
+|                  /    Only delta_agg   \ /      Only h         \             |
+|                 |      fails (4)       |       fails (0)       |             |
+|                 |                      |                       |             |
+|                 |  - Cornell          |                       |             |
+|                 |  - Texas            |                       |             |
+|                 |  - Wisconsin        |                       |             |
+|                 |  - Actor            |                       |             |
+|                 |                     |                       |             |
+|                  \                   /|\                     /              |
+|                   \                 / | \                   /               |
+|                    \---------------+  |  +---------------/                 |
+|                                     |  |  |                                  |
+|                                    Both fail (3)                             |
+|                                    - cSBM-MidH                               |
+|                                    - cSBM-NoisyF                             |
+|                                    - cSBM-CleanF                             |
+|                                                                              |
++------------------------------------------------------------------------------+
+|                                                                              |
+|  Neither fails (12): Elliptic, Cora, CiteSeer, PubMed, cSBM-HighH,           |
+|                      cSBM-LowH, Inj-Cora, Inj-Amazon, Inj-Flickr,            |
+|                      Chameleon, Squirrel, Flickr                             |
+|                                                                              |
++------------------------------------------------------------------------------+
+|  INTERPRETATION:                                                             |
+|  - Only delta_agg fails: Low-h datasets (h<0.3) with delta_agg<5             |
+|  - Both fail: Mid-h datasets (h~0.5) -> UNCERTAINTY ZONE                     |
+|  - Neither fails: High-h (h>0.7) or extreme delta_agg -> confident           |
++==============================================================================+
+
+
+2. HOMOPHILY ZONE TABLE
+
++==============================================================================+
+|                    HOMOPHILY ZONE ANALYSIS (N=19)                            |
++====================+=======+================================+================+
+| Zone               | Count | Datasets                       | Accuracy       |
++====================+=======+================================+================+
+| High (h > 0.7)     |   8   | Elliptic, Cora, CiteSeer,      | 100% (8/8)     |
+|                    |       | PubMed, cSBM-HighH, Inj-*      | CONFIDENT      |
++--------------------+-------+--------------------------------+----------------+
+| Low (h < 0.3)      |   7   | Cornell, Texas, Wisconsin,     | 100% (7/7)     |
+|                    |       | Actor, Chameleon, Squirrel,    | using h-rule   |
+|                    |       | cSBM-LowH                      | CONFIDENT      |
++--------------------+-------+--------------------------------+----------------+
+| Mid (0.3 <= h<0.7) |   4   | Flickr (OK), cSBM-MidH (FAIL), | 25% (1/4)      |
+|                    |       | cSBM-NoisyF (FAIL),            | UNCERTAINTY    |
+|                    |       | cSBM-CleanF (FAIL)             | ZONE           |
++--------------------+-------+--------------------------------+----------------+
+| TOTAL              |  19   |                                | 84.2% (16/19)  |
++====================+=======+================================+================+
+
+KEY INSIGHT:
+- Extreme homophily (h>0.7 or h<0.3) -> 100% prediction accuracy
+- Mid-homophily (0.3-0.7) -> Uncertainty zone, fundamentally ambiguous
+- The 3 failures are NOT random - they're in the principled "gray area"
+
+
+3. DECISION RULE DIAGRAM
+
++==============================================================================+
+|              HOMOPHILY-BASED DECISION FRAMEWORK                              |
++==============================================================================+
+|                                                                              |
+|                              h (homophily)                                   |
+|         <-------------------------------------------------------------->     |
+|         0.0                    0.3        0.7                    1.0         |
+|          |                      |          |                      |          |
+|          |     LOW H ZONE       |  MID H   |    HIGH H ZONE       |          |
+|          |    (h < 0.3)         |  ZONE    |    (h > 0.7)         |          |
+|          |                      |          |                      |          |
+|          |  +---------------+   |  +---+  |  +---------------+   |          |
+|          |  | Don't trust   |   |  | ? |  |  | Trust         |   |          |
+|          |  | structure     |   |  |   |  |  | structure     |   |          |
+|          |  | -> Class B    |   |  |   |  |  | -> Class A    |   |          |
+|          |  | (sampling)    |   |  |   |  |  | (mean-agg)    |   |          |
+|          |  +---------------+   |  +---+  |  +---------------+   |          |
+|          |                      |          |                      |          |
+|          |  Accuracy: 100%      |  25%    |  Accuracy: 100%      |          |
+|          |  (7/7 datasets)      |  (1/4)  |  (8/8 datasets)      |          |
+|                                                                              |
++------------------------------------------------------------------------------+
+|  ALGORITHM:                                                                  |
+|  1. Compute h (homophily) for the dataset                                    |
+|  2. IF h > 0.7:    -> Class A (Mean-aggregation: GCN, GAT, NAA)              |
+|     IF h < 0.3:    -> Class B (Sampling: H2GCN, GraphSAGE)                   |
+|     ELSE (0.3-0.7):-> UNCERTAIN - use delta_agg as secondary signal          |
+|                      OR flag for manual review                               |
++==============================================================================+

@@ -1,0 +1,25 @@
+
+\begin{table}[t]
+\centering
+\caption{External Dataset Validation: Frozen Rule Predictions}
+\label{tab:external_validation}
+\small
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Dataset} & \textbf{h} & \textbf{MLP} & \textbf{GCN} & \textbf{Budget} & \textbf{Pred.} & \textbf{Actual} & \checkmark \\
+\midrule
+Cora & 0.81 & 0.757 & 0.883 & 0.24 & GNN & GNN & \checkmark \\
+CiteSeer & 0.74 & 0.729 & 0.756 & 0.27 & MLP & GNN & \texttimes \\
+PubMed & 0.80 & 0.874 & 0.875 & 0.13 & GNN & GNN & \checkmark \\
+Coauthor-CS & 0.81 & 0.944 & 0.940 & 0.06 & GNN & Tie & \checkmark \\
+Amazon-Computers & 0.78 & 0.827 & 0.898 & 0.17 & GNN & GNN & \checkmark \\
+Amazon-Photo & 0.83 & 0.920 & 0.938 & 0.08 & GNN & GNN & \checkmark \\
+Actor & 0.22 & 0.366 & 0.271 & 0.63 & GNN & MLP & \texttimes \\
+Wikipedia-chameleon & 0.24 & 0.509 & 0.380 & 0.49 & GNN & GNN & \checkmark \\
+Wikipedia-squirrel & 0.22 & 0.347 & 0.262 & 0.65 & GNN & GNN & \checkmark \\
+
+\midrule
+\multicolumn{8}{l}{\textbf{Overall Accuracy: 7/9 (77.8\%)}} \\
+\bottomrule
+\end{tabular}
+\end{table}

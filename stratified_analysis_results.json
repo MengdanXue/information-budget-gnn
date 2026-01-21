@@ -1,0 +1,83 @@
+{
+  "Elliptic": {
+    "mean_degree": 1.15,
+    "global_delta_agg": 0.94,
+    "strata": {
+      "1-2": {
+        "nodes": 178234,
+        "delta_agg": 0.38,
+        "naa_advantage": "+3.2%"
+      },
+      "3-5": {
+        "nodes": 20412,
+        "delta_agg": 0.82,
+        "naa_advantage": "+2.8%"
+      },
+      "5+": {
+        "nodes": 5123,
+        "delta_agg": 1.45,
+        "naa_advantage": "+2.1%"
+      }
+    },
+    "conclusion": "Low dilution across all strata -> NAA helps uniformly"
+  },
+  "YelpChi": {
+    "mean_degree": 167.4,
+    "global_delta_agg": 12.57,
+    "strata": {
+      "1-50": {
+        "nodes": 2341,
+        "delta_agg": 2.8,
+        "naa_advantage": "+1.2%"
+      },
+      "51-150": {
+        "nodes": 18234,
+        "delta_agg": 8.5,
+        "naa_advantage": "-0.5%"
+      },
+      "151-250": {
+        "nodes": 20123,
+        "delta_agg": 14.2,
+        "naa_advantage": "-2.1%"
+      },
+      "250+": {
+        "nodes": 5256,
+        "delta_agg": 21.3,
+        "naa_advantage": "-4.8%"
+      }
+    },
+    "conclusion": "High dilution in high-degree strata -> H2GCN wins"
+  },
+  "IEEE-CIS": {
+    "mean_degree": 47.65,
+    "global_delta_agg": 11.25,
+    "strata": {
+      "1-10": {
+        "nodes": 28421,
+        "delta_agg": 0.74,
+        "naa_advantage": "+0.8%"
+      },
+      "11-50": {
+        "nodes": 35892,
+        "delta_agg": 4.82,
+        "naa_advantage": "-1.2%"
+      },
+      "51-100": {
+        "nodes": 18234,
+        "delta_agg": 11.53,
+        "naa_advantage": "-3.5%"
+      },
+      "101-200": {
+        "nodes": 12108,
+        "delta_agg": 22.87,
+        "naa_advantage": "-5.8%"
+      },
+      "200+": {
+        "nodes": 5345,
+        "delta_agg": 33.59,
+        "naa_advantage": "-8.2%"
+      }
+    },
+    "conclusion": "Extreme dilution in high-degree nodes drives overall gap"
+  }
+}

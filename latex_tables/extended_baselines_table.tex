@@ -1,0 +1,38 @@
+% Extended Baselines Comparison Table
+% Including BernNet (NeurIPS 2021), JacobiConv (ICML 2022), LINKX (NeurIPS 2021)
+
+\begin{table*}[t]
+\centering
+\caption{Extended Baseline Comparison Including Recent Spectral Methods}
+\label{tab:extended_baselines}
+\small
+\begin{tabular}{lc|ccccccc}
+\toprule
+\textbf{Dataset} & \textbf{h} & \textbf{MLP} & \textbf{GCN} & \textbf{SAGE} & \textbf{GAT} & \textbf{LINKX} & \textbf{BernNet} & \textbf{JacobiNet} \\
+\midrule
+\multicolumn{9}{l}{\textit{Heterophilic Datasets (h $<$ 0.3)}} \\
+Texas & 0.11 & 57.9 & 56.3 & 67.1 & 57.9 & \textbf{71.3} & 56.6 & 55.8 \\
+Cornell & 0.13 & 60.8 & 45.8 & 61.3 & 45.3 & \textbf{61.6} & 44.7 & 46.8 \\
+Wisconsin & 0.20 & 75.1 & 49.2 & 73.9 & 49.6 & \textbf{77.6} & 43.1 & 45.7 \\
+Actor & 0.22 & 38.3 & 29.1 & 37.1 & 30.1 & \textbf{38.2} & 26.4 & 26.7 \\
+Roman-emp. & 0.05 & \textbf{15.9} & 14.5 & 15.0 & 13.8 & 13.8 & 14.5 & 14.2 \\
+\midrule
+\multicolumn{9}{l}{\textit{Mid-homophily Datasets (0.3 $\leq$ h $\leq$ 0.7)}} \\
+Tolokers & 0.59 & 77.8 & 77.8 & 77.8 & 77.8 & 77.8 & 77.8 & 77.8 \\
+Minesweeper & 0.68 & 79.9 & 79.9 & \textbf{85.3} & 79.9 & 83.7 & 79.9 & 79.9 \\
+\midrule
+\multicolumn{9}{l}{\textit{Homophilic Datasets (h $>$ 0.7)}} \\
+CiteSeer & 0.74 & 70.2 & 74.4 & \textbf{76.1} & 75.2 & 64.4 & 71.3 & 72.0 \\
+PubMed & 0.80 & 87.1 & 86.7 & 88.6 & 86.2 & \textbf{89.5} & 86.2 & 87.1 \\
+Cora & 0.81 & 74.9 & \textbf{87.5} & \textbf{87.6} & 87.3 & 73.2 & 87.0 & 87.4 \\
+Questions & 0.84 & 97.1 & 97.1 & 97.1 & 97.1 & 97.1 & 97.1 & 97.1 \\
+\bottomrule
+\end{tabular}
+\vspace{1mm}
+
+\footnotesize
+\textit{Note:} BernNet~\cite{he2021bernnet} and JacobiNet~\cite{wang2022jacobi} are spectral methods using polynomial filters.
+LINKX~\cite{lim2021linkx} separates feature and structure processing.
+Bold indicates best performance per dataset.
+Results averaged over 10 random seeds.
+\end{table*}

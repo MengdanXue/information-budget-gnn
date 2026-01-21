@@ -1,0 +1,33 @@
+{
+  "coefficient_source": {
+    "fitted_on": 15,
+    "validated_on": 11,
+    "slope": 1.1361918807387261,
+    "intercept": -0.36610476089059196
+  },
+  "loocv": {
+    "correlation": 0.6507637113000901,
+    "p_value": 0.030126500494977053
+  },
+  "actor_analysis": {
+    "residual": 0.07566843725157912,
+    "in_neutral_zone": true,
+    "explanation": "Actor residual falls within neutral zone, not a clear outlier"
+  },
+  "binomial_confidence_intervals": {
+    "lodo_decisive_12_12": {
+      "accuracy": 1.0,
+      "n": 12,
+      "ci_95_lower": 0.735,
+      "ci_95_upper": 1.0,
+      "method": "Clopper-Pearson exact"
+    },
+    "external_validation_7_9": {
+      "accuracy": 0.778,
+      "n": 9,
+      "ci_95_lower": 0.400,
+      "ci_95_upper": 0.972,
+      "method": "Clopper-Pearson exact"
+    }
+  }
+}

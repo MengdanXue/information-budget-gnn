@@ -1,0 +1,20 @@
+
+\begin{table}[t]
+\centering
+\caption{Trust Regions Decision Rules (Frozen)}
+\label{tab:decision_rules}
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Condition} & \textbf{Prediction} & \textbf{Rationale} \\
+\midrule
+MLP$_{\text{acc}} > 0.95$ & MLP & Budget too small \\
+$h > 0.75$ and Budget $> 0.05$ & GNN & High-h trust region \\
+$h < 0.25$ and Budget $> 0.05$ & GNN & Low-h trust region \\
+$0.35 \leq h \leq 0.65$ and Budget $< 0.4$ & MLP & Mid-h uncertainty \\
+$0.35 \leq h \leq 0.65$ and Budget $\geq 0.4$ & GNN & Large budget \\
+SPI $\times$ Budget $> 0.15$ & GNN & Sufficient signal \\
+Otherwise & MLP & Default \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,368 @@
+{
+  "experiment": "Hyperparameter Sensitivity Analysis",
+  "datasets": {
+    "Cora": {
+      "homophily": 0.8099659085273743,
+      "category": "high-h",
+      "experiments": [
+        {
+          "param": "lr",
+          "value": 0.001,
+          "mlp": 0.3351749579111735,
+          "gcn": 0.3529772957166036,
+          "gcn_adv": 0.017802337805430057,
+          "winner": "Tie"
+        },
+        {
+          "param": "lr",
+          "value": 0.01,
+          "mlp": 0.7630448341369629,
+          "gcn": 0.8931860129038492,
+          "gcn_adv": 0.13014117876688636,
+          "winner": "GCN"
+        },
+        {
+          "param": "lr",
+          "value": 0.1,
+          "mlp": 0.7618170777956644,
+          "gcn": 0.898097018400828,
+          "gcn_adv": 0.13627994060516357,
+          "winner": "GCN"
+        },
+        {
+          "param": "hidden",
+          "value": 32,
+          "mlp": 0.6353591084480286,
+          "gcn": 0.8827501734097799,
+          "gcn_adv": 0.24739106496175134,
+          "winner": "GCN"
+        },
+        {
+          "param": "hidden",
+          "value": 64,
+          "mlp": 0.7685696880022684,
+          "gcn": 0.891344408194224,
+          "gcn_adv": 0.12277472019195557,
+          "winner": "GCN"
+        },
+        {
+          "param": "hidden",
+          "value": 128,
+          "mlp": 0.7655003269513448,
+          "gcn": 0.8962553938229879,
+          "gcn_adv": 0.13075506687164307,
+          "winner": "GCN"
+        },
+        {
+          "param": "hidden",
+          "value": 256,
+          "mlp": 0.7679557998975118,
+          "gcn": 0.8925721446673075,
+          "gcn_adv": 0.12461634476979566,
+          "winner": "GCN"
+        },
+        {
+          "param": "num_layers",
+          "value": 2,
+          "mlp": 0.7667280634244283,
+          "gcn": 0.8919582764307658,
+          "gcn_adv": 0.1252302130063374,
+          "winner": "GCN"
+        },
+        {
+          "param": "num_layers",
+          "value": 3,
+          "mlp": 0.7219153245290121,
+          "gcn": 0.8784530560175577,
+          "gcn_adv": 0.15653773148854566,
+          "winner": "GCN"
+        },
+        {
+          "param": "num_layers",
+          "value": 4,
+          "mlp": 0.6181706587473551,
+          "gcn": 0.8704727093378702,
+          "gcn_adv": 0.25230205059051514,
+          "winner": "GCN"
+        },
+        {
+          "param": "dropout",
+          "value": 0.3,
+          "mlp": 0.7673419316609701,
+          "gcn": 0.8944137692451477,
+          "gcn_adv": 0.12707183758417762,
+          "winner": "GCN"
+        },
+        {
+          "param": "dropout",
+          "value": 0.5,
+          "mlp": 0.7704113125801086,
+          "gcn": 0.8913443883260092,
+          "gcn_adv": 0.12093307574590051,
+          "winner": "GCN"
+        },
+        {
+          "param": "dropout",
+          "value": 0.7,
+          "mlp": 0.7648864587148031,
+          "gcn": 0.8913443883260092,
+          "gcn_adv": 0.12645792961120605,
+          "winner": "GCN"
+        }
+      ]
+    },
+    "Texas": {
+      "homophily": 0.10769230872392654,
+      "category": "low-h",
+      "experiments": [
+        {
+          "param": "lr",
+          "value": 0.001,
+          "mlp": 0.5263157784938812,
+          "gcn": 0.4736842115720113,
+          "gcn_adv": -0.05263156692186993,
+          "winner": "MLP"
+        },
+        {
+          "param": "lr",
+          "value": 0.01,
+          "mlp": 0.4736842115720113,
+          "gcn": 0.4736842115720113,
+          "gcn_adv": 0.0,
+          "winner": "Tie"
+        },
+        {
+          "param": "lr",
+          "value": 0.1,
+          "mlp": 0.7894736925760905,
+          "gcn": 0.5438596506913503,
+          "gcn_adv": -0.24561404188474012,
+          "winner": "MLP"
+        },
+        {
+          "param": "hidden",
+          "value": 32,
+          "mlp": 0.4736842115720113,
+          "gcn": 0.4736842115720113,
+          "gcn_adv": 0.0,
+          "winner": "Tie"
+        },
+        {
+          "param": "hidden",
+          "value": 64,
+          "mlp": 0.4736842115720113,
+          "gcn": 0.4736842115720113,
+          "gcn_adv": 0.0,
+          "winner": "Tie"
+        },
+        {
+          "param": "hidden",
+          "value": 128,
+          "mlp": 0.4736842115720113,
+          "gcn": 0.4736842115720113,
+          "gcn_adv": 0.0,
+          "winner": "Tie"
+        },
+        {
+          "param": "hidden",
+          "value": 256,
+          "mlp": 0.6052631835142771,
+          "gcn": 0.5350877145926157,
+          "gcn_adv": -0.07017546892166138,
+          "winner": "MLP"
+        },
+        {
+          "param": "num_layers",
+          "value": 2,
+          "mlp": 0.4912280837694804,
+          "gcn": 0.4736842115720113,
+          "gcn_adv": -0.017543872197469113,
+          "winner": "Tie"
+        },
+        {
+          "param": "num_layers",
+          "value": 3,
+          "mlp": 0.4736842115720113,
+          "gcn": 0.4736842115720113,
+          "gcn_adv": 0.0,
+          "winner": "Tie"
+        },
+        {
+          "param": "num_layers",
+          "value": 4,
+          "mlp": 0.5175438721974691,
+          "gcn": 0.4736842115720113,
+          "gcn_adv": -0.04385966062545782,
+          "winner": "MLP"
+        },
+        {
+          "param": "dropout",
+          "value": 0.3,
+          "mlp": 0.48245614767074585,
+          "gcn": 0.4736842115720113,
+          "gcn_adv": -0.008771936098734556,
+          "winner": "Tie"
+        },
+        {
+          "param": "dropout",
+          "value": 0.5,
+          "mlp": 0.4912280738353729,
+          "gcn": 0.4736842115720113,
+          "gcn_adv": -0.01754386226336163,
+          "winner": "Tie"
+        },
+        {
+          "param": "dropout",
+          "value": 0.7,
+          "mlp": 0.4736842115720113,
+          "gcn": 0.4736842115720113,
+          "gcn_adv": 0.0,
+          "winner": "Tie"
+        }
+      ]
+    },
+    "CiteSeer": {
+      "homophily": 0.7355008721351624,
+      "category": "mid-h",
+      "experiments": [
+        {
+          "param": "lr",
+          "value": 0.001,
+          "mlp": 0.3763763904571533,
+          "gcn": 0.6131131251653036,
+          "gcn_adv": 0.23673673470815026,
+          "winner": "GCN"
+        },
+        {
+          "param": "lr",
+          "value": 0.01,
+          "mlp": 0.6876876950263977,
+          "gcn": 0.7552552819252014,
+          "gcn_adv": 0.06756758689880371,
+          "winner": "GCN"
+        },
+        {
+          "param": "lr",
+          "value": 0.1,
+          "mlp": 0.7122122248013815,
+          "gcn": 0.7662662863731384,
+          "gcn_adv": 0.05405406157175696,
+          "winner": "GCN"
+        },
+        {
+          "param": "hidden",
+          "value": 32,
+          "mlp": 0.6816816926002502,
+          "gcn": 0.7362362543741862,
+          "gcn_adv": 0.05455456177393592,
+          "winner": "GCN"
+        },
+        {
+          "param": "hidden",
+          "value": 64,
+          "mlp": 0.6961961984634399,
+          "gcn": 0.7297297517458597,
+          "gcn_adv": 0.033533553282419803,
+          "winner": "GCN"
+        },
+        {
+          "param": "hidden",
+          "value": 128,
+          "mlp": 0.6941941976547241,
+          "gcn": 0.7637637853622437,
+          "gcn_adv": 0.06956958770751953,
+          "winner": "GCN"
+        },
+        {
+          "param": "hidden",
+          "value": 256,
+          "mlp": 0.6976976990699768,
+          "gcn": 0.7537537813186646,
+          "gcn_adv": 0.056056082248687744,
+          "winner": "GCN"
+        },
+        {
+          "param": "num_layers",
+          "value": 2,
+          "mlp": 0.6811811923980713,
+          "gcn": 0.7512512803077698,
+          "gcn_adv": 0.07007008790969849,
+          "winner": "GCN"
+        },
+        {
+          "param": "num_layers",
+          "value": 3,
+          "mlp": 0.6761761903762817,
+          "gcn": 0.7552552819252014,
+          "gcn_adv": 0.07907909154891968,
+          "winner": "GCN"
+        },
+        {
+          "param": "num_layers",
+          "value": 4,
+          "mlp": 0.5160160263379415,
+          "gcn": 0.7327327529589335,
+          "gcn_adv": 0.21671672662099195,
+          "winner": "GCN"
+        },
+        {
+          "param": "dropout",
+          "value": 0.3,
+          "mlp": 0.6906906962394714,
+          "gcn": 0.7522522807121277,
+          "gcn_adv": 0.06156158447265625,
+          "winner": "GCN"
+        },
+        {
+          "param": "dropout",
+          "value": 0.5,
+          "mlp": 0.6986986994743347,
+          "gcn": 0.737237274646759,
+          "gcn_adv": 0.038538575172424316,
+          "winner": "GCN"
+        },
+        {
+          "param": "dropout",
+          "value": 0.7,
+          "mlp": 0.6926926970481873,
+          "gcn": 0.748748779296875,
+          "gcn_adv": 0.056056082248687744,
+          "winner": "GCN"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "Cora": {
+      "h": 0.8099659085273743,
+      "spi": 0.6199318170547485,
+      "spi_prediction": "GCN",
+      "gcn_wins": 12,
+      "mlp_wins": 0,
+      "ties": 1,
+      "total_experiments": 13,
+      "consistency_rate": 1.0
+    },
+    "Texas": {
+      "h": 0.10769230872392654,
+      "spi": 0.7846153825521469,
+      "spi_prediction": "GCN",
+      "gcn_wins": 0,
+      "mlp_wins": 4,
+      "ties": 9,
+      "total_experiments": 13,
+      "consistency_rate": 0.6923076923076923
+    },
+    "CiteSeer": {
+      "h": 0.7355008721351624,
+      "spi": 0.4710017442703247,
+      "spi_prediction": "GCN",
+      "gcn_wins": 13,
+      "mlp_wins": 0,
+      "ties": 0,
+      "total_experiments": 13,
+      "consistency_rate": 1.0
+    }
+  },
+  "overall_consistency": 0.8974358974358975
+}

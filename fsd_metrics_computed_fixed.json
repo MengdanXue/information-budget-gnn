@@ -1,0 +1,100 @@
+{
+  "data/cornell/processed/data.pt": {
+    "path": "data/cornell/processed/data.pt",
+    "num_nodes": 183,
+    "num_edges": 298,
+    "num_features": 1703,
+    "has_labels": true,
+    "rho_fs": 0.05787450075149536,
+    "delta_agg": 2.6979167461395264,
+    "delta_agg_source": "labels",
+    "homophily": 0.13087248802185059
+  },
+  "data/cornell/processed/pre_filter.pt": {
+    "path": "data/cornell/processed/pre_filter.pt",
+    "error": "ValueError: PyG Data is missing edge_index or x"
+  },
+  "data/cornell/processed/pre_transform.pt": {
+    "path": "data/cornell/processed/pre_transform.pt",
+    "error": "ValueError: PyG Data is missing edge_index or x"
+  },
+  "data/elliptic_weber_split.pkl": {
+    "path": "data/elliptic_weber_split.pkl",
+    "num_nodes": 4000,
+    "num_edges": 51346,
+    "num_features": 166,
+    "has_labels": true,
+    "rho_fs": 0.0014526140876114368,
+    "delta_agg": 3.0364999771118164,
+    "delta_agg_source": "labels",
+    "homophily": 0.7634479999542236
+  },
+  "data/processed/data.pt": {
+    "path": "data/processed/data.pt",
+    "num_nodes": 7600,
+    "num_edges": 30019,
+    "num_features": 932,
+    "has_labels": true,
+    "rho_fs": -0.006397262215614319,
+    "delta_agg": 3.3676047325134277,
+    "delta_agg_source": "labels",
+    "homophily": 0.21876144409179688
+  },
+  "data/processed/pre_filter.pt": {
+    "path": "data/processed/pre_filter.pt",
+    "error": "ValueError: PyG Data is missing edge_index or x"
+  },
+  "data/processed/pre_transform.pt": {
+    "path": "data/processed/pre_transform.pt",
+    "error": "ValueError: PyG Data is missing edge_index or x"
+  },
+  "data/texas/processed/data.pt": {
+    "path": "data/texas/processed/data.pt",
+    "num_nodes": 183,
+    "num_edges": 325,
+    "num_features": 1703,
+    "has_labels": true,
+    "rho_fs": 0.05338743329048157,
+    "delta_agg": 2.6363637447357178,
+    "delta_agg_source": "labels",
+    "homophily": 0.10769230872392654
+  },
+  "data/texas/processed/pre_filter.pt": {
+    "path": "data/texas/processed/pre_filter.pt",
+    "error": "ValueError: PyG Data is missing edge_index or x"
+  },
+  "data/texas/processed/pre_transform.pt": {
+    "path": "data/texas/processed/pre_transform.pt",
+    "error": "ValueError: PyG Data is missing edge_index or x"
+  },
+  "data/wisconsin/processed/data.pt": {
+    "path": "data/wisconsin/processed/data.pt",
+    "num_nodes": 251,
+    "num_edges": 515,
+    "num_features": 1703,
+    "has_labels": true,
+    "rho_fs": 0.06323027610778809,
+    "delta_agg": 2.4352941513061523,
+    "delta_agg_source": "labels",
+    "homophily": 0.19611650705337524
+  },
+  "data/wisconsin/processed/pre_filter.pt": {
+    "path": "data/wisconsin/processed/pre_filter.pt",
+    "error": "ValueError: PyG Data is missing edge_index or x"
+  },
+  "data/wisconsin/processed/pre_transform.pt": {
+    "path": "data/wisconsin/processed/pre_transform.pt",
+    "error": "ValueError: PyG Data is missing edge_index or x"
+  },
+  "processed/ieee_cis_graph.pkl": {
+    "path": "processed/ieee_cis_graph.pkl",
+    "num_nodes": 100000,
+    "num_edges": 4765352,
+    "num_features": 394,
+    "has_labels": true,
+    "rho_fs": 0.05947762727737427,
+    "delta_agg": 5.010270118713379,
+    "delta_agg_source": "labels",
+    "homophily": 0.9305910468101501
+  }
+}

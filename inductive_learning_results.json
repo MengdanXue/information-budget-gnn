@@ -1,0 +1,256 @@
+{
+  "experiment": "Inductive Learning Validation",
+  "datasets": {
+    "Cora": {
+      "homophily": 0.8099659085273743,
+      "category": "high-h",
+      "transductive": {
+        "MLP": {
+          "mean": 0.7274907827377319,
+          "std": 0.017779306915116613
+        },
+        "GCN": {
+          "mean": 0.8649446606636048,
+          "std": 0.005704651468317374
+        },
+        "GraphSAGE": {
+          "mean": 0.871771240234375,
+          "std": 0.00603521989336799
+        }
+      },
+      "inductive": {
+        "MLP": {
+          "mean": 0.7326568365097046,
+          "std": 0.017004213612378197,
+          "degradation": -0.7101194811749351
+        },
+        "GCN": {
+          "mean": 0.8599630951881408,
+          "std": 0.012202256404045137,
+          "degradation": 0.5759403696002868
+        },
+        "GraphSAGE": {
+          "mean": 0.8477859973907471,
+          "std": 0.013695450513504957,
+          "degradation": 2.751323023363273
+        }
+      },
+      "spi": 0.6199318170547485,
+      "spi_prediction": "GNN",
+      "transductive_winner": "GNN",
+      "inductive_winner": "GNN",
+      "spi_correct_transductive": true,
+      "spi_correct_inductive": true
+    },
+    "CiteSeer": {
+      "homophily": 0.7355008721351624,
+      "category": "high-h",
+      "transductive": {
+        "MLP": {
+          "mean": 0.700750756263733,
+          "std": 0.005015998799657836
+        },
+        "GCN": {
+          "mean": 0.7372372508049011,
+          "std": 0.004193467247501129
+        },
+        "GraphSAGE": {
+          "mean": 0.7572072267532348,
+          "std": 0.009140686516806315
+        }
+      },
+      "inductive": {
+        "MLP": {
+          "mean": 0.6986486673355102,
+          "std": 0.006724985799970729,
+          "degradation": 0.29997669063258003
+        },
+        "GCN": {
+          "mean": 0.7381381630897522,
+          "std": 0.0035341056065076475,
+          "degradation": -0.12220113455573771
+        },
+        "GraphSAGE": {
+          "mean": 0.7453453660011291,
+          "std": 0.005764662412960298,
+          "degradation": 1.5665276734041733
+        }
+      },
+      "spi": 0.4710017442703247,
+      "spi_prediction": "GNN",
+      "transductive_winner": "GNN",
+      "inductive_winner": "GNN",
+      "spi_correct_transductive": true,
+      "spi_correct_inductive": true
+    },
+    "PubMed": {
+      "homophily": 0.8023869395256042,
+      "category": "high-h",
+      "transductive": {
+        "MLP": {
+          "mean": 0.8674188494682312,
+          "std": 0.0026825898706990697
+        },
+        "GCN": {
+          "mean": 0.8657200574874878,
+          "std": 0.00286006090971907
+        },
+        "GraphSAGE": {
+          "mean": 0.8826825380325317,
+          "std": 0.003375732566923891
+        }
+      },
+      "inductive": {
+        "MLP": {
+          "mean": 0.8687372922897338,
+          "std": 0.0012590874921998244,
+          "degradation": -0.1519960999591935
+        },
+        "GCN": {
+          "mean": 0.8670131683349609,
+          "std": 0.002625182248536907,
+          "degradation": -0.1493682439593664
+        },
+        "GraphSAGE": {
+          "mean": 0.8841531276702881,
+          "std": 0.0023817314935580514,
+          "degradation": -0.16660459161617294
+        }
+      },
+      "spi": 0.6047738790512085,
+      "spi_prediction": "GNN",
+      "transductive_winner": "Tie",
+      "inductive_winner": "Tie",
+      "spi_correct_transductive": true,
+      "spi_correct_inductive": true
+    },
+    "Texas": {
+      "homophily": 0.10769230872392654,
+      "category": "low-h",
+      "transductive": {
+        "MLP": {
+          "mean": 0.6135135293006897,
+          "std": 0.05958217229305592
+        },
+        "GCN": {
+          "mean": 0.5675675749778748,
+          "std": 0.028346185239281427
+        },
+        "GraphSAGE": {
+          "mean": 0.6216216325759888,
+          "std": 0.05056295212528263
+        }
+      },
+      "inductive": {
+        "MLP": {
+          "mean": 0.5810810923576355,
+          "std": 0.047585997007702385,
+          "degradation": 5.286344211515946
+        },
+        "GCN": {
+          "mean": 0.5702702760696411,
+          "std": 0.03128604351226778,
+          "degradation": -0.47619018614156194
+        },
+        "GraphSAGE": {
+          "mean": 0.6324324488639832,
+          "std": 0.05565206680159454,
+          "degradation": -1.7391312852473588
+        }
+      },
+      "spi": 0.7846153825521469,
+      "spi_prediction": "GNN",
+      "transductive_winner": "MLP",
+      "inductive_winner": "GNN",
+      "spi_correct_transductive": false,
+      "spi_correct_inductive": true
+    },
+    "Wisconsin": {
+      "homophily": 0.19611650705337524,
+      "category": "low-h",
+      "transductive": {
+        "MLP": {
+          "mean": 0.7346534490585327,
+          "std": 0.049465343617273914
+        },
+        "GCN": {
+          "mean": 0.5049504935741425,
+          "std": 0.038601180208029266
+        },
+        "GraphSAGE": {
+          "mean": 0.6970296978950501,
+          "std": 0.06989847055669272
+        }
+      },
+      "inductive": {
+        "MLP": {
+          "mean": 0.7287128686904907,
+          "std": 0.040388288224045436,
+          "degradation": 0.8086234912059476
+        },
+        "GCN": {
+          "mean": 0.5227722644805908,
+          "std": 0.03277812649595212,
+          "degradation": -3.529409542765707
+        },
+        "GraphSAGE": {
+          "mean": 0.702970278263092,
+          "std": 0.03130969309100891,
+          "degradation": -0.8522707692343349
+        }
+      },
+      "spi": 0.6077669858932495,
+      "spi_prediction": "GNN",
+      "transductive_winner": "MLP",
+      "inductive_winner": "MLP",
+      "spi_correct_transductive": false,
+      "spi_correct_inductive": false
+    },
+    "Cornell": {
+      "homophily": 0.13087248802185059,
+      "category": "low-h",
+      "transductive": {
+        "MLP": {
+          "mean": 0.5405405521392822,
+          "std": 0.1343218918703601
+        },
+        "GCN": {
+          "mean": 0.45135135650634767,
+          "std": 0.03265688275623452
+        },
+        "GraphSAGE": {
+          "mean": 0.5432432532310486,
+          "std": 0.09181237010320628
+        }
+      },
+      "inductive": {
+        "MLP": {
+          "mean": 0.5000000059604645,
+          "std": 0.12590069541826196,
+          "degradation": 7.500000882148725
+        },
+        "GCN": {
+          "mean": 0.45135135650634767,
+          "std": 0.03265688275623452,
+          "degradation": 0.0
+        },
+        "GraphSAGE": {
+          "mean": 0.5567567646503448,
+          "std": 0.08521017796012606,
+          "degradation": -2.4875617578169473
+        }
+      },
+      "spi": 0.7382550239562988,
+      "spi_prediction": "GNN",
+      "transductive_winner": "MLP",
+      "inductive_winner": "GNN",
+      "spi_correct_transductive": false,
+      "spi_correct_inductive": true
+    }
+  },
+  "summary": {
+    "transductive_accuracy": 0.5,
+    "inductive_accuracy": 0.8333333333333334,
+    "total_datasets": 6
+  }
+}

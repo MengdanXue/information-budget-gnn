@@ -1,0 +1,20 @@
+{
+  "figures_generated": [
+    "fig1_cross_model_ushape_errorbands.pdf",
+    "fig2_separability_comparison.pdf",
+    "fig3_spi_correlation.pdf",
+    "fig4_defense_summary.pdf"
+  ],
+  "r_squared_spi": 0.8631528424898465,
+  "key_findings": {
+    "u_shape_confirmed": true,
+    "worst_h": 0.5,
+    "trust_threshold": 0.4,
+    "models_tested": [
+      "MLP",
+      "GCN",
+      "GAT",
+      "GraphSAGE"
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+\begin{table}[t]
+\centering
+\caption{FSD Framework Predictions vs Actual Best Methods. The framework achieves 100\% method-class prediction accuracy using only two metrics computed before any model training.}
+\label{tab:fsd_predictions}
+\small
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Dataset} & $\delta_{\text{agg}}$ & \textbf{Features} & \textbf{FSD Predicts} & \textbf{Actual Best} & \textbf{Match} \\
+\midrule
+Elliptic & 0.94 & 165 & Class A & NAA-GAT & \checkmark \\
+Amazon & 5.00 & 767 & Class A & NAA-GAT & \checkmark \\
+YelpChi & 12.57 & 32 & Class B & H2GCN & \checkmark \\
+IEEE-CIS & 11.25 & 133 & Class B & H2GCN & \checkmark \\
+\midrule
+\multicolumn{5}{l}{\textbf{Leave-One-Out Accuracy}} & \textbf{100\%} \\
+\bottomrule
+\end{tabular}
+\vspace{1mm}
+\begin{tabular}{l}
+\small Class A: Mean-aggregation (GCN, GAT, NAA) \\
+\small Class B: Sampling/Concatenation (GraphSAGE, H2GCN) \\
+\end{tabular}
+\end{table}

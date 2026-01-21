@@ -1,0 +1,25 @@
+
+\begin{table}[t]
+\centering
+\caption{Feature Degradation: Budget Constraint Validation}
+\label{tab:feature_degradation}
+\small
+\begin{tabular}{ccccc}
+\toprule
+\textbf{Noise} & \textbf{MLP} & \textbf{GCN Adv.} & \textbf{Budget} & \textbf{Valid} \\
+\midrule
+0.0 & 0.757 & 12.6\% & 24.3\% & \checkmark \\
+0.1 & 0.754 & 12.7\% & 24.6\% & \checkmark \\
+0.2 & 0.744 & 13.7\% & 25.6\% & \checkmark \\
+0.3 & 0.737 & 14.2\% & 26.3\% & \checkmark \\
+0.4 & 0.713 & 16.6\% & 28.7\% & \checkmark \\
+0.5 & 0.663 & 21.1\% & 33.7\% & \checkmark \\
+0.6 & 0.604 & 26.4\% & 39.6\% & \checkmark \\
+0.7 & 0.475 & 38.8\% & 52.5\% & \checkmark \\
+0.8 & 0.338 & 50.9\% & 66.2\% & \checkmark \\
+
+\midrule
+\multicolumn{5}{l}{\textit{Budget = (1 - MLP accuracy), GCN Adv. must $\leq$ Budget}} \\
+\bottomrule
+\end{tabular}
+\end{table}

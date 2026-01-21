@@ -1,0 +1,27 @@
+{
+  "correlation": {
+    "pearson_r": 0.9291,
+    "pearson_p": 2.92e-04,
+    "spearman_rho": 0.9664,
+    "spearman_p": 2.21e-05,
+    "slope": 23.44,
+    "intercept": -15.67,
+    "r_squared": 0.8632,
+    "n_samples": 9
+  },
+  "trust_region": {
+    "spi_threshold": 0.67,
+    "uncertainty_zone_h": [
+      0.3,
+      0.7
+    ],
+    "trust_zone_low": [
+      0,
+      0.3
+    ],
+    "trust_zone_high": [
+      0.7,
+      1.0
+    ]
+  }
+}

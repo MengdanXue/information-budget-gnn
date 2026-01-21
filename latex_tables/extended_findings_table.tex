@@ -1,0 +1,34 @@
+% Key Findings from Extended Baselines
+% Summary of insights from BernNet, JacobiNet, LINKX comparison
+
+\begin{table}[t]
+\centering
+\caption{Key Findings from Extended Baseline Comparison}
+\label{tab:extended_findings}
+\small
+\begin{tabular}{p{3cm}p{9cm}}
+\toprule
+\textbf{Finding} & \textbf{Evidence \& Implication} \\
+\midrule
+\textbf{LINKX excels on heterophilic graphs} &
+Best on 4/5 heterophilic datasets (Texas, Cornell, Wisconsin, Actor).
+Separating feature/structure processing avoids harmful aggregation. \\
+\midrule
+\textbf{Spectral methods don't outperform on low-h} &
+BernNet/JacobiNet: 44-57\% on Texas vs LINKX 71\%.
+Polynomial filters cannot recover from structure-feature misalignment. \\
+\midrule
+\textbf{Spectral methods have high overhead} &
+3-40$\times$ slower inference than message-passing GNNs.
+K=10 polynomial terms require K forward passes through Laplacian. \\
+\midrule
+\textbf{SAGE remains strong baseline} &
+Best or tied-best on 6/11 datasets including both homo/heterophilic.
+Concat aggregation preserves original features. \\
+\midrule
+\textbf{MLP competitive on extreme cases} &
+Best on Roman-empire (h=0.05) and comparable on Questions (h=0.84, MLP=97\%).
+When structure is uninformative or features sufficient, MLP wins. \\
+\bottomrule
+\end{tabular}
+\end{table}

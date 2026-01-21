@@ -1,0 +1,27 @@
+% Hyperparameter Sensitivity Analysis Table
+% Shows SPI prediction robustness across hyperparameter variations
+
+\begin{table}[t]
+\centering
+\caption{Hyperparameter Sensitivity Analysis: SPI Prediction Robustness}
+\label{tab:hyperparameter_sensitivity}
+\small
+\begin{tabular}{l|c|cccc|c}
+\toprule
+\textbf{Dataset} & \textbf{h} & \textbf{LR} & \textbf{Hidden} & \textbf{Layers} & \textbf{Dropout} & \textbf{Consistency} \\
+\midrule
+Cora (high-h) & 0.81 & 3/3 & 4/4 & 3/3 & 3/3 & 100.0\% \\
+CiteSeer (mid-h) & 0.74 & 3/3 & 4/4 & 3/3 & 3/3 & 100.0\% \\
+Texas (low-h) & 0.11 & 2/3 & 3/4 & 2/3 & 2/3 & 69.2\% \\
+\midrule
+\multicolumn{6}{r|}{\textbf{Overall SPI Consistency:}} & \textbf{89.7\%} \\
+\bottomrule
+\end{tabular}
+\vspace{1mm}
+
+\footnotesize
+\textit{Note:} Each cell shows (SPI-consistent outcomes / total trials).
+SPI prediction is consistent when actual winner matches SPI prediction or is a tie.
+Parameters tested: LR $\in \{0.001, 0.01, 0.1\}$, Hidden $\in \{32, 64, 128, 256\}$,
+Layers $\in \{2, 3, 4\}$, Dropout $\in \{0.3, 0.5, 0.7\}$.
+\end{table}

@@ -1,0 +1,19 @@
+
+\begin{table}[t]
+\centering
+\caption{Edge Shuffle Experiment: Causal Evidence for Structure}
+\label{tab:edge_shuffle}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Dataset} & \textbf{h$_{\text{orig}}$} & \textbf{h$_{\text{shuf}}$} & \textbf{GCN$_{\text{orig}}$} & \textbf{GCN$_{\text{shuf}}$} & \textbf{MLP} & \textbf{$\Delta$Adv} \\
+\midrule
+Cora & 0.81 & 0.17 & 0.883 & 0.409 & 0.757 & +47.4\% \\
+CiteSeer & 0.74 & 0.19 & 0.756 & 0.405 & 0.729 & +35.1\% \\
+PubMed & 0.80 & 0.37 & 0.875 & 0.701 & 0.874 & +17.4\% \\
+
+\midrule
+\multicolumn{7}{l}{\textit{Structure contribution = Original GCN adv. $-$ Shuffled GCN adv.}} \\
+\bottomrule
+\end{tabular}
+\end{table}

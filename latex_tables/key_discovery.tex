@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\caption{Key Discovery: The $\delta_{\text{agg}} > 10$ Threshold}
+\label{tab:key_discovery}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Dataset} & $\delta_{\text{agg}}$ & \textbf{H2GCN - GCN} & \textbf{Winner} \\
+\midrule
+\multicolumn{4}{l}{\textit{Low dilution ($\delta_{\text{agg}} < 10$):}} \\
+Elliptic & 0.94 & NAA wins & Class A \\
+Amazon & 5.0 & NAA wins & Class A \\
+\midrule
+\multicolumn{4}{l}{\textit{High dilution ($\delta_{\text{agg}} > 10$):}} \\
+YelpChi & 12.57 & +7.2\% AUC & Class B \\
+IEEE-CIS & 11.25 & +7.2\% AUC & Class B \\
+\bottomrule
+\end{tabular}
+\end{table}
