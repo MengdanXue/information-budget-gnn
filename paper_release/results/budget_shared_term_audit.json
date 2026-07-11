@@ -1,0 +1,35 @@
+{
+  "source": "results/external_validation_results.json",
+  "prediction_target": "best candidate GNN accuracy minus MLP accuracy",
+  "datasets": [
+    "Cora",
+    "CiteSeer",
+    "PubMed",
+    "Coauthor-CS",
+    "Amazon-Computers",
+    "Amazon-Photo",
+    "Actor",
+    "Wikipedia-chameleon",
+    "Wikipedia-squirrel"
+  ],
+  "n_datasets": 9,
+  "observed_pearson_r": -0.2548151011197572,
+  "observed_r_squared": 0.06493073575867209,
+  "bootstrap_95_ci": [
+    -0.7429452940512027,
+    0.5225163220460046
+  ],
+  "shared_term_null": {
+    "method": "permute best-GNN accuracies while retaining the shared -MLP term",
+    "permutations": 10000,
+    "mean_r": 0.6686756869194517,
+    "median_r": 0.6859682152142902,
+    "95_percent_interval": [
+      0.3273420466363938,
+      0.896739008606282
+    ],
+    "one_sided_empirical_p": 1.0
+  },
+  "interpretation": "The raw correlation is not treated as independent predictive evidence if it is typical under the shared-term permutation null.",
+  "random_seed": 20260711
+}
