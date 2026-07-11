@@ -1,0 +1,1444 @@
+{
+  "schema_version": "1.0",
+  "experiment": "dual_heterophily_types",
+  "protocol": {
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "paired_splits": true,
+    "metric": "test_accuracy"
+  },
+  "description": "Validation of Type A (Feature-Similar) vs Type B (Feature-Orthogonal) Heterophily",
+  "results": [
+    {
+      "dataset": "Texas",
+      "heterophily_type": "Type A",
+      "n_nodes": 183,
+      "n_edges": 162,
+      "n_classes": 5,
+      "homophily_1hop": 0.08710801601409912,
+      "homophily_2hop": 0.5711045192811027,
+      "recovery_ratio": 6.5562797250331695,
+      "neighbor_sim_mean": 0.34839388728141785,
+      "neighbor_sim_std": 0.08119280636310577,
+      "opposite_frac": 0.0,
+      "orthogonal_frac": 0.003816793893129771,
+      "similar_frac": 0.9961832061068703,
+      "mlp_acc": 0.8052631616592407,
+      "gcn_acc": 0.5631578922271728,
+      "sage_acc": 0.7973684310913086,
+      "h2gcn_acc": 0.868421059846878,
+      "linkx_acc": 0.8263157904148102,
+      "best_model": "H2GCN",
+      "h2gcn_vs_mlp": 0.06315789818763728,
+      "linkx_vs_mlp": 0.021052628755569458,
+      "hypothesis_supported": true,
+      "per_seed_results": {
+        "MLP": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.8421052694320679
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.8157894611358643
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.7105262875556946
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.7631579041481018
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.7894737124443054
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.8421052694320679
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.8684210777282715
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.8421052694320679
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.8421052694320679
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.7368420958518982
+          }
+        ],
+        "GCN": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.5
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.5263158082962036
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.6052631735801697
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.6052631735801697
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.5526315569877625
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.5789473652839661
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.5526315569877625
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.6315789222717285
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.5
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.5789473652839661
+          }
+        ],
+        "GraphSAGE": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.6842105388641357
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.8421052694320679
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8157894611358643
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.7894737124443054
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.8684210777282715
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.7894737124443054
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.7631579041481018
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.8684210777282715
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.7368420958518982
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.8157894611358643
+          }
+        ],
+        "H2GCN": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.7631579041481018
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.9210526347160339
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8157894611358643
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.9473684430122375
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.8684210777282715
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.8947368264198303
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.8157894611358643
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.9473684430122375
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.8421052694320679
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.8684210777282715
+          }
+        ],
+        "LINKX": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.6842105388641357
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.8421052694320679
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8421052694320679
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.7631579041481018
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.8947368264198303
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.8157894611358643
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.8157894611358643
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.9210526347160339
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.8684210777282715
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.8157894611358643
+          }
+        ]
+      }
+    },
+    {
+      "dataset": "Wisconsin",
+      "heterophily_type": "Type A",
+      "n_nodes": 251,
+      "n_edges": 257,
+      "n_classes": 5,
+      "homophily_1hop": 0.19213974475860596,
+      "homophily_2hop": 0.4248685658393447,
+      "recovery_ratio": 2.2112476852362155,
+      "neighbor_sim_mean": 0.33464983105659485,
+      "neighbor_sim_std": 0.07647791504859924,
+      "opposite_frac": 0.0,
+      "orthogonal_frac": 0.010810810810810811,
+      "similar_frac": 0.9891891891891892,
+      "mlp_acc": 0.8686274588108063,
+      "gcn_acc": 0.5235294282436371,
+      "sage_acc": 0.8294117748737335,
+      "h2gcn_acc": 0.8607843220233917,
+      "linkx_acc": 0.8666666746139526,
+      "best_model": "MLP",
+      "h2gcn_vs_mlp": -0.00784313678741455,
+      "linkx_vs_mlp": -0.0019607841968536377,
+      "hypothesis_supported": false,
+      "per_seed_results": {
+        "MLP": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.8039215803146362
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.8627451062202454
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.843137264251709
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.8823529481887817
+          }
+        ],
+        "GCN": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.529411792755127
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.4901960790157318
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.6274510025978088
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.529411792755127
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.529411792755127
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.4117647111415863
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.5490196347236633
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.4901960790157318
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.5882353186607361
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.4901960790157318
+          }
+        ],
+        "GraphSAGE": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.9019607901573181
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.7254902124404907
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8039215803146362
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.843137264251709
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.8627451062202454
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.8627451062202454
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.7647058963775635
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.7647058963775635
+          }
+        ],
+        "H2GCN": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.7647058963775635
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.843137264251709
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.9019607901573181
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.8627451062202454
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.9215686321258545
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.8039215803146362
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.8627451062202454
+          }
+        ],
+        "LINKX": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.8039215803146362
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.8627451062202454
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.8823529481887817
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.9215686321258545
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.8235294222831726
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.843137264251709
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.8823529481887817
+          }
+        ]
+      }
+    },
+    {
+      "dataset": "Cornell",
+      "heterophily_type": "Type A",
+      "n_nodes": 183,
+      "n_edges": 149,
+      "n_classes": 5,
+      "homophily_1hop": 0.12746858596801758,
+      "homophily_2hop": 0.39152435167615435,
+      "recovery_ratio": 3.0715360078944434,
+      "neighbor_sim_mean": 0.32592692971229553,
+      "neighbor_sim_std": 0.08716157078742981,
+      "opposite_frac": 0.0,
+      "orthogonal_frac": 0.012345679012345678,
+      "similar_frac": 0.9876543209876543,
+      "mlp_acc": 0.7763157904148101,
+      "gcn_acc": 0.5105263233184815,
+      "sage_acc": 0.7052631556987763,
+      "h2gcn_acc": 0.7894736945629119,
+      "linkx_acc": 0.7815789520740509,
+      "best_model": "H2GCN",
+      "h2gcn_vs_mlp": 0.013157904148101807,
+      "linkx_vs_mlp": 0.005263161659240789,
+      "hypothesis_supported": true,
+      "per_seed_results": {
+        "MLP": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.8157894611358643
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.7631579041481018
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8157894611358643
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.7368420958518982
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.6578947305679321
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.7894737124443054
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.7368420958518982
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.8157894611358643
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.8684210777282715
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.7631579041481018
+          }
+        ],
+        "GCN": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.5789473652839661
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.5789473652839661
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.5263158082962036
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.5263158082962036
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.5
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.5789473652839661
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.3947368562221527
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.5263158082962036
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.5
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.3947368562221527
+          }
+        ],
+        "GraphSAGE": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.5
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.7105262875556946
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8157894611358643
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.7105262875556946
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.7631579041481018
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.6578947305679321
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.6578947305679321
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.7631579041481018
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.7894737124443054
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.6842105388641357
+          }
+        ],
+        "H2GCN": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.7894737124443054
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.8421052694320679
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8684210777282715
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.6842105388641357
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.7631579041481018
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.8421052694320679
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.7631579041481018
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.7894737124443054
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.8947368264198303
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.6578947305679321
+          }
+        ],
+        "LINKX": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.7894737124443054
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.7894737124443054
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8157894611358643
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.7631579041481018
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.8157894611358643
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.7368420958518982
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.7105262875556946
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.7894737124443054
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.8157894611358643
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.7894737124443054
+          }
+        ]
+      }
+    },
+    {
+      "dataset": "chameleon",
+      "heterophily_type": "Type B",
+      "n_nodes": 2277,
+      "n_edges": 18050,
+      "n_classes": 5,
+      "homophily_1hop": 0.23053891956806183,
+      "homophily_2hop": 0.23001553465254287,
+      "recovery_ratio": 0.9977297329383708,
+      "neighbor_sim_mean": 0.013632107526063919,
+      "neighbor_sim_std": 0.04305730760097504,
+      "opposite_frac": 0.0,
+      "orthogonal_frac": 0.9671,
+      "similar_frac": 0.0329,
+      "mlp_acc": 0.5142543822526932,
+      "gcn_acc": 0.6383771896362305,
+      "sage_acc": 0.6524122834205628,
+      "h2gcn_acc": 0.654824560880661,
+      "linkx_acc": 0.5760964751243591,
+      "best_model": "H2GCN",
+      "h2gcn_vs_mlp": 0.14057017862796783,
+      "linkx_vs_mlp": 0.06184209287166598,
+      "hypothesis_supported": false,
+      "per_seed_results": {
+        "MLP": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.5482456088066101
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.47587719559669495
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.4934210479259491
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.5175438523292542
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.48903509974479675
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.5350877046585083
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.5241228342056274
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.5065789222717285
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.5350877046585083
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.5175438523292542
+          }
+        ],
+        "GCN": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.6644737124443054
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.6162280440330505
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.6513158082962036
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.6162280440330505
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.6315789222717285
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.6293859481811523
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.625
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.6754385828971863
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.6864035129547119
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.5877193212509155
+          }
+        ],
+        "GraphSAGE": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.6973684430122375
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.6425438523292542
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.6118420958518982
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.6469298005104065
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.6469298005104065
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.6732456088066101
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.6337719559669495
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.6688596606254578
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.6644737124443054
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.6381579041481018
+          }
+        ],
+        "H2GCN": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.6907894611358643
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.6666666865348816
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.6271929740905762
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.6381579041481018
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.6535087823867798
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.6293859481811523
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.6271929740905762
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.6732456088066101
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.6995614171028137
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.6425438523292542
+          }
+        ],
+        "LINKX": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.5921052694320679
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.5855262875556946
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.5811403393745422
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.5811403393745422
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.5701754093170166
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.5504385828971863
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.5657894611358643
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.5855262875556946
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.5657894611358643
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.5833333134651184
+          }
+        ]
+      }
+    },
+    {
+      "dataset": "squirrel",
+      "heterophily_type": "Type B",
+      "n_nodes": 5201,
+      "n_edges": 108536,
+      "n_classes": 5,
+      "homophily_1hop": 0.2224086970090866,
+      "homophily_2hop": 0.19650509487130383,
+      "recovery_ratio": 0.8835315233346092,
+      "neighbor_sim_mean": 0.015360940247774124,
+      "neighbor_sim_std": 0.04387737065553665,
+      "opposite_frac": 0.0,
+      "orthogonal_frac": 0.9481,
+      "similar_frac": 0.0519,
+      "mlp_acc": 0.3380403459072113,
+      "gcn_acc": 0.475408262014389,
+      "sage_acc": 0.4559077799320221,
+      "h2gcn_acc": 0.4381364077329636,
+      "linkx_acc": 0.37079731523990633,
+      "best_model": "GCN",
+      "h2gcn_vs_mlp": 0.10009606182575226,
+      "linkx_vs_mlp": 0.03275696933269501,
+      "hypothesis_supported": false,
+      "per_seed_results": {
+        "MLP": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.3381364047527313
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.3285302519798279
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.3525456190109253
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.34870317578315735
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.3218059539794922
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.31796351075172424
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.32949087023735046
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.34870317578315735
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.34966379404067993
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.344860702753067
+          }
+        ],
+        "GCN": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.49663785099983215
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.47742554545402527
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.48414984345436096
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.5120077133178711
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.47838616371154785
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.4495677351951599
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.4380403459072113
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.5177713632583618
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.44860711693763733
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.4514889419078827
+          }
+        ],
+        "GraphSAGE": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.4370797276496887
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.45437079668045044
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.47838616371154785
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.4755043089389801
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.444764643907547
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.44860711693763733
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.4438040256500244
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.4745437204837799
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.4562920331954956
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.4457252621650696
+          }
+        ],
+        "H2GCN": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.44668588042259216
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.46589818596839905
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.43419787287712097
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.44092220067977905
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.4572526514530182
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.42939481139183044
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.4514889419078827
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.46109509468078613
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.3957732915878296
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.39865514636039734
+          }
+        ],
+        "LINKX": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.3746397793292999
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.3563880920410156
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.36695486307144165
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.37944284081459045
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.3583093285560608
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.35446685552597046
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.36695486307144165
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.3832853138446808
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.38520652055740356
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.3823246955871582
+          }
+        ]
+      }
+    },
+    {
+      "dataset": "Cora",
+      "heterophily_type": "Type B",
+      "n_nodes": 2708,
+      "n_edges": 5278,
+      "n_classes": 7,
+      "homophily_1hop": 0.8099659085273743,
+      "homophily_2hop": 0.7139427460037683,
+      "recovery_ratio": 0.8814478961241852,
+      "neighbor_sim_mean": 0.13293272256851196,
+      "neighbor_sim_std": 0.09717541188001633,
+      "opposite_frac": 0.0,
+      "orthogonal_frac": 0.41774675972083747,
+      "similar_frac": 0.5822532402791625,
+      "mlp_acc": 0.7600368320941925,
+      "gcn_acc": 0.8815837979316712,
+      "sage_acc": 0.8790055215358734,
+      "h2gcn_acc": 0.8767955839633942,
+      "linkx_acc": 0.8528545200824738,
+      "best_model": "GCN",
+      "h2gcn_vs_mlp": 0.1167587518692017,
+      "linkx_vs_mlp": 0.09281768798828127,
+      "hypothesis_supported": false,
+      "per_seed_results": {
+        "MLP": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.7200736403465271
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.7403314709663391
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.7734806537628174
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.7440147399902344
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.7495396137237549
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.7624309659004211
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.7734806537628174
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.7679557800292969
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.7790055274963379
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.7900552749633789
+          }
+        ],
+        "GCN": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.880294680595398
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.8876611590385437
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8821362853050232
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.8692449331283569
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.8950276374816895
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.8747698068618774
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.8784530162811279
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.8710865378379822
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.9042357206344604
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.8729282021522522
+          }
+        ],
+        "GraphSAGE": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.8729282021522522
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.8858194947242737
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.889502763748169
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.8600368499755859
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.8968692421913147
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.8637200593948364
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.8618784546852112
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.8766114115715027
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.8987108469009399
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.8839778900146484
+          }
+        ],
+        "H2GCN": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.8729282021522522
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.8766114115715027
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8839778900146484
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.8489871025085449
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.8968692421913147
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.8692449331283569
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.8729282021522522
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.8766114115715027
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.8876611590385437
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.8821362853050232
+          }
+        ],
+        "LINKX": [
+          {
+            "seed": 0,
+            "test_accuracy": 0.8453038930892944
+          },
+          {
+            "seed": 1,
+            "test_accuracy": 0.8600368499755859
+          },
+          {
+            "seed": 2,
+            "test_accuracy": 0.8747698068618774
+          },
+          {
+            "seed": 3,
+            "test_accuracy": 0.8453038930892944
+          },
+          {
+            "seed": 4,
+            "test_accuracy": 0.8416206240653992
+          },
+          {
+            "seed": 5,
+            "test_accuracy": 0.8416206240653992
+          },
+          {
+            "seed": 6,
+            "test_accuracy": 0.8489871025085449
+          },
+          {
+            "seed": 7,
+            "test_accuracy": 0.8471454977989197
+          },
+          {
+            "seed": 8,
+            "test_accuracy": 0.8471454977989197
+          },
+          {
+            "seed": 9,
+            "test_accuracy": 0.8766114115715027
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total_datasets": 6,
+    "hypothesis_supported": 2,
+    "support_rate": 0.3333333333333333
+  }
+}
