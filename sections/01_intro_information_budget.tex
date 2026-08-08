@@ -6,33 +6,36 @@
 \section{Introduction}
 \label{sec:intro}
 
-Graph Neural Networks (GNNs) have achieved remarkable success in node classification by leveraging both node features and graph structure through message passing~\cite{kipf2017gcn,velivckovic2018gat,hamilton2017graphsage}. However, their performance varies dramatically across datasets: on some graphs, GNNs outperform feature-only methods (MLPs) by over 20\%; on others, they \textit{underperform} by similar margins. This inconsistency raises a fundamental question: \textbf{what determines whether graph structure helps or hurts?}
+\IEEEPARstart{G}{raph} Neural Networks (GNNs) have achieved remarkable success in node classification by leveraging both node features and graph structure through message passing~\cite{kipf2017gcn,velivckovic2018gat,hamilton2017graphsage}. However, their performance varies dramatically across datasets: on some graphs, GNNs outperform feature-only methods (MLPs) by over 20\%; on others, they \textit{underperform} by similar margins. This inconsistency raises a fundamental question: \textbf{what determines whether graph structure helps or hurts?}
 
 The conventional explanation attributes GNN success to \textit{homophily}---the tendency of connected nodes to share labels. Under this view, high homophily enables effective label propagation, while low homophily (heterophily) causes aggregation to mix signals from different classes~\cite{zhu2020beyond}. However, this explanation is incomplete: datasets with identical homophily can show opposite GNN outcomes.
 
-\textbf{Our Key Insight.} We discover that the critical factor is not homophily alone, but \textbf{how much room exists for improvement}. Consider two datasets with the same homophily $h = 0.81$:
+\textbf{Our Key Insight.} Homophily alone is insufficient: aggregation changes class discriminability through the joint effect of edge correlation and neighborhood size, while architecture determines how much of the original feature signal is retained. Consider two datasets with the same homophily $h = 0.81$:
 \begin{itemize}
     \item \textbf{Cora}: MLP achieves 75.1\%, leaving 24.9\% ``room'' for GNN improvement. GCN gains \textbf{+12.7\%}.
     \item \textbf{Coauthor-CS}: MLP achieves 94.4\%, leaving only 5.6\% ``room.'' GCN gains \textbf{-0.7\%}.
 \end{itemize}
 Same homophily, opposite outcomes. The difference? \textit{Feature sufficiency}---when features alone nearly solve the task, there is no budget for structure to help.
+\IEEEpubidadjcol
 
 \textbf{The Information Budget Principle.} We formalize this insight as:
 \begin{equation}
     \text{GNN Gain} \leq \underbrace{(1 - \text{Acc}_{\text{MLP}})}_{\text{Information Budget}}
 \end{equation}
-The Information Budget $\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$ represents the maximum possible improvement from any additional information source, including graph structure. This bound is tight: GNN can only improve upon what features cannot explain.
+The Information Budget $\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$ represents the arithmetic headroom for improvement under the accuracy metric. It is a ceiling, not by itself a model of how much graph structure will help.
+
+\textbf{Empirical Role.} The ceiling is arithmetically immediate, so its usefulness must be assessed through held-out model-selection performance rather than violation counts or raw correlations that share the MLP term. We therefore report: (1) leave-one-dataset-out selective accuracy of 12/12 at 75\% coverage, (2) degree-preserving edge interventions showing 18--47 point changes in GNN advantage, and (3) external validation on 9 datasets (7/9 correct). A shared-term audit is reported in Section~\ref{sec:budget}.
 
 \textbf{Aggregation Can Damage.} Beyond the budget constraint, we discover that aggregation can actively \textit{harm} performance. We introduce the \textbf{Aggregation Damage Ratio (ADR)}:
 \begin{equation}
-    \text{ADR} = 1 - \frac{\text{Acc}_{\text{GNN}}}{\text{Acc}_{\text{MLP}}}
+    \text{ADR} = \text{Acc}_{\text{MLP}} - \text{Acc}_{\text{GNN}}
 \end{equation}
 When ADR $> 0$, aggregation destroys information. Our experiments reveal that GCN exhibits ADR $\approx 0.19$ at mid-homophily ($h \approx 0.5$), meaning it loses nearly 19\% of the information that MLP captures. Crucially, \textbf{concatenation-based architectures} (GraphSAGE) reduce ADR to near zero, explaining their robustness.
 
-\textbf{Dual Heterophily Types.} We further discover that heterophilic graphs ($h < 0.3$) are not monolithic. They exhibit two fundamentally different patterns:
+\textbf{Two-Hop Recovery Patterns.} Heterophilic graphs ($h < 0.3$) are not monolithic. We distinguish two descriptive patterns:
 \begin{itemize}
-    \item \textbf{Type A (Recoverable)}: Neighbors have similar features despite different labels. 2-hop homophily is $>1.5\times$ higher than 1-hop. H2GCN and LINKX are effective. Examples: Texas, Wisconsin, Cornell.
-    \item \textbf{Type B (Irrecoverable)}: Neighbors have orthogonal features. No multi-hop recovery. MLP is optimal. Examples: Chameleon, Squirrel (when features are weak).
+    \item \textbf{Strong recovery}: Two-hop homophily is $>1.5\times$ one-hop homophily, as on Texas, Wisconsin, and Cornell. This indicates a longer-range label pattern but does not guarantee that H2GCN or LINKX beats MLP.
+    \item \textbf{Absent two-hop recovery}: The measured two-hop label ratio does not recover. This does not imply that structure is useless or that MLP must be optimal; H2GCN wins on Chameleon and GCN wins on Squirrel in the audited results.
 \end{itemize}
 
 \textbf{Unified Utility Formula.} Combining these insights, we propose:
@@ -46,22 +49,20 @@ where $S(h)$ is structure signal strength and $D(h)$ is aggregation damage. This
     \item $h$: Edge homophily, $h = |\{(u,v) \in E : y_u = y_v\}| / |E|$
     \item $\rho = 2h - 1$: Edge correlation coefficient, $\rho \in [-1, 1]$
     \item $k$: Average node degree, $k = 2|E|/|V|$
-    \item $\kappa = \rho^2 k$: \textbf{SNR ratio}, the key parameter controlling aggregation benefit
+    \item $\kappa = \rho^2d/[1+(1-\rho^2)s]$: exact fixed-degree discriminability ratio
     \item $\mathcal{D}(Z)$: Discriminability of representation $Z$ (squared Mahalanobis distance)
     \item $\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$: Information Budget
 \end{itemize}
-The central result is that aggregation is beneficial when $\kappa > 1$, harmful when $\kappa < 1$. A complete notation table is provided in Section~\ref{sec:snr}.
+The leading-order analysis predicts a transition near $\kappa = 1$; finite-graph and model effects can shift this boundary. A complete notation table is provided in Section~\ref{sec:snr}.
 
-\textbf{Contributions.} Our main contributions are:
+\textbf{Contributions.} After removing arithmetic ceilings and descriptive metrics as standalone claims, our contributions are:
 
 \begin{enumerate}
-    \item \textbf{The Conditional Enhancement Bound}: We establish that GNN improvement is upper-bounded by $(1 - \text{Acc}_{\text{MLP}})$ under fair comparison conditions, validated on 9 noise levels (9/9 within bound), 19 benchmark datasets (19/19), and 4 OGB datasets at million-node scale. This explains why same-homophily datasets show opposite GNN outcomes.
+    \item \textbf{Scoped Aggregation SNR Analysis}: Under an explicit fixed-degree conditional-neighbor model, we derive the exact one-hop ratio $\kappa=\rho^2d/[1+(1-\rho^2)s]$ and quantify when it reduces to $\rho^2d$. We use the Kesten--Stigum correspondence only as context, not as a new threshold theorem.
 
-    \item \textbf{Aggregation Damage Ratio (ADR)}: We quantify how aggregation destroys information, showing ADR $\approx 0.19$ for GCN at mid-homophily. We prove via the Data Processing Inequality that concatenation architectures (GraphSAGE) cannot lose original feature information, explaining their substantially lower ADR (order-of-magnitude reduction in controlled settings, $\sim$20$\times$ on real data) and empirical robustness.
+    \item \textbf{Mechanism-Based Diagnostics}: We combine measured aggregation damage with two-hop recovery to distinguish feature destruction from recoverable heterophily. ADR and the recovery ratio are treated as diagnostics, not independent theoretical innovations or universal architecture selectors.
 
-    \item \textbf{Dual Heterophily Types}: We identify Type A (recoverable via 2-hop, H2GCN effective) vs Type B (irrecoverable, MLP optimal) heterophily, resolving the Chameleon-Squirrel paradox. The 2-hop recovery ratio $R > 1.5$ distinguishes the two types.
-
-    \item \textbf{Unified Decision Framework}: We develop an actionable algorithm combining Budget, ADR, and heterophily type, achieving 88.9\% prediction accuracy on controlled experiments and 77.8\% on external validation (7/9 datasets).
+    \item \textbf{Audited Diagnostic Evaluation}: We evaluate the combined diagnostic rule on controlled and external configurations, explicitly separating full-coverage accuracy, selective LODO accuracy, and failure cases. Claims based on legacy aggregate files remain descriptive until paired per-seed artifacts are available.
 \end{enumerate}
 
-The rest of this paper is organized as follows. Section~\ref{sec:related} reviews related work. Section~\ref{sec:observation} presents motivating observations including the U-shape pattern. Section~\ref{sec:snr} develops our SNR theoretical framework. Section~\ref{sec:budget} formalizes the Information Budget theory. Section~\ref{sec:adr} introduces ADR and analyzes aggregation mechanisms. Section~\ref{sec:heterophily} presents the Dual Heterophily framework. Section~\ref{sec:experiments} provides comprehensive validation. Section~\ref{sec:discussion} discusses connections and limitations. Section~\ref{sec:conclusion} concludes.
+The rest of this paper reviews related work, presents the motivating observations and SNR analysis, studies accuracy headroom and aggregation damage, evaluates two-hop recovery as a heterophily diagnostic, and concludes with limitations.

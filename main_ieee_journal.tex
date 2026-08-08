@@ -1,0 +1,93 @@
+% ============================================================
+% Main Document: The Information Budget of Graph Neural Networks
+% Target: IEEE Transactions on Neural Networks and Learning Systems
+% Template: bare_jrnl_new_sample4.tex
+% ============================================================
+
+\documentclass[lettersize,journal]{IEEEtran}
+\usepackage{amsmath,amsfonts}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{array}
+\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+% \usepackage{stfloats}  % Optional: for bottom floats (not installed)
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\graphicspath{{code/figures/}{figures/}}
+\usepackage{cite}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{balance}
+
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore Cyber-net-ics Lo-mo-no-sov}
+
+% Define theorem-like environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{corollary}{Corollary}
+\newtheorem{observation}{Observation}
+\newtheorem{justification}{Justification}
+\newtheorem{lemma}{Lemma}
+\newtheorem{assumption}{Assumption}
+\newtheorem{example}{Example}
+
+\begin{document}
+
+\title{When Does Graph Aggregation Help? SNR Dynamics, Aggregation Damage, and Heterophily Diagnostics}
+
+% Author information omitted for anonymous review.
+
+% The paper headers
+\markboth{IEEE Transactions on Neural Networks and Learning Systems}%
+{Anonymous Submission: SNR Dynamics and Aggregation Damage in GNNs}
+
+% \IEEEpubid{0000--0000/00\$00.00~\copyright~2025 IEEE}
+% Note: IEEEpubid removed for submission - will be added by IEEE after acceptance
+
+\maketitle
+
+\begin{abstract}
+Graph Neural Networks (GNNs) can either improve upon or underperform feature-only models, even on graphs with similar homophily. We study this variation through the signal-to-noise ratio (SNR) dynamics of aggregation, measured performance damage relative to an MLP, and two-hop recovery patterns in heterophilic graphs.
+
+Our theoretical component is an exact fixed-degree calculation for one-hop mean aggregation. With edge correlation $\rho$, degree $d$, and feature strength $s=\mu^\top\Sigma^{-1}\mu$, the squared-Mahalanobis discriminability ratio is $\kappa=\rho^2d/[1+(1-\rho^2)s]$. The denominator retains the label-mixture covariance omitted by the common noise-dominated approximation $\rho^2d$. The transition therefore depends jointly on topology and feature strength. We relate the signal-squared-times-branching-factor form to classical broadcasting theory only as context, not as a new Kesten--Stigum threshold.
+
+We complement the approximation with the \textbf{Aggregation Damage Ratio} (ADR), the accuracy loss relative to a feature-only baseline. In a controlled mid-homophily setting, the recorded loss is 18.9 percentage points for GCN and 0.1 points for GraphSAGE, supporting the role of feature-preserving concatenation without claiming a universal architecture ranking. For heterophilic graphs, we use the two-hop recovery ratio as a structural diagnostic; audited results show that it identifies a recovery mechanism but does not uniquely determine the best model. A frozen decision rule obtains 32/36 accuracy on controlled CSBM configurations and 7/9 on external datasets, while leave-one-dataset-out evaluation obtains 12/12 selective accuracy at 75\% coverage. We retain $(1-\mathrm{Acc}_{\mathrm{MLP}})$ only as an arithmetic accuracy-headroom check, not as a theoretical contribution or independent predictor.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Graph Neural Networks, Signal-to-Noise Ratio, Aggregation Damage, Heterophily, Message Passing
+\end{IEEEkeywords}
+
+% Sections
+\input{sections/01_intro_information_budget}
+\input{sections/02_related_work_information_budget}
+\input{sections/03_motivating_observations_medium}
+\input{sections/04_snr_theory_medium}
+\input{sections/04_information_budget_medium}
+\input{sections/05_aggregation_damage_medium}
+\input{sections/06_dual_heterophily_medium}
+\input{sections/07_experiments_medium}
+\input{sections/08_discussion_medium}
+\input{sections/09_conclusion_medium}
+
+\section*{Acknowledgments}
+The authors would like to thank the anonymous reviewers for their valuable comments and suggestions.
+
+% References
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+% Author biographies omitted for anonymous review.
+
+\vfill
+
+\end{document}

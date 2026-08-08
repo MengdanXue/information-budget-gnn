@@ -1,0 +1,170 @@
+% ============================================================
+% Section 7: Experiments (Medium length for TNNLS)
+% Target: ~3 pages
+% ============================================================
+
+\section{Experimental Validation}
+\label{sec:experiments}
+
+\subsection{Setup}
+
+\textbf{Datasets.} We evaluate across citation, co-authorship, Wikipedia, WebKB, and OGB graphs. Table~\ref{tab:budget_validation} reports the audited subset for which the current artifact contains directly traceable results:
+\begin{itemize}
+    \item \textit{Citation networks}: Cora, CiteSeer, PubMed (2.7K--20K nodes)
+    \item \textit{Co-authorship}: Coauthor-CS, Coauthor-Physics (18K--35K nodes)
+    \item \textit{Wikipedia}: Chameleon, Squirrel (2K--5K nodes)
+    \item \textit{WebKB}: Texas, Wisconsin, Cornell (183--252 nodes)
+    \item \textit{Large-scale OGB}: ogbn-arxiv (169K nodes)
+\end{itemize}
+
+\textbf{Models.} MLP (feature-only baseline), GCN \cite{kipf2017gcn}, GAT \cite{velivckovic2018gat}, GraphSAGE \cite{hamilton2017graphsage}, H2GCN \cite{zhu2020beyond}, LINKX \cite{lim2021large}, GPR-GNN \cite{chien2021gprgnn}.
+
+\textbf{Protocol.} Unless noted otherwise, benchmark experiments use 10 random seeds and 60/20/20 train/validation/test splits. The audited ogbn-arxiv result uses the official split and 3 seeds. Several legacy aggregate files do not retain paired per-seed outputs. We report inferential tests only when their underlying samples are present in the audited artifact; otherwise results are treated as descriptive point estimates.
+
+\subsection{Information Budget Validation}
+
+Our central claim is that GNN improvement over MLP is bounded by the Information Budget $\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$.
+
+\begin{table}[t]
+\centering
+\caption{Information Budget on the Audited Result Subset}
+\label{tab:budget_validation}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Dataset & MLP Acc & Budget & Best GNN Adv. & Within? \\
+\midrule
+\multicolumn{5}{l}{\textit{Citation Networks}} \\
+Cora & 75.7\% & 24.3\% & +12.7\% & $\checkmark$ \\
+CiteSeer & 72.9\% & 27.1\% & +2.8\% & $\checkmark$ \\
+PubMed & 87.4\% & 12.6\% & +1.6\% & $\checkmark$ \\
+\midrule
+\multicolumn{5}{l}{\textit{Co-authorship}} \\
+Coauthor-CS & 94.4\% & 5.6\% & +0.6\% & $\checkmark$ \\
+\midrule
+\multicolumn{5}{l}{\textit{Heterophilic}} \\
+Actor & 36.6\% & 63.4\% & $-1.7$\% & $\checkmark$ \\
+\midrule
+\multicolumn{5}{l}{\textit{Large-Scale OGB}} \\
+ogbn-arxiv & 55.7\% & 44.3\% & +0.8\% & $\checkmark$ \\
+\textbf{Audited subset} & & & & \textbf{6/6} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Result} (Table~\ref{tab:budget_validation}): Every result in the audited subset satisfies the arithmetic headroom bound. Because the bound follows from accuracy being at most one, its empirical value is assessed through prediction and calibration rather than the absence of violations alone.
+
+The previously generated Budget-correlation figure is omitted because it combines legacy experiment versions and displays the unreproduced $r=0.929$ statistic. A replacement should be generated only from the audited result manifest.
+
+\subsection{Structural Intervention: Edge Shuffle Experiment}
+
+To test whether performance depends on the observed topology, we randomize edges while preserving the degree distribution. This intervention disrupts several graph statistics simultaneously and is therefore evidence of structural dependence rather than a standalone causal identification result.
+
+\begin{table}[t]
+\centering
+\caption{Effect of Degree-Preserving Edge Shuffle}
+\label{tab:shuffle}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Dataset & $h$ & Original & Shuffled & Drop \\
+\midrule
+Cora & 0.81 & +12.6\% & $-34.8$\% & \textbf{47.4\%} \\
+CiteSeer & 0.74 & +2.8\% & $-32.3$\% & \textbf{35.1\%} \\
+PubMed & 0.80 & +0.1\% & $-17.4$\% & 17.5\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Result} (Table~\ref{tab:shuffle}): Randomizing edges reduces GNN advantage by 18--47 percentage points, showing that performance depends strongly on the observed topology.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.95\columnwidth]{edge_shuffle_effect}
+\caption{Edge-shuffle intervention. Degree-preserving randomization substantially reduces GCN advantage, providing evidence that the model uses information specific to the observed topology.}
+\label{fig:shuffle}
+\end{figure}
+
+\subsection{Framework Prediction Accuracy}
+
+\begin{table}[t]
+\centering
+\caption{Prediction Accuracy Across Validation Types}
+\label{tab:prediction}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Validation Type & Accuracy & 95\% CI \\
+\midrule
+CSBM synthetic (36 configs) & 88.9\% (32/36) & --- \\
+LODO selective accuracy & 100\% (12/12; 75\% coverage) & [73.5\%, 100\%] \\
+External held-out & 77.8\% (7/9) & [40.0\%, 97.2\%] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{LODO (Leave-One-Dataset-Out).} For each dataset, we train the prediction rule on the remaining datasets and test on the held-out one. The rule is correct on all 12 decisive cases and abstains on 4 of 16 cases, yielding 100\% selective accuracy at 75\% coverage (75\% if abstentions are counted as incorrect).
+
+\textbf{External Validation.} On 9 datasets not used in model development, our framework correctly predicts GNN vs.\ MLP winner in 7/9 cases (77.8\%).
+
+\subsection{Statistical Significance}
+
+\begin{table}[t]
+\centering
+\caption{Statistical Test Results}
+\label{tab:stats}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Comparison & Test & $p$-value \\
+\midrule
+Budget--best-GNN advantage & Pearson $r = -0.255$ & CI crosses zero \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key Findings}:
+\begin{itemize}
+    \item On the audited nine-dataset external set, Budget does not predict best-GNN advantage ($r=-0.255$, 95\% bootstrap CI $[-0.743,0.523]$). A shared-term permutation null yields mean $r=0.669$, confirming that raw correlations using $1-\text{Acc}_{\text{MLP}}$ require careful controls.
+    \item Legacy Wilcoxon, Friedman, and Mann--Whitney values are omitted because the current audited artifact does not retain the paired per-seed samples needed to reproduce those tests under a single protocol.
+\end{itemize}
+
+\subsection{Dual Heterophily Validation}
+
+\begin{table}[t]
+\centering
+\caption{2-Hop Recovery Distinguishes Heterophily Types}
+\label{tab:2hop_validation}
+\begin{tabular}{@{}lccccl@{}}
+\toprule
+Dataset & $h_1$ & $h_2$ & $R$ & Type & Best Model \\
+\midrule
+\input{tables/generated/dual_heterophily_rows}%
+\end{tabular}
+\end{table}
+
+\textbf{Strong recovery} (Texas, Wisconsin, Cornell): $R > 1.5$ identifies strong two-hop label recovery. Across 10 paired seeds, H2GCN improves over GCN on all three, but its H2GCN--MLP advantage is clear only on Texas.
+
+\textbf{Absent recovery} (Chameleon, Squirrel): $R \leq 1$ indicates no measured two-hop homophily recovery, yet H2GCN is strongest on Chameleon and GCN is strongest on Squirrel. This shows that $R$ alone is not a complete utility criterion.
+
+\subsection{Decision Algorithm}
+
+\begin{algorithm}[t]
+\caption{Diagnostic Workflow for Candidate Model Evaluation}
+\label{alg:decision}
+\begin{algorithmic}[1]
+\REQUIRE Graph $G$, features $X$, labels $Y$
+\STATE Train MLP; compute Budget $\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$
+\STATE Compute homophily $h$ and SNR ratio $\kappa = (2h-1)^2 k$
+\STATE Always retain MLP as the feature-only reference
+\IF{$h < 0.3$}
+    \STATE Compute 2-hop ratio $R = h_2/h_1$
+    \IF{$R > 1.5$}
+        \STATE Flag strong two-hop recovery; benchmark MLP and multi-hop models
+    \ELSE
+        \STATE Flag absent two-hop recovery; do not infer that structure is useless
+    \ENDIF
+\ENDIF
+\STATE Evaluate candidate graph models on identical splits and seeds
+\STATE Report paired differences and uncertainty; abstain from selection when evidence is inconclusive
+\end{algorithmic}
+\end{algorithm}
+
+Algorithm~\ref{alg:decision} summarizes the diagnostic measurements and candidate-evaluation protocol. The previously frozen binary GNN-versus-MLP rule attained 88.9\% accuracy on the controlled CSBM configurations and 77.8\% on the nine-dataset external set; these finite-sample results do not validate automatic architecture selection.

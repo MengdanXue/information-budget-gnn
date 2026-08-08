@@ -1,0 +1,29 @@
+% ============================================================
+% Section 9: Conclusion (Medium length for TNNLS)
+% Target: ~1 page
+% ============================================================
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have studied when graph aggregation helps or harms node classification through SNR dynamics, aggregation damage, and heterophily recovery diagnostics. The results form a scoped diagnostic framework rather than a universal model-selection theory.
+
+In the fixed-degree conditional-neighbor model, the exact ratio $\kappa=\rho^2d/[1+(1-\rho^2)s]$ identifies how edge correlation, degree, and feature strength jointly change one-hop Mahalanobis discriminability. This is a scoped mechanism calculation rather than a new broadcasting threshold or a guarantee for trained GNNs. ADR complements the calculation with an empirical measure of loss relative to feature-only prediction. The two-hop recovery ratio diagnoses one heterophily mechanism, but the audited failures show that it does not uniquely select a model family. Finally, $1-\mathrm{Acc}_{\mathrm{MLP}}$ is retained only as arithmetic accuracy headroom; the shared-term audit does not support treating its raw correlation as independent predictive evidence.
+
+\subsection{Theoretical Significance and Scope}
+
+The central theoretical contribution is the scoped SNR analysis, not a universal guarantee for trained GNNs. Finite graphs, learned transformations, dependent neighborhoods, and optimization can shift the predicted transition.
+
+\subsection{Limitations and Future Work}
+
+Our framework assumes: (1) binary or balanced multi-class problems, (2) homogeneous edge probabilities, (3) Gaussian or sub-Gaussian features. Extensions to heterogeneous graphs, imbalanced classes, and non-parametric feature distributions remain open.
+
+Future directions include: adaptive architectures that estimate $\kappa$ online, theoretical analysis of attention mechanisms, and extension to heterogeneous and temporal graphs.
+
+\subsection{Reproducibility}
+
+\balance
+
+An anonymized code, result, and supplementary-material repository is provided through the submission system. The public URL will be restored after anonymous review.
+
+The audited release provides the scripts and result files used by the generated tables. Historical exploratory outputs that are not connected to this release are not claimed as fully reproducible evidence.

@@ -1,0 +1,102 @@
+% ============================================================
+% Section 6: Dual Heterophily (Medium length for TNNLS)
+% Target: ~1.5 pages
+% ============================================================
+
+\section{Two-Hop Recovery as a Heterophily Diagnostic}
+\label{sec:heterophily}
+
+Low-homophily datasets exhibit puzzling inconsistency: graph models improve strongly on Chameleon and Squirrel ($h \approx 0.22$), while GCN degrades sharply on Texas and Wisconsin ($h < 0.2$). We test two-hop recovery as one possible explanatory mechanism.
+
+\subsection{The Heterophily Puzzle}
+
+Traditional wisdom suggests GNNs fail on heterophilic graphs because neighbors have different labels. However, this oversimplifies:
+
+\begin{itemize}
+    \item \textbf{Texas} ($h = 0.087$): MLP achieves 80.5\%, GCN achieves 56.3\% (GCN harms)
+    \item \textbf{Chameleon} ($h = 0.231$): MLP achieves 51.4\%, while the best recorded graph model, H2GCN, achieves 65.5\%
+\end{itemize}
+
+Both have similar homophily, yet opposite outcomes. Low homophily alone cannot explain this.
+
+\subsection{2-Hop Recovery Ratio}
+
+\begin{definition}[2-Hop Homophily]
+\label{def:2hop}
+Let $h_1$ denote standard (1-hop) homophily and $h_2$ denote 2-hop homophily:
+\begin{equation}
+    h_2 = \mathbb{P}(Y_v = Y_u \mid \text{dist}(u, v) = 2)
+\end{equation}
+The \textbf{2-hop recovery ratio} is:
+\begin{equation}
+    R = \frac{h_2}{h_1}
+\end{equation}
+\end{definition}
+
+\textbf{Intuition}: When $h_1$ is low (direct neighbors differ), high $R$ indicates 2-hop neighbors are likely same-class---information can be recovered via longer paths.
+
+\begin{definition}[Two-Hop Recovery Patterns]
+\label{def:types}
+Based on the recovery ratio $R$:
+\begin{itemize}
+    \item \textbf{Strong recovery (legacy Type A)} ($R > 1.5$): 2-hop neighbors are more likely same-class than 1-hop neighbors, indicating a longer-range label pattern.
+
+    \item \textbf{Absent recovery (legacy Type B)} ($R \leq 1.0$): No observed two-hop homophily recovery. This describes the statistic only and does not imply that graph models underperform MLP.
+\end{itemize}
+\end{definition}
+
+\subsection{Empirical Validation}
+
+\begin{table}[t]
+\centering
+\caption{Two-Hop Recovery Patterns and Protocol-Specific Best Models}
+\label{tab:2hop}
+\begin{tabular}{@{}lccccl@{}}
+\toprule
+Dataset & $h_1$ & $h_2$ & $R$ & Type & Best Model \\
+\midrule
+\input{tables/generated/dual_heterophily_rows}%
+\end{tabular}
+\end{table}
+
+\textbf{Key Finding} (Table~\ref{tab:2hop}): Large recovery ratios identify datasets where two-hop models substantially repair GCN degradation, but they do not guarantee that H2GCN beats a tuned MLP or every competing GNN.
+
+\subsection{H2GCN Performance Analysis}
+
+H2GCN \cite{zhu2020beyond} is designed for heterophilic graphs, using:
+\begin{enumerate}
+    \item Ego-neighbor separation (preserve original features)
+    \item Higher-order neighborhoods (2-hop aggregation)
+    \item Combination of intermediate representations
+\end{enumerate}
+
+\textbf{Protocol-specific result}:
+\begin{itemize}
+    \item \textbf{Strong recovery}: H2GCN substantially repairs GCN degradation on Texas, Wisconsin, and Cornell, but exceeds MLP clearly only on Texas in the 10-seed paired analysis.
+
+    \item \textbf{Absent recovery}: H2GCN is best on Chameleon and GCN is best on Squirrel despite recovery ratios at or below one. Thus $R$ is not a sufficient model-selection statistic.
+\end{itemize}
+
+\subsection{Why Type B Exists}
+
+Type B heterophily arises when edge formation is \textbf{class-independent}:
+\begin{itemize}
+    \item \textbf{Actor network}: Co-appearance in films is determined by casting decisions, not actor attributes
+    \item \textbf{Wikipedia pages}: Links reflect topic coverage, not page categories
+\end{itemize}
+
+In these cases, measured two-hop homophily does not recover the one-hop label disagreement. Other structural signals or architectures remain useful, as shown by H2GCN on Chameleon and GCN on Squirrel in the audited protocol.
+
+\subsection{Practical Diagnostic Checklist}
+
+\begin{tcolorbox}[colback=green!5!white,colframe=green!75!black,title=Heterophilic Dataset Diagnostic]
+For datasets with $h < 0.3$:
+\begin{enumerate}
+    \item Compute 2-hop recovery ratio $R = h_2/h_1$ as a descriptive graph statistic
+    \item Use $R>1.5$ to flag strong two-hop recovery, then compare models empirically rather than selecting one from $R$
+    \item If $R \leq 1.0$: Treat two-hop recovery as absent and compare MLP with non-two-hop graph baselines
+    \item If $1.0 < R < 1.5$: Empirically compare both
+\end{enumerate}
+\end{tcolorbox}
+
+This checklist is descriptive rather than a selection rule. In the audited five-dataset heterophily subset, the recovery statistic does not identify the single best model.

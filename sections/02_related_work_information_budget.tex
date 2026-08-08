@@ -22,7 +22,7 @@ Our Information Budget framework relates to four research areas: GNN aggregation
 
 \textbf{The homophily assumption}: Classic GNNs assume connected nodes share labels. Edge homophily $h = \frac{|\{(u,v) \in E : y_u = y_v\}|}{|E|}$ measures this tendency~\cite{mcpherson2001homophily}.
 
-\textbf{Heterophily-aware methods}: When $h$ is low, standard GNNs fail. H2GCN~\cite{zhu2020beyond} uses 2-hop neighbors and ego-neighbor separation. LINKX~\cite{luan2022linkx} separates features from structure entirely. MixHop~\cite{abu2019mixhop} and GPR-GNN~\cite{chien2021gprgnn} use multi-hop aggregation with learnable coefficients. FAGCN~\cite{fagcn2021} introduces frequency-adaptive filtering to handle both homophily and heterophily. GloGNN~\cite{li2022glognn} discovers global homophily patterns even in locally heterophilous graphs. ACM-GCN~\cite{luan2022acmgcn} uses adaptive cross-hop message passing. Our Dual Heterophily framework (Section~\ref{sec:heterophily}) explains \textit{when} these methods help: Type A (recoverable via 2-hop) vs Type B (irrecoverable, MLP optimal).
+\textbf{Heterophily-aware methods}: When $h$ is low, standard GNN performance is inconsistent. H2GCN~\cite{zhu2020beyond} uses 2-hop neighbors and ego-neighbor separation. LINKX~\cite{luan2022linkx} separates features from structure entirely. MixHop~\cite{abu2019mixhop} and GPR-GNN~\cite{chien2021gprgnn} use multi-hop aggregation with learnable coefficients. FAGCN~\cite{fagcn2021} introduces frequency-adaptive filtering to handle both homophily and heterophily. GloGNN~\cite{li2022glognn} discovers global homophily patterns even in locally heterophilous graphs. ACM-GCN~\cite{acmgcn2024} uses adaptive cross-hop message passing. Our recovery-ratio analysis (Section~\ref{sec:heterophily}) diagnoses whether label homophily increases at two hops without claiming that this statistic alone selects the optimal model.
 
 \textbf{Beyond binary homophily}: Recent work challenges the simple high/low dichotomy. Platonov et al.~\cite{platonov2023heterophily} show that homophily alone is insufficient for predicting GNN success. Ma et al.~\cite{ma2021homophily} introduce class-conditional homophily. Our Information Budget provides a complementary perspective: feature sufficiency determines the ceiling, regardless of $h$.
 
@@ -51,7 +51,7 @@ Our contribution differs from prior work in three ways:
 
     \item \textbf{Damage quantification}: ADR provides a scalar measure of aggregation harm, explaining GraphSAGE's robustness through feature preservation.
 
-    \item \textbf{Heterophily typology}: Rather than treating low-$h$ as a single regime, we distinguish Type A (where H2GCN helps) from Type B (where MLP is optimal).
+    \item \textbf{Heterophily diagnostic}: Rather than treating low-$h$ as a single regime, we measure whether label homophily recovers at two hops and test, rather than assume, how this statistic relates to trained models.
 \end{enumerate}
 
 Together, these form a unified decision framework that predicts GNN outcomes more accurately than homophily alone.

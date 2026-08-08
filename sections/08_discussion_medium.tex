@@ -1,0 +1,112 @@
+% ============================================================
+% Section 8: Discussion (Medium length for TNNLS)
+% Target: ~1 page
+% ============================================================
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Unified Understanding of GNN Behavior}
+
+Our framework provides a coherent explanation for previously puzzling GNN phenomena:
+
+\textbf{(1) The U-Shape Pattern.} The fixed-degree calculation predicts minimal neighbor-label discriminability when $\rho = 2h-1 \approx 0$. This offers a mechanism for, but does not by itself prove, the empirical GNN accuracy dip at mid-homophily.
+
+\textbf{(2) Same-$h$ Paradox.} Datasets with identical homophily show different GNN outcomes because homophily alone doesn't capture the full picture. The 2-hop recovery ratio $R$ and feature quality (reflected in MLP accuracy) are equally important.
+
+\textbf{(3) Architecture Variance.} GraphSAGE's robustness across homophily levels follows directly from its information-preserving concatenation design (Theorem~\ref{thm:concat}).
+
+\subsection{Connection to Existing Theory}
+
+Our SNR framework connects to several theoretical traditions:
+
+\begin{itemize}
+    \item \textbf{Kesten-Stigum Threshold} \cite{mossel2015reconstruction}: The condition $(k-1)\rho^2 > 1$ for multi-layer signal propagation is exactly the community detection threshold in SBMs.
+
+    \item \textbf{Oversmoothing} \cite{li2018oversmoothing}: Our framework quantifies when oversmoothing occurs: layers beyond the Kesten-Stigum threshold reduce discriminability regardless of architecture.
+
+    \item \textbf{Graph Signal Processing} \cite{wu2019sgc}: The SNR ratio $\kappa$ can be interpreted as the ratio of low-frequency to high-frequency energy after graph filtering.
+\end{itemize}
+
+\subsection{Limitations}
+
+Our framework has important scope conditions:
+
+\begin{enumerate}
+    \item \textbf{Binary Classification Focus}: The main theorem is derived for binary CSBM. Multi-class extension (Section~\ref{sec:snr}) uses the effective correlation $\rho_C$, which is approximate.
+
+    \item \textbf{Homogeneous Assumptions}: We assume uniform within-class and between-class edge probabilities. Real graphs may have heterogeneous community structure.
+
+    \item \textbf{Transition Zones}: Predictions are less reliable near thresholds ($0.25 < h < 0.35$ and $0.65 < h < 0.75$) where small estimation errors can flip predictions.
+
+    \item \textbf{Small Graphs}: For $n < 500$, finite-size effects dominate and tree approximations may fail.
+
+    \item \textbf{Feature Distribution}: Gaussian feature assumption enables closed-form analysis but may not hold for categorical or sparse features.
+
+    \item \textbf{Static Graphs}: We analyze static topology; dynamic or temporal graphs require additional considerations.
+\end{enumerate}
+
+\subsection{Finite-Sample Considerations}
+
+Proposition~\ref{prop:fixed_degree} is a finite fixed-degree moment calculation. Extending it to sparse finite graphs requires handling random degree, isolated nodes, cycles, and dependence introduced by repeated aggregation.
+
+\textbf{Sample Size Considerations.} The available experiments are not sufficient to infer a universal numerical sample-size cutoff:
+\begin{itemize}
+    \item \textbf{Large graphs}: satisfying the arithmetic Information Budget ceiling is expected and is not evidence that the diagnostic predicts GNN advantage.
+    \item \textbf{Small graphs} ($n < 500$): WebKB datasets (Texas, Wisconsin, Cornell with $n < 300$) show higher variance. The framework correctly predicts trends but with reduced precision.
+\end{itemize}
+
+\textbf{Finite-$n$ Error Bounds.} We do not claim a finite-$n$ rate for transferring the fixed-degree proposition to CSBM. Such a result would require a separate coupling argument and an explicit treatment of the random-degree mixture.
+
+\textbf{Practical Recommendation.} For graphs with $n < 500$, we recommend:
+\begin{enumerate}
+    \item Use the framework for qualitative guidance (e.g., ``GNN likely helps'' vs ``MLP likely sufficient'') rather than precise quantitative predictions.
+    \item Increase the number of random seeds (from 10 to 20+) to account for higher variance.
+    \item Validate predictions empirically rather than relying solely on theoretical thresholds.
+\end{enumerate}
+
+For large-scale graphs, the current audited artifact contains a successful 3-seed run on ogbn-arxiv (169K nodes). Broader million-node validation remains future work; the available ogbn-products run terminated with an out-of-memory error and is not used as evidence here.
+
+\subsection{Broader Impact}
+
+\textbf{Positive Applications}:
+\begin{itemize}
+    \item Reducing computational waste by predicting when GNNs won't help
+    \item Guiding architecture selection without exhaustive experimentation
+    \item Providing interpretable diagnostics for GNN failures
+\end{itemize}
+
+\textbf{Potential Misuse}: The framework could be used to identify datasets where GNNs are vulnerable to adversarial structure manipulation. We note that such attacks require graph edit access, which is typically restricted.
+
+\subsection{Baseline Method Selection}
+
+Our experimental evaluation focuses on representative architectures that span the design space:
+\begin{itemize}
+    \item \textbf{Replace aggregation}: GCN, GAT (with attention)
+    \item \textbf{Concatenation}: GraphSAGE
+    \item \textbf{Heterophily-aware}: H2GCN, LINKX
+    \item \textbf{Adaptive propagation}: GPR-GNN
+\end{itemize}
+
+We acknowledge that recent methods (FAGCN~\cite{fagcn2021}, GloGNN~\cite{li2022glognn}, ACM-GCN~\cite{acmgcn2024}) offer additional innovations. However, our framework's predictions are architecture-agnostic: the Information Budget bound applies regardless of GNN design, as it constrains improvement from \textit{any} use of graph structure. The selected baselines sufficiently demonstrate:
+\begin{enumerate}
+    \item The U-shape pattern (GCN vs GraphSAGE)
+    \item ADR differences (replace vs concatenate)
+    \item Heterophily handling (H2GCN, LINKX)
+\end{enumerate}
+
+Future work could validate the framework on emerging architectures (graph transformers, equivariant GNNs), but we expect the core principles---Budget determines ceiling, architecture determines efficiency---to remain applicable.
+
+\subsection{Future Directions}
+
+Several extensions warrant investigation:
+
+\begin{enumerate}
+    \item \textbf{Beyond CSBM}: Analyzing random geometric graphs, preferential attachment, and real-world degree distributions.
+
+    \item \textbf{Adaptive Architectures}: Using $\kappa$ estimates to automatically adjust aggregation depth or combine with attention mechanisms.
+
+    \item \textbf{Semi-Supervised Learning}: Extending the framework to account for label scarcity and propagation effects.
+
+    \item \textbf{Heterogeneous Graphs}: Adapting the SNR analysis to multi-relational graphs with different edge types.
+\end{enumerate}

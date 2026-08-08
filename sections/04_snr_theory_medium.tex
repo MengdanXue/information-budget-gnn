@@ -1,0 +1,159 @@
+% ============================================================
+% Section 4: SNR Framework (Medium length for TNNLS)
+% Target: ~4 pages
+% ============================================================
+
+\section{Signal-to-Noise Ratio Framework}
+\label{sec:snr}
+
+We develop an information-theoretic framework that explains when graph structure helps or harms node classification, based on the Signal-to-Noise Ratio (SNR) of message passing.
+
+\begin{table}[t]
+\centering
+\caption{Key Notation Used in This Section}
+\label{tab:notation}
+\small
+\begin{tabular}{@{}cl@{}}
+\toprule
+\textbf{Symbol} & \textbf{Definition} \\
+\midrule
+$h$ & Edge homophily, $h = |\{(u,v) \in E : y_u = y_v\}| / |E|$ \\
+$\rho$ & Edge correlation coefficient, $\rho = 2h - 1 \in [-1, 1]$ \\
+$d$ & Fixed number of aggregated neighbors \\
+$s$ & Feature strength, $s=\mu^\top\Sigma^{-1}\mu$ \\
+$\kappa$ & Exact discriminability ratio in Proposition~\ref{prop:fixed_degree} \\
+$\mathcal{D}(Z)$ & Discriminability of representation $Z$ \\
+$\Delta_Z$ & Class separation, $\mathbb{E}[Z|Y=+1] - \mathbb{E}[Z|Y=-1]$ \\
+$\Sigma_Z$ & Within-class covariance, $\mathrm{Cov}(Z|Y)$ \\
+$\mathcal{B}$ & Information Budget, $\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$ \\
+$\rho_C$ & Effective correlation for $C$ classes, $\rho_C = (Ch-1)/(C-1)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Problem Setup}
+
+\begin{definition}[Sparse Contextual Stochastic Block Model]
+\label{def:csbm}
+A sparse CSBM graph $G = (V, E)$ with $n$ nodes consists of:
+\begin{itemize}
+    \item Binary labels $Y_v \in \{-1, +1\}$ with $\mathbb{P}(Y_v = +1) = 1/2$
+    \item Features $X_v = Y_v \mu + \varepsilon_v$ where $\varepsilon_v \sim \mathcal{N}(0, \Sigma)$ i.i.d.
+    \item Edges: $\mathbb{P}((u,v) \in E | Y_u, Y_v) = \frac{a}{n}$ if $Y_u = Y_v$, else $\frac{b}{n}$
+    \item Homophily: $h = a/(a+b)$, average degree: $k = (a+b)/2$
+    \item Edge correlation: $\rho = 2h - 1 \in [-1, 1]$
+\end{itemize}
+\end{definition}
+
+The edge correlation $\rho$ measures the expected label agreement given an edge:
+\begin{equation}
+    \rho = \mathbb{E}[Y_u | (u,v) \in E, Y_v = +1] = \frac{a-b}{a+b}
+\end{equation}
+When $h > 0.5$ ($\rho > 0$), neighbors tend to share labels (homophily). When $h < 0.5$ ($\rho < 0$), neighbors tend to have opposite labels (heterophily).
+
+\begin{definition}[Discriminability]
+\label{def:discriminability}
+The discriminability of representation $Z$ is the squared Mahalanobis distance between class-conditional distributions:
+\begin{equation}
+    \mathcal{D}(Z) := \Delta_Z^\top \Sigma_Z^{-1} \Delta_Z
+\end{equation}
+where $\Delta_Z = \mathbb{E}[Z|Y=+1] - \mathbb{E}[Z|Y=-1]$ is the class separation and $\Sigma_Z = \mathrm{Cov}(Z|Y)$ is within-class covariance.
+\end{definition}
+
+\begin{proposition}[Bayes Error]
+Under Gaussian assumptions, the Bayes-optimal error is:
+\begin{equation}
+    P_e = \Phi\left(-\frac{1}{2}\sqrt{\mathcal{D}}\right)
+\end{equation}
+where $\Phi$ is the standard normal CDF. Thus higher $\mathcal{D}$ implies lower error.
+\end{proposition}
+
+\subsection{Exact Fixed-Degree Calculation}
+
+We first analyze a deliberately restricted model without replacing a random degree by its expectation. Conditional on a center label $Y_v=y$, let $Y_1,\ldots,Y_d$ be independent neighbor labels satisfying $\mathbb{P}(Y_i=y\mid Y_v=y)=(1+\rho)/2$. Let $X_i=Y_i\mu+\varepsilon_i$, where the $\varepsilon_i\sim\mathcal{N}(0,\Sigma)$ are independent of all labels, and define $A_v=d^{-1}\sum_{i=1}^d X_i$.
+
+\begin{proposition}[Exact Fixed-Degree Discriminability]
+\label{prop:fixed_degree}
+For $s=\mu^\top\Sigma^{-1}\mu$, the conditional moments and discriminability ratio are
+\begin{align}
+    \mathbb{E}[A_v\mid Y_v=y] &= \rho y\mu,\\
+    \operatorname{Cov}(A_v\mid Y_v=y)
+        &= \frac{1}{d}\left(\Sigma+(1-\rho^2)\mu\mu^\top\right),\\
+    \kappa(d,\rho,s)
+        :=\frac{\mathcal{D}(A)}{\mathcal{D}(X)}
+        &=\frac{\rho^2d}{1+(1-\rho^2)s}.
+\end{align}
+\end{proposition}
+
+\begin{proof}
+We derive this result in three steps.
+
+Since $\mathbb{E}[Y_i\mid Y_v=y]=\rho y$ and
+$\operatorname{Var}(Y_i\mid Y_v=y)=1-\rho^2$, independence gives the first two identities. Moreover, $\Delta_X=2\mu$, $\mathcal{D}(X)=4s$, and $\Delta_A=2\rho\mu$. Applying the Sherman--Morrison identity,
+\begin{equation}
+ \mu^\top\left(\Sigma+(1-\rho^2)\mu\mu^\top\right)^{-1}\mu
+ =\frac{s}{1+(1-\rho^2)s}.
+\end{equation}
+Substitution yields the stated ratio.
+\end{proof}
+
+\begin{corollary}[Aggregation Threshold]
+\label{cor:threshold}
+In the fixed-degree model, aggregation improves Mahalanobis discriminability exactly when
+\begin{align}
+    \kappa>1
+    &\iff \rho^2 > \frac{1+s}{d+s}.
+\end{align}
+Thus the transition depends on feature strength as well as degree and edge correlation. The simpler condition $\rho^2d>1$ is recovered only as $s\to0$.
+\end{corollary}
+
+\begin{table}[t]
+\centering
+\caption{Exact Danger Zone Depends on Feature Strength}
+\label{tab:threshold}
+\begin{tabular}{@{}ccc@{}}
+\toprule
+$(d,s)$ & Threshold $|2h-1|$ & Danger Zone ($h$) \\
+\midrule
+$(10,0)$ & 0.316 & (0.34, 0.66) \\
+$(10,1)$ & 0.426 & (0.29, 0.71) \\
+$(10,4)$ & 0.598 & (0.20, 0.80) \\
+$(20,1)$ & 0.309 & (0.35, 0.65) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Interpretation} (Table~\ref{tab:threshold}): stronger self-feature separation increases the label-mixture penalty and widens the region in which neighbor-only aggregation loses discriminability. This is a property of the stated moment criterion, not a universal guarantee for a trained GNN.
+
+\subsection{Approximation Regime}
+
+The exact ratio satisfies
+\begin{equation}
+ \frac{\rho^2d}{1+\eta}\leq\kappa\leq\rho^2d,
+ \qquad \eta=(1-\rho^2)s.
+\end{equation}
+Consequently, replacing $\kappa$ by $\rho^2d$ has relative error exactly $\eta/(1+\eta)$. This makes the required feature-noise-dominance regime explicit and does not invoke an asymptotic $o(1)$ term.
+
+\subsection{Multi-Layer Analysis}
+
+For broadcasting on a regular tree with forward branching factor $b$, the classical Kesten--Stigum quantity is $b\rho^2$ \cite{kesten1966additional,mossel2015reconstruction}. For a $q$-regular undirected tree, $b=q-1$; for a Poisson Galton--Watson limit with mean offspring $k$, $b=k$. We use this only to contextualize the one-hop calculation. We do not claim a multi-layer equality for ordinary GNN aggregation, whose reused neighborhoods, self-loops, nonlinearities, and learned transformations require a separate analysis.
+
+\subsection{Extension to Multi-Class Problems}
+
+For $C$-class problems with uniform within-class and between-class edge probabilities, we propose the following heuristic extension. The effective edge correlation becomes:
+\begin{equation}
+    \rho_C = \frac{Ch - 1}{C - 1}
+\end{equation}
+where $h$ is the homophily ratio. The threshold condition becomes $\rho_C^2 k > 1$.
+
+\textbf{Justification.} In the binary case ($C = 2$), we have $\rho_2 = (2h - 1)/(2-1) = 2h - 1 = \rho$, recovering the exact formula. For general $C$, this formula interpolates between the random baseline ($h = 1/C \Rightarrow \rho_C = 0$) and perfect homophily ($h = 1 \Rightarrow \rho_C = 1$). While a rigorous derivation for multi-class CSBM requires tensor analysis beyond the scope of this paper, empirical validation (Section~\ref{sec:experiments}) shows this heuristic accurately predicts GNN behavior on multi-class datasets.
+
+\begin{example}[Cora Dataset]
+Cora has $C = 7$ classes and $h = 0.81$. Thus $\rho_7 = (7 \times 0.81 - 1)/(7-1) = 0.78$. With average degree $k \approx 4$, we get $\kappa_7 = 0.78^2 \times 4 = 2.43 > 1$, predicting aggregation is beneficial.
+\end{example}
+
+\subsection{Scope and Random-Degree Extension}
+
+The class-conditional distribution of $A_v$ is generally a Gaussian mixture because the neighbor labels are random. Therefore the Gaussian Bayes-error formula stated for $X_v$ must not be applied to $A_v$ solely from its first two moments. Proposition~\ref{prop:fixed_degree} concerns Mahalanobis discriminability only.
+
+For sparse CSBM, the degree is random. Conditional on $D_v=m>0$, Proposition~\ref{prop:fixed_degree} applies with $d=m$. An unconditional calculation must specify the treatment of isolated nodes and average over the degree-conditioned mixture; replacing $D_v$ by its mean is not exact. We leave that random-degree extension separate rather than attach unsupported finite-$n$ error rates to the fixed-degree result.
