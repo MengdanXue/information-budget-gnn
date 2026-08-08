@@ -6,19 +6,21 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-We have studied when graph aggregation helps or harms node classification through SNR dynamics, aggregation damage, and heterophily recovery diagnostics. The results form a scoped diagnostic framework rather than a universal model-selection theory.
+We studied when a controlled graph-aggregation operator improves or harms class-conditional discriminability, and how far simple empirical diagnostics transfer to trained models. The result is a scoped mechanism study with negative diagnostic evidence, not a universal model-selection theory.
 
-In the fixed-degree conditional-neighbor model, the exact ratio $\kappa=\rho^2d/[1+(1-\rho^2)s]$ identifies how edge correlation, degree, and feature strength jointly change one-hop Mahalanobis discriminability. This is a scoped mechanism calculation rather than a new broadcasting threshold or a guarantee for trained GNNs. ADR complements the calculation with an empirical measure of loss relative to feature-only prediction. The two-hop recovery ratio diagnoses one heterophily mechanism, but the audited failures show that it does not uniquely select a model family. Finally, $1-\mathrm{Acc}_{\mathrm{MLP}}$ is retained only as arithmetic accuracy headroom; the shared-term audit does not support treating its raw correlation as independent predictive evidence.
+In the binary fixed-degree conditional-neighbor model, the exact ratio $\kappa=\rho^2d/[1+(1-\rho^2)s]$ identifies how edge correlation, degree, and feature strength jointly change one-hop Mahalanobis discriminability. The center--neighbor expression covers a prescribed linear surrogate. Across a frozen grid of 2,000 configuration--seed records, empirical moments match the exact expression with 0.94\% median absolute relative error over nonzero ratios. This validates the implemented moment calculation within the surrogate, not a broadcasting threshold or trained-GNN accuracy.
+
+The empirical diagnostics remain deliberately weaker. ADR is a matched percentage-point difference, and the one-hop/two-hop quantities describe archived label structure; neither identifies a winning architecture. The audited selector comparison shows no incremental value over an always-graph baseline, and $1-\mathrm{Acc}_{\mathrm{MLP}}$ remains only arithmetic positive-gain headroom. The prospective selector benchmark is not yet executed, while the legacy edge-randomization outcomes have not been regenerated with the verified degree-matched implementation.
 
 \subsection{Theoretical Significance and Scope}
 
-The central theoretical contribution is the scoped SNR analysis, not a universal guarantee for trained GNNs. Finite graphs, learned transformations, dependent neighborhoods, and optimization can shift the predicted transition.
+The central theoretical contribution is the scoped moment-based discriminability analysis, not a universal guarantee for trained GNNs. Finite graphs, learned transformations, dependent neighborhoods, and optimization can shift the predicted transition.
 
 \subsection{Limitations and Future Work}
 
-Our framework assumes: (1) binary or balanced multi-class problems, (2) homogeneous edge probabilities, (3) Gaussian or sub-Gaussian features. Extensions to heterogeneous graphs, imbalanced classes, and non-parametric feature distributions remain open.
+The exact propositions assume binary labels, fixed degree, homogeneous conditional neighbor-label probabilities, conditionally independent neighbors, and Gaussian features with shared covariance. They provide no scalar multi-class extension and no random-degree or finite-depth GNN guarantee.
 
-Future directions include: adaptive architectures that estimate $\kappa$ online, theoretical analysis of attention mechanisms, and extension to heterogeneous and temporal graphs.
+The next empirical priorities are a clean prospective diagnostic benchmark and a degree-matched edge-randomization rerun with concurrent structural statistics. Theoretical extensions to random degree, dependent neighborhoods, attention, heterogeneous graphs, and temporal graphs remain separate work.
 
 \subsection{Reproducibility}
 
@@ -26,4 +28,4 @@ Future directions include: adaptive architectures that estimate $\kappa$ online,
 
 An anonymized code, result, and supplementary-material repository is provided through the submission system. The public URL will be restored after anonymous review.
 
-The audited release provides the scripts and result files used by the generated tables. Historical exploratory outputs that are not connected to this release are not claimed as fully reproducible evidence.
+The audited release contains the frozen direct-validation configuration, 2,000 immutable records, deterministic summary, and figure. It also contains prospective diagnostic scoring and verified edge-randomization code, but no new model outcomes from those two pending reruns. Historical exploratory outputs are retained only with explicit provenance limitations and are not claimed as fully reproducible evidence.

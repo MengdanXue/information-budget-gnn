@@ -18,6 +18,8 @@ We first isolate the effect of aggregation in a restricted probabilistic model. 
 The denominator is the contribution of label-mixture covariance. Omitting it gives the familiar noise-dominated approximation $\rho^2d$, which can be inaccurate when features are already strong. The result is an exact moment calculation under the stated assumptions; it is not a Bayes-error expression, a threshold theorem for a stochastic block model, or a performance guarantee for a trained GNN.
 \IEEEpubidadjcol
 
+We validate the implemented calculation directly rather than infer it from downstream accuracy. A frozen grid over degree, edge-label correlation, feature strength, and center-feature weight yields 2,000 immutable configuration--seed records. For the 1,920 records with nonzero exact ratio, the median absolute relative error between empirical moments and the exact expression is 0.94\%.
+
 We then examine two empirical quantities as descriptions rather than theories. The first is the absolute accuracy difference $\mathrm{Acc}_{\mathrm{MLP}}-\mathrm{Acc}_{\mathrm{GNN}}$, which records observed aggregation damage but does not identify its cause. The second is two-hop label recovery, which can reveal longer-range class structure in a heterophilic graph. Audited paired results show that strong two-hop recovery does not guarantee that a multi-hop graph model beats a tuned MLP, while absent recovery does not imply that graph structure is useless. These failures are central evidence against using either statistic as an automatic selector.
 
 For completeness, $1-\mathrm{Acc}_{\mathrm{MLP}}$ is retained only as arithmetic positive-gain headroom: no classifier's accuracy can exceed one. This quantity cannot bound negative GNN damage, does not measure conditional graph information, and shares an MLP term with the observed GNN--MLP gap. We therefore do not treat headroom correlations or non-violation counts as evidence of structural predictiveness.
@@ -25,7 +27,7 @@ For completeness, $1-\mathrm{Acc}_{\mathrm{MLP}}$ is retained only as arithmetic
 The paper is organized around three contributions and evaluation targets:
 \begin{enumerate}
     \item \textbf{Scoped aggregation discriminability analysis.} We derive exact fixed-degree ratios for neighbor-only averaging and a prescribed center--neighbor mixture while retaining label-mixture covariance, and state where these linear operators differ from practical GNN layers.
-    \item \textbf{Direct validation target.} We define the required controlled comparison between empirical moment-based discriminability and the exact expression. Existing downstream accuracy sweeps are not presented as direct validation; the confirmatory parameter sweep is reported only after its frozen artifacts pass provenance checks.
+    \item \textbf{Direct validation of the scoped expression.} On the frozen 2,000-record grid, empirical moment estimates match the exact expression with 0.94\% median absolute relative error over nonzero ratios; the same audit shows that $\rho^2d$ can materially overstate the neighbor-only ratio.
     \item \textbf{Negative study of simple diagnostics.} Using audited paired results and matched scoring baselines, we show that aggregation damage and two-hop recovery are useful descriptions but insufficient model-selection rules. Historical aggregate-only results are treated as retrospective evidence rather than confirmatory validation.
 \end{enumerate}
 

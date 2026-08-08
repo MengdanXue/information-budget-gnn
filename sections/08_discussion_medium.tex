@@ -67,6 +67,8 @@ Proposition~\ref{prop:fixed_degree} is a finite fixed-degree moment calculation.
 
 For large-scale graphs, the current audited artifact contains a successful 3-seed run on ogbn-arxiv (169K nodes). Broader million-node validation remains future work; the available ogbn-products run terminated with an out-of-memory error and is not used as evidence here.
 
+The prospective diagnostic benchmark has not yet been executed on newly generated model records. Its frozen scorer and leakage checks improve auditability, but they are infrastructure rather than empirical evidence. Likewise, the verified double-edge-swap implementation has not regenerated the legacy edge-randomization outcomes.
+
 \subsection{Broader Impact}
 
 \textbf{Positive Applications}:
@@ -91,7 +93,7 @@ Our experimental evaluation focuses on representative architectures that span th
 We acknowledge that recent methods (FAGCN~\cite{fagcn2021}, GloGNN~\cite{li2022glognn}, ACM-GCN~\cite{acmgcn2024}) offer additional innovations. The selected baselines span several aggregation designs, but they do not establish architecture-independent predictions. They provide descriptive comparisons of:
 \begin{enumerate}
     \item The U-shape pattern (GCN vs GraphSAGE)
-    \item ADR differences (replace vs concatenate)
+    \item accuracy-difference patterns (replace vs concatenate)
     \item Heterophily handling (H2GCN, LINKX)
 \end{enumerate}
 
@@ -104,7 +106,7 @@ Several extensions warrant investigation:
 \begin{enumerate}
     \item \textbf{Beyond CSBM}: Analyzing random geometric graphs, preferential attachment, and real-world degree distributions.
 
-    \item \textbf{Adaptive Architectures}: Using $\kappa$ estimates to automatically adjust aggregation depth or combine with attention mechanisms.
+    \item \textbf{Adaptive Architectures}: Deriving estimators and uncertainty for the scoped quantities before testing whether they can safely adjust aggregation depth or interact with attention.
 
     \item \textbf{Semi-Supervised Learning}: Extending the framework to account for label scarcity and propagation effects.
 

@@ -23,7 +23,8 @@ This map is the contract for claims in the active manuscript. A claim may appear
 
 1. **Problem:** aggregation can improve or degrade node classification, and homophily alone does not resolve the variation.
 2. **Scoped method:** exact fixed-degree moment calculation retaining label-mixture covariance.
-3. **Supported finding and limitation:** simple diagnostics describe mechanisms but fail as stand-alone selectors in the audited comparison.
+3. **Direct validation:** 2,000 frozen configuration--seed records, with 0.94% median absolute relative error over nonzero exact ratios.
+4. **Supported limitation:** simple diagnostics describe mechanisms but fail as stand-alone selectors in the audited comparison; prospective selection remains pending.
 
 ## Introduction reverse outline
 
@@ -32,4 +33,4 @@ This map is the contract for claims in the active manuscript. A claim may appear
 3. State the restricted model and exact neighbor-only result.
 4. Define aggregation damage and two-hop recovery as descriptive quantities.
 5. Demote accuracy headroom to an arithmetic observation.
-6. Separate the supported theory, pending direct validation, and supported negative diagnostic study.
+6. Separate the supported theory and direct validation from the pending prospective diagnostic benchmark and the supported negative retrospective study.

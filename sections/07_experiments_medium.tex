@@ -112,14 +112,14 @@ Historical controlled, leave-one-dataset-out, and external summaries used differ
 \toprule
 Comparison & Test & $p$-value \\
 \midrule
-Budget--best-GNN advantage & Pearson $r = -0.255$ & CI crosses zero \\
+Headroom--GNN advantage & Pearson $r = -0.255$ & CI crosses zero \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \textbf{Key Findings}:
 \begin{itemize}
-    \item On the audited nine-dataset external set, Budget does not predict best-GNN advantage ($r=-0.255$, 95\% bootstrap CI $[-0.743,0.523]$). A shared-term permutation null yields mean $r=0.669$, confirming that raw correlations using $1-\text{Acc}_{\text{MLP}}$ require careful controls.
+    \item On the audited nine-dataset external set, arithmetic headroom does not predict best-GNN advantage ($r=-0.255$, 95\% bootstrap CI $[-0.743,0.523]$). A shared-term permutation null yields mean $r=0.669$, confirming that raw correlations using $1-\text{Acc}_{\text{MLP}}$ require careful controls.
     \item Legacy Wilcoxon, Friedman, and Mann--Whitney values are omitted because the current audited artifact does not retain the paired per-seed samples needed to reproduce those tests under a single protocol.
 \end{itemize}
 

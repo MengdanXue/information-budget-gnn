@@ -42,13 +42,13 @@
 
 \begin{document}
 
-\title{When Does Graph Aggregation Help? SNR Dynamics, Aggregation Damage, and Heterophily Diagnostics}
+\title{When Does Graph Aggregation Help? Scoped Discriminability and Diagnostic Limits}
 
 % Author information omitted for anonymous review.
 
 % The paper headers
 \markboth{IEEE Transactions on Neural Networks and Learning Systems}%
-{Anonymous Submission: SNR Dynamics and Aggregation Damage in GNNs}
+{Anonymous Submission: Scoped Discriminability and Diagnostic Limits}
 
 % \IEEEpubid{0000--0000/00\$00.00~\copyright~2025 IEEE}
 % Note: IEEEpubid removed for submission - will be added by IEEE after acceptance
@@ -60,11 +60,13 @@ Graph aggregation can either improve or degrade node classification, and graphs 
 
 Under a binary Gaussian feature model with fixed degree $d$ and conditionally independent neighbor labels, one-hop neighbor averaging has the exact squared-Mahalanobis discriminability ratio $\kappa=\rho^2d/[1+(1-\rho^2)s]$, where $\rho$ is edge-label correlation and $s=\mu^\top\Sigma^{-1}\mu$ is feature strength. We also derive the corresponding expression for a prescribed mixture of center and neighbor features. Both formulas retain label-mixture covariance and show when the common noise-dominated approximation $\rho^2d$ is inaccurate. These are moment calculations for restricted linear operators, not Bayes-error formulas, trained-GNN guarantees, or new broadcasting thresholds.
 
+A frozen direct simulation contains 2,000 configuration--seed records. Across nonzero exact ratios, the median absolute relative error of the empirical moment estimate is 0.94\%; in the neighbor-only slice, the simplified $\rho^2d$ approximation has median absolute error 0.293. This validates the implemented moment calculation on the prescribed surrogate grid, not trained-GNN accuracy.
+
 We complement the calculation with two descriptive measurements: the accuracy difference between an MLP and a graph model, and two-hop label recovery on heterophilic graphs. Audited paired results show that two-hop recovery can expose longer-range label structure but does not determine the best model; in a six-dataset matched-scoring comparison, the retrospective decision rule does not improve on an always-graph baseline. These findings support a scoped mechanism analysis and a negative evaluation of simple diagnostics; $1-\mathrm{Acc}_{\mathrm{MLP}}$ is used only as arithmetic positive-gain headroom.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Graph Neural Networks, Signal-to-Noise Ratio, Aggregation Damage, Heterophily, Message Passing
+Graph Neural Networks, Mahalanobis Discriminability, Aggregation Damage, Heterophily, Message Passing
 \end{IEEEkeywords}
 
 % Sections

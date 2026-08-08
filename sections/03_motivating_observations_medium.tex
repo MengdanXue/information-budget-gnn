@@ -51,7 +51,7 @@ The ordering is consistent with the hypothesis that retaining an ego channel can
 \label{tab:same_h}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
-\textbf{Dataset} & \textbf{$h$} & \textbf{$k$} & \textbf{MLP} & \textbf{Budget} & \textbf{GCN Adv.} \\
+\textbf{Dataset} & \textbf{$h$} & \textbf{$k$} & \textbf{MLP} & \textbf{Headroom} & \textbf{GCN Adv.} \\
 \midrule
 Cora & 0.81 & 3.9 & 75.1\% & 24.9\% & \textbf{+12.7\%} \\
 Coauthor-CS & 0.81 & 8.9 & 94.4\% & 5.6\% & $-0.7\%$ \\
@@ -70,33 +70,18 @@ PubMed & 0.80 & 4.5 & 87.6\% & 12.4\% & +0.2\% \\
 
 The arithmetic positive-gain headroom differs: Cora's MLP accuracy leaves 24.9 percentage points below perfect accuracy, whereas Coauthor-CS leaves 5.6 points. This identity limits positive improvement but does not explain the sign or magnitude of the graph-model gap.
 
-\textbf{Descriptive Observation}: The Cora/Coauthor-CS comparison motivates feature headroom as a diagnostic, but the audited nine-dataset external set does not show a reliable linear correlation between Budget and best-GNN advantage ($r=-0.255$, bootstrap CI crosses zero). We therefore treat this pair as motivation rather than population-level statistical evidence.
+\textbf{Descriptive Observation}: The Cora/Coauthor-CS comparison motivates feature headroom as a diagnostic, but the audited nine-dataset external set does not show a reliable linear correlation between headroom and best-GNN advantage ($r=-0.255$, bootstrap CI crosses zero). We therefore treat this pair as motivation rather than population-level statistical evidence.
 
 \subsection{The Heterophily Paradox}
 
-\begin{table}[t]
-\centering
-\caption{Low-Homophily Datasets Show Inconsistent GNN Behavior}
-\label{tab:heterophily_paradox}
-\begin{tabular}{@{}lccccc@{}}
-\toprule
-\textbf{Dataset} & \textbf{$h$} & \textbf{MLP} & \textbf{GCN} & \textbf{H2GCN} & \textbf{Best} \\
-\midrule
-Texas & 0.087 & 80.5\% & 56.3\% & 86.8\% & H2GCN \\
-Actor & 0.22 & 36.4\% & 29.5\% & 35.9\% & MLP \\
-Chameleon & 0.24 & 49.0\% & 64.6\% & 63.6\% & GCN \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\textbf{Observation 3} (Table~\ref{tab:heterophily_paradox}): Heterophilic datasets behave inconsistently:
+\textbf{Observation 3}: Heterophilic datasets behave inconsistently in the audited paired protocol:
 \begin{itemize}
-    \item \textbf{Texas}: H2GCN is 6.3 percentage points above MLP (paired bootstrap 95\% CI: 1.3--11.1 points), while GCN underperforms
-    \item \textbf{Actor}: MLP wins, all GNNs fail
-    \item \textbf{Chameleon}: GCN wins (+15.6\% over MLP), H2GCN underperforms GCN
+    \item \textbf{Texas}: H2GCN--MLP is +6.3 percentage points (95\% paired bootstrap interval: 1.3--11.1 points);
+    \item \textbf{Wisconsin}: H2GCN--MLP is $-0.8$ points ($-4.3$--2.5), so the interval crosses zero; and
+    \item \textbf{Chameleon}: H2GCN--MLP is +14.1 points (12.2--15.9).
 \end{itemize}
 
-This paradox cannot be explained by homophily alone. Section~\ref{sec:heterophily} tests two-hop recovery as one descriptive mechanism, while showing that it does not resolve model selection by itself.
+The same paired protocol does not align these model differences with the ordering of archived two-hop recovery statistics: Wisconsin has positive $\Delta h$ without a clear H2GCN advantage, whereas Chameleon has near-zero $\Delta h$ and a positive H2GCN advantage. Section~\ref{sec:heterophily} therefore treats two-hop recovery as a descriptive mechanism, not a selector.
 
 \subsection{Summary: Three Questions Motivating the Analysis}
 
@@ -107,7 +92,7 @@ These observations reveal three puzzles that homophily alone cannot explain:
 
     \item \textbf{Same-$h$ Puzzle}: Why do datasets with identical homophily show opposite GNN outcomes?
 
-    \item \textbf{Heterophily Puzzle}: Why do some low-$h$ datasets benefit from GNNs while others don't? Why does H2GCN help on Texas but not Actor?
+    \item \textbf{Heterophily Puzzle}: Why does H2GCN clearly exceed MLP on some low-$h$ datasets while matched uncertainty crosses zero on others?
 \end{enumerate}
 
 Sections~\ref{sec:snr}--\ref{sec:heterophily} examine three narrower mechanisms without claiming complete answers:
