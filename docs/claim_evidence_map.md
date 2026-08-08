@@ -16,7 +16,7 @@ This map is the contract for claims in the active manuscript. A claim may appear
 | Positive headroom bounds negative aggregation damage. | None; counterexamples exist. | Rejected | Must not appear. |
 | Classification-error improvement is bounded by $I(Y;G\mid X)/\log C$. | None; the stated inequality is false. | Rejected | Delete the Structure Information Bound. |
 | Efficiency defined as gain divided by headroom lies in $[-1,1]$. | None; negative values can have magnitude greater than one. | Rejected | Delete the range claim and decomposition. |
-| The legacy edge shuffle is degree preserving and isolates topology causally. | Existing implementation can change degrees when loops/duplicates are removed. | Rejected pending rerun | Call it exploratory edge randomization or rerun a verified double-edge-swap intervention. |
+| The legacy edge shuffle is degree preserving and isolates topology causally. | Source audit confirms discarded self-loops and collapsed duplicate edges; the tested replacement in `experiments/degree_preserving_edge_randomization.py` has not generated the legacy model outcomes. | Rejected for legacy results; replacement pending rerun | Keep the archived result exploratory. A future degree-matched rerun must report concurrent structural changes and must not claim isolation of homophily. |
 | Selector scores 32/36, 7/9, and 12/12 demonstrate predictive value. | Historical scoring gives ties/abstentions favorable treatment and omits matched trivial baselines. | Rejected as incremental evidence | May appear only in an explicitly retrospective audit table with matched baselines and caveats. |
 
 ## Abstract outline

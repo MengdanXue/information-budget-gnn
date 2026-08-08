@@ -70,7 +70,7 @@ Across the 1,920 records for which the exact ratio is nonzero, the median absolu
 
 \subsection{Structural Intervention: Legacy Edge Randomization}
 
-The legacy experiment randomizes edges to perturb the observed topology. Its implementation intended to retain node degrees, but the audited artifact does not include a before/after degree sequence or checksum, so that property is not verified here. The intervention disrupts several graph statistics simultaneously and is therefore descriptive evidence of sensitivity to a topology perturbation rather than a standalone causal identification result.
+The legacy experiment randomizes edges to perturb the observed topology. Source audit shows that its stub-pairing path discarded self-loops and collapsed duplicate edges, so it did not guarantee the original edge count or degree sequence; the archived artifact also contains no before/after checksum. The revised artifact includes a tested double-edge-swap implementation with invariant checks and concurrent structural-statistics reporting, but it has not been used to regenerate Table~\ref{tab:shuffle}. The archived intervention is therefore descriptive evidence of sensitivity to a topology perturbation rather than a standalone causal identification result.
 
 \begin{table}[t]
 \centering
