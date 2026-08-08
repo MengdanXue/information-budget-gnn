@@ -55,6 +55,19 @@ ogbn-arxiv & 55.7\% & 44.3\% & +0.8\% \\
 
 The previously generated headroom-correlation figure is omitted because it combines legacy experiment versions and displays an unreproduced statistic. Section~\ref{sec:budget} reports the shared-term audit instead.
 
+\subsection{Direct Validation of the Scoped Moment Calculation}
+
+We directly simulate the fixed-degree binary Gaussian surrogate used in Proposition~\ref{prop:self_neighbor_mixing}. The frozen grid contains 400 configurations over degree, edge-label correlation, feature strength, and self-feature weight, with five fixed seeds and 5,000 samples per class. All 2,000 configuration--seed records completed successfully and retain their empirical moments, exact prediction, environment, and source commit.
+
+Across the 1,920 records for which the exact ratio is nonzero, the median absolute relative error between the empirical moment estimate and the exact $\kappa_\alpha$ expression is 0.94\% (descriptive 95\% percentile-bootstrap interval over grid--seed records: 0.86--1.05\%). By contrast, in the neighbor-only slice the median absolute error of the simplified $\rho^2d$ approximation is 0.293 (0.242--0.365), and its overstatement increases with feature strength. These results validate the implemented moment calculation under the prescribed surrogate; they do not establish a Bayes-error formula or the exact behavior of a trained GNN.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{results/discriminability/route_a_grid_v1/summary/validation_figure}
+\caption{Frozen direct simulation of the scoped discriminability calculation. Left: empirical and exact $\kappa_\alpha$. Right: signed error of the neighbor-only $\rho^2d$ approximation, with descriptive bootstrap intervals of the median.}
+\label{fig:direct_discriminability_validation}
+\end{figure*}
+
 \subsection{Structural Intervention: Legacy Edge Randomization}
 
 The legacy experiment randomizes edges to perturb the observed topology. Its implementation intended to retain node degrees, but the audited artifact does not include a before/after degree sequence or checksum, so that property is not verified here. The intervention disrupts several graph statistics simultaneously and is therefore descriptive evidence of sensitivity to a topology perturbation rather than a standalone causal identification result.
@@ -86,6 +99,8 @@ PubMed & 0.80 & +0.1\% & $-17.4$\% & 17.5\% \\
 \subsection{Retrospective Selector Audit}
 
 Historical controlled, leave-one-dataset-out, and external summaries used different prediction targets, favorable tie or abstention scoring, and aggregate files that do not all retain paired seeds. We therefore do not pool their headline accuracies. In the audited six-dataset comparison with one target and matched scoring, the historical rule and an always-graph baseline make the same number of correct selections. This result demonstrates no incremental value for the rule in that comparison. A confirmatory selector evaluation requires a predeclared model set, tie margin, coverage policy, and per-seed outcomes.
+
+\textbf{Prospective benchmark status.} We freeze such a specification in the released artifact before generating new outcomes: one accuracy target, a one-percentage-point practical margin, validation-only model selection, nine matched baselines, MLP fallback for abstentions, dataset-level paired bootstrap intervals, and Holm correction. The evaluator rejects diagnostics marked as using test labels and requires complete dataset/model/seed records. This benchmark has not yet been executed on newly generated model records, so we report no prospective selector headline and do not reinterpret the legacy aggregates as confirmatory data.
 
 \subsection{Statistical Significance}
 
