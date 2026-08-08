@@ -3,6 +3,7 @@
 *.out
 __pycache__/
 *.py[cod]
+.venv-analysis/
 main_ieee_journal.pdf
 data/
 github_repo/
