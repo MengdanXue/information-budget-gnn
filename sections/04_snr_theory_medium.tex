@@ -166,9 +166,9 @@ The exact ratio satisfies
 Consequently, the exact ratio falls below the approximation by the fraction
 $(\rho^2d-\kappa)/(\rho^2d)=\eta/(1+\eta)$, while the approximation overstates the exact value by $(\rho^2d-\kappa)/\kappa=\eta$. This makes the required feature-noise-dominance regime explicit and does not invoke an asymptotic $o(1)$ term.
 
-\subsection{Multi-Layer Analysis}
+\subsection{Broadcasting Context, Not a GNN Threshold}
 
-For broadcasting on a regular tree with forward branching factor $b$, the classical Kesten--Stigum quantity is $b\rho^2$ \cite{kesten1966additional,mossel2015reconstruction}. For a $q$-regular undirected tree, $b=q-1$; for a Poisson Galton--Watson limit with mean offspring $k$, $b=k$. We use this only to contextualize the one-hop calculation. We do not claim a multi-layer equality for ordinary GNN aggregation, whose reused neighborhoods, self-loops, nonlinearities, and learned transformations require a separate analysis.
+The product ``branching factor $\times$ squared label correlation'' also appears in classical tree broadcasting and reconstruction. For a regular tree with forward branching factor $b$, the Kesten--Stigum quantity is $b\rho^2$~\cite{kesten1966additional,mossel2015reconstruction}. Here $b=q-1$ for a $q$-regular undirected tree, whereas a Poisson Galton--Watson limit with mean offspring $k$ uses $b=k$. This resemblance supplies historical context for the weak-feature limit of our one-hop ratio; it is not a new threshold result. In particular, $d$ in Proposition~\ref{prop:fixed_degree} is a fixed one-hop neighbor count and must not be interchanged with either forward degree without an explicit coupling. Ordinary finite-depth GNNs also reuse neighborhoods and may include self-loops, normalization, nonlinearities, attention, and learned transformations. We therefore derive no Kesten--Stigum condition for GNN depth or architecture. Recent finite-depth CSBM analysis likewise finds Gaussian-mixture embeddings and depth behavior more complex than a single-Gaussian account~\cite{pmlr-v269-dalle25a}.
 
 \subsection{Extensions Not Claimed Here}
 

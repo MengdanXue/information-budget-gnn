@@ -100,7 +100,7 @@ class RouteAClaimAuditTests(unittest.TestCase):
         self.assertNotIn("structure_information_bound", result.stdout)
         self.assertNotIn("false_conditional_mi_error_bound", result.stdout)
         self.assertIn("unverified_degree_preserving_claim", result.stdout)
-        self.assertIn("architecture_independent_claim", result.stdout)
+        self.assertNotIn("architecture_independent_claim", result.stdout)
 
 
 if __name__ == "__main__":

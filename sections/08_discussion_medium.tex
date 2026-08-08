@@ -8,24 +8,24 @@
 
 \subsection{Unified Understanding of GNN Behavior}
 
-Our framework provides a coherent explanation for previously puzzling GNN phenomena:
+The scoped calculation and empirical diagnostics suggest possible explanations for several GNN phenomena, while stopping short of architecture-level prediction:
 
 \textbf{(1) The U-Shape Pattern.} The fixed-degree calculation predicts minimal neighbor-label discriminability when $\rho = 2h-1 \approx 0$. This offers a mechanism for, but does not by itself prove, the empirical GNN accuracy dip at mid-homophily.
 
-\textbf{(2) Same-$h$ Paradox.} Datasets with identical homophily show different GNN outcomes because homophily alone doesn't capture the full picture. The 2-hop recovery ratio $R$ and feature quality (reflected in MLP accuracy) are equally important.
+\textbf{(2) Same-$h$ differences.} Datasets with similar homophily can yield different GNN outcomes because a global edge-label statistic omits class-conditional neighborhood patterns, feature geometry, degree variation, and optimization effects. Two-hop homophily and MLP accuracy are descriptive diagnostics, not factors proven to be equally important.
 
-\textbf{(3) Architecture Variance.} GraphSAGE's robustness across homophily levels follows directly from its information-preserving concatenation design (Theorem~\ref{thm:concat}).
+\textbf{(3) Architecture dependence.} An explicit ego channel changes the representation available to a downstream classifier, but this chain-rule observation does not imply that GraphSAGE, GCN, or attention will be uniformly preferable after finite-sample training. Recent CSBM work also finds that attention benefits depend on feature and structural noise~\cite{pmlr-v267-ma25w}.
 
 \subsection{Connection to Existing Theory}
 
-Our SNR framework connects to several theoretical traditions:
+Our moment calculation is adjacent to, but distinct from, several theoretical traditions:
 
 \begin{itemize}
-    \item \textbf{Kesten-Stigum Threshold} \cite{mossel2015reconstruction}: The condition $(k-1)\rho^2 > 1$ for multi-layer signal propagation is exactly the community detection threshold in SBMs.
+    \item \textbf{Tree broadcasting} \cite{kesten1966additional,mossel2015reconstruction}: A branching-factor--times--squared-correlation quantity appears in reconstruction on trees. Its resemblance to the weak-feature limit of our ratio is contextual only; fixed neighbor count, regular-tree forward degree, and Poisson offspring are different objects.
 
-    \item \textbf{Oversmoothing} \cite{li2018oversmoothing}: Our framework quantifies when oversmoothing occurs: layers beyond the Kesten-Stigum threshold reduce discriminability regardless of architecture.
+    \item \textbf{Finite-depth CSBM embeddings}: Dalle and Thiran~\cite{pmlr-v269-dalle25a} obtain Gaussian-mixture embeddings for a linearized GCN and report depth behavior more complex than a single-Gaussian approximation. Our one-hop proposition neither characterizes oversmoothing nor supplies a depth threshold.
 
-    \item \textbf{Graph Signal Processing} \cite{wu2019sgc}: The SNR ratio $\kappa$ can be interpreted as the ratio of low-frequency to high-frequency energy after graph filtering.
+    \item \textbf{CSBM recovery theory}: Sharp detection and weak-recovery thresholds have been established for the CSBM~\cite{lu2023contextual}. Our conditional moment ratio has a different target and is not presented as a recovery threshold.
 \end{itemize}
 
 \subsection{Limitations}
@@ -33,13 +33,13 @@ Our SNR framework connects to several theoretical traditions:
 Our framework has important scope conditions:
 
 \begin{enumerate}
-    \item \textbf{Binary Classification Focus}: The main theorem is derived for binary CSBM. Multi-class extension (Section~\ref{sec:snr}) uses the effective correlation $\rho_C$, which is approximate.
+    \item \textbf{Binary fixed-degree focus}: The proposition assumes binary labels, a fixed neighbor count, conditionally independent neighbor labels, Gaussian feature noise, and a shared positive-definite covariance. We state no scalar multi-class extension.
 
     \item \textbf{Homogeneous Assumptions}: We assume uniform within-class and between-class edge probabilities. Real graphs may have heterogeneous community structure.
 
-    \item \textbf{Transition Zones}: Predictions are less reliable near thresholds ($0.25 < h < 0.35$ and $0.65 < h < 0.75$) where small estimation errors can flip predictions.
+    \item \textbf{No universal transition interval}: The exact threshold is internal to the stated moment model and depends on $(d,s)$. The experiments do not establish fixed homophily intervals that transfer across datasets or architectures.
 
-    \item \textbf{Small Graphs}: For $n < 500$, finite-size effects dominate and tree approximations may fail.
+    \item \textbf{Finite graphs}: Random degree, isolated nodes, cycles, neighborhood reuse, and estimation error are not covered by the fixed-degree proposition. The available evidence does not identify a universal sample-size cutoff.
 
     \item \textbf{Feature Distribution}: Gaussian feature assumption enables closed-form analysis but may not hold for categorical or sparse features.
 
@@ -50,19 +50,19 @@ Our framework has important scope conditions:
 
 Proposition~\ref{prop:fixed_degree} is a finite fixed-degree moment calculation. Extending it to sparse finite graphs requires handling random degree, isolated nodes, cycles, and dependence introduced by repeated aggregation.
 
-\textbf{Sample Size Considerations.} The available experiments are not sufficient to infer a universal numerical sample-size cutoff:
+\textbf{Sample-size considerations.} The available experiments are not sufficient to infer a universal numerical sample-size cutoff:
 \begin{itemize}
-    \item \textbf{Large graphs}: satisfying the arithmetic Information Budget ceiling is expected and is not evidence that the diagnostic predicts GNN advantage.
-    \item \textbf{Small graphs} ($n < 500$): WebKB datasets (Texas, Wisconsin, Cornell with $n < 300$) show higher variance. The framework correctly predicts trends but with reduced precision.
+    \item \textbf{Large graphs}: one successful three-seed ogbn-arxiv run is a descriptive scalability check, not evidence of transfer to other OGB datasets.
+    \item \textbf{Small graphs}: the WebKB results show appreciable variation, but the current artifact does not isolate graph size from split, label, feature, and structural effects.
 \end{itemize}
 
 \textbf{Finite-$n$ Error Bounds.} We do not claim a finite-$n$ rate for transferring the fixed-degree proposition to CSBM. Such a result would require a separate coupling argument and an explicit treatment of the random-degree mixture.
 
-\textbf{Practical Recommendation.} For graphs with $n < 500$, we recommend:
+\textbf{Practical use.} For any dataset, the current quantities should be treated as exploratory diagnostics:
 \begin{enumerate}
-    \item Use the framework for qualitative guidance (e.g., ``GNN likely helps'' vs ``MLP likely sufficient'') rather than precise quantitative predictions.
-    \item Increase the number of random seeds (from 10 to 20+) to account for higher variance.
-    \item Validate predictions empirically rather than relying solely on theoretical thresholds.
+    \item report the MLP--GNN accuracy difference with uncertainty over seeds or splits;
+    \item report one-hop and two-hop label statistics separately rather than using a fixed selection threshold; and
+    \item validate any decision rule prospectively on datasets not used to construct it.
 \end{enumerate}
 
 For large-scale graphs, the current audited artifact contains a successful 3-seed run on ogbn-arxiv (169K nodes). Broader million-node validation remains future work; the available ogbn-products run terminated with an out-of-memory error and is not used as evidence here.
@@ -71,8 +71,8 @@ For large-scale graphs, the current audited artifact contains a successful 3-see
 
 \textbf{Positive Applications}:
 \begin{itemize}
-    \item Reducing computational waste by predicting when GNNs won't help
-    \item Guiding architecture selection without exhaustive experimentation
+    \item Supporting targeted investigation of aggregation failures
+    \item Making architecture comparisons easier to audit
     \item Providing interpretable diagnostics for GNN failures
 \end{itemize}
 
@@ -88,14 +88,14 @@ Our experimental evaluation focuses on representative architectures that span th
     \item \textbf{Adaptive propagation}: GPR-GNN
 \end{itemize}
 
-We acknowledge that recent methods (FAGCN~\cite{fagcn2021}, GloGNN~\cite{li2022glognn}, ACM-GCN~\cite{acmgcn2024}) offer additional innovations. However, our framework's predictions are architecture-agnostic: the Information Budget bound applies regardless of GNN design, as it constrains improvement from \textit{any} use of graph structure. The selected baselines sufficiently demonstrate:
+We acknowledge that recent methods (FAGCN~\cite{fagcn2021}, GloGNN~\cite{li2022glognn}, ACM-GCN~\cite{acmgcn2024}) offer additional innovations. The selected baselines span several aggregation designs, but they do not establish architecture-independent predictions. They provide descriptive comparisons of:
 \begin{enumerate}
     \item The U-shape pattern (GCN vs GraphSAGE)
     \item ADR differences (replace vs concatenate)
     \item Heterophily handling (H2GCN, LINKX)
 \end{enumerate}
 
-Future work could validate the framework on emerging architectures (graph transformers, equivariant GNNs), but we expect the core principles---Budget determines ceiling, architecture determines efficiency---to remain applicable.
+Future work should test any diagnostic rule on emerging architectures and held-out datasets before claiming model-selection value.
 
 \subsection{Future Directions}
 
