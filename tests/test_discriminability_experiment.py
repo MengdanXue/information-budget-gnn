@@ -169,6 +169,9 @@ class DiscriminabilityExperimentTests(unittest.TestCase):
             output = tmp_path / "out"
             summary_dir = tmp_path / "summary"
             tiny_config(config)
+            specification = json.loads(config.read_text(encoding="utf-8"))
+            specification["grid"]["alpha"] = [0.0, 0.25, 0.5, 0.75, 1.0]
+            config.write_text(json.dumps(specification, indent=2), encoding="utf-8")
             experiment = self.run_experiment(config, output)
             self.assertEqual(experiment.returncode, 0, experiment.stdout + experiment.stderr)
 
@@ -189,6 +192,7 @@ class DiscriminabilityExperimentTests(unittest.TestCase):
             )
 
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertNotIn("UserWarning", result.stderr)
             expected = {
                 "summary.json",
                 "records.csv",
@@ -198,8 +202,8 @@ class DiscriminabilityExperimentTests(unittest.TestCase):
             }
             self.assertEqual(expected, {path.name for path in summary_dir.iterdir()})
             summary = json.loads((summary_dir / "summary.json").read_text(encoding="utf-8"))
-            self.assertEqual(summary["record_counts"]["success"], 2)
-            self.assertEqual(summary["record_counts"]["primary_relative_error_defined"], 1)
+            self.assertEqual(summary["record_counts"]["success"], 5)
+            self.assertEqual(summary["record_counts"]["primary_relative_error_defined"], 4)
             self.assertEqual(summary["record_counts"]["approximation_defined"], 1)
             self.assertEqual(summary["uncertainty"]["method"], "95_percentile_bootstrap")
             manifest = json.loads(

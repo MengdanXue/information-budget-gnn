@@ -165,15 +165,21 @@ def render_figure(rows: list[dict[str, Any]], specification: dict[str, Any], out
         alphas = sorted({float(row["alpha"]) for row in success})
         for index, alpha in enumerate(alphas):
             subset = [row for row in success if float(row["alpha"]) == alpha]
+            marker = MARKERS[index % len(MARKERS)]
+            color = COLORS[index % len(COLORS)]
+            marker_colors = (
+                {"color": color}
+                if marker == "x"
+                else {"facecolors": "none", "edgecolors": color}
+            )
             ax.scatter(
                 [row["exact_kappa_alpha"] for row in subset],
                 [row["empirical_kappa"] for row in subset],
                 s=15,
-                facecolors="none" if MARKERS[index % len(MARKERS)] != "x" else COLORS[index % len(COLORS)],
-                edgecolors=COLORS[index % len(COLORS)],
-                marker=MARKERS[index % len(MARKERS)],
+                marker=marker,
                 linewidths=0.8,
                 label=rf"$\alpha={alpha:g}$",
+                **marker_colors,
             )
         all_values = [
             float(value)
