@@ -95,11 +95,12 @@ class RouteAClaimAuditTests(unittest.TestCase):
     def test_current_manuscript_reports_only_remaining_route_a_work(self):
         result = self.run_audit(ROOT, "main_ieee_journal.tex")
 
-        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Route A claim audit passed", result.stdout)
         self.assertNotIn("historical_selector_score_32_36", result.stdout)
         self.assertNotIn("structure_information_bound", result.stdout)
         self.assertNotIn("false_conditional_mi_error_bound", result.stdout)
-        self.assertIn("unverified_degree_preserving_claim", result.stdout)
+        self.assertNotIn("unverified_degree_preserving_claim", result.stdout)
         self.assertNotIn("architecture_independent_claim", result.stdout)
 
 

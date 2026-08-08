@@ -55,13 +55,13 @@ ogbn-arxiv & 55.7\% & 44.3\% & +0.8\% \\
 
 The previously generated headroom-correlation figure is omitted because it combines legacy experiment versions and displays an unreproduced statistic. Section~\ref{sec:budget} reports the shared-term audit instead.
 
-\subsection{Structural Intervention: Edge Shuffle Experiment}
+\subsection{Structural Intervention: Legacy Edge Randomization}
 
-To test whether performance depends on the observed topology, we randomize edges while preserving the degree distribution. This intervention disrupts several graph statistics simultaneously and is therefore evidence of structural dependence rather than a standalone causal identification result.
+The legacy experiment randomizes edges to perturb the observed topology. Its implementation intended to retain node degrees, but the audited artifact does not include a before/after degree sequence or checksum, so that property is not verified here. The intervention disrupts several graph statistics simultaneously and is therefore descriptive evidence of sensitivity to a topology perturbation rather than a standalone causal identification result.
 
 \begin{table}[t]
 \centering
-\caption{Effect of Degree-Preserving Edge Shuffle}
+\caption{Effect of Legacy Edge Randomization}
 \label{tab:shuffle}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
@@ -74,12 +74,12 @@ PubMed & 0.80 & +0.1\% & $-17.4$\% & 17.5\% \\
 \end{tabular}
 \end{table}
 
-\textbf{Result} (Table~\ref{tab:shuffle}): Randomizing edges reduces GNN advantage by 18--47 percentage points, showing that performance depends strongly on the observed topology.
+\textbf{Result} (Table~\ref{tab:shuffle}): In the archived outputs, the randomized-edge condition reduces GNN advantage by 18--47 percentage points. Because degree retention and rerun provenance are incomplete, we treat this as a sensitivity result rather than a controlled degree-matched estimate.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=0.95\columnwidth]{edge_shuffle_effect}
-\caption{Edge-shuffle intervention. Degree-preserving randomization substantially reduces GCN advantage, providing evidence that the model uses information specific to the observed topology.}
+\caption{Legacy edge-randomization result. The randomized condition reduces recorded GCN advantage; intended degree retention is not verified by an archived degree-sequence checksum.}
 \label{fig:shuffle}
 \end{figure}
 
