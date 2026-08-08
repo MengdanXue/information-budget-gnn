@@ -21,40 +21,39 @@
 
 \textbf{Protocol.} Unless noted otherwise, benchmark experiments use 10 random seeds and 60/20/20 train/validation/test splits. The audited ogbn-arxiv result uses the official split and 3 seeds. Several legacy aggregate files do not retain paired per-seed outputs. We report inferential tests only when their underlying samples are present in the audited artifact; otherwise results are treated as descriptive point estimates.
 
-\subsection{Information Budget Validation}
+\subsection{Arithmetic Headroom Sanity Check}
 
-Our central claim is that GNN improvement over MLP is bounded by the Information Budget $\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$.
+We report positive-gain headroom to document the scale of each comparison, not to validate a structural theory. For every row, $H=1-\widehat{\mathrm{Acc}}_{\mathrm{MLP}}$ and the observed graph-model advantage use the same split and protocol.
 
 \begin{table}[t]
 \centering
-\caption{Information Budget on the Audited Result Subset}
+\caption{Arithmetic Accuracy Headroom on the Audited Result Subset}
 \label{tab:budget_validation}
 \small
-\begin{tabular}{@{}lcccc@{}}
+\begin{tabular}{@{}lccc@{}}
 \toprule
-Dataset & MLP Acc & Budget & Best GNN Adv. & Within? \\
+Dataset & MLP Acc & Headroom & Best GNN Adv. \\
 \midrule
-\multicolumn{5}{l}{\textit{Citation Networks}} \\
-Cora & 75.7\% & 24.3\% & +12.7\% & $\checkmark$ \\
-CiteSeer & 72.9\% & 27.1\% & +2.8\% & $\checkmark$ \\
-PubMed & 87.4\% & 12.6\% & +1.6\% & $\checkmark$ \\
+\multicolumn{4}{l}{\textit{Citation Networks}} \\
+Cora & 75.7\% & 24.3\% & +12.7\% \\
+CiteSeer & 72.9\% & 27.1\% & +2.8\% \\
+PubMed & 87.4\% & 12.6\% & +1.6\% \\
 \midrule
-\multicolumn{5}{l}{\textit{Co-authorship}} \\
-Coauthor-CS & 94.4\% & 5.6\% & +0.6\% & $\checkmark$ \\
+\multicolumn{4}{l}{\textit{Co-authorship}} \\
+Coauthor-CS & 94.4\% & 5.6\% & +0.6\% \\
 \midrule
-\multicolumn{5}{l}{\textit{Heterophilic}} \\
-Actor & 36.6\% & 63.4\% & $-1.7$\% & $\checkmark$ \\
+\multicolumn{4}{l}{\textit{Heterophilic}} \\
+Actor & 36.6\% & 63.4\% & $-1.7$\% \\
 \midrule
-\multicolumn{5}{l}{\textit{Large-Scale OGB}} \\
-ogbn-arxiv & 55.7\% & 44.3\% & +0.8\% & $\checkmark$ \\
-\textbf{Audited subset} & & & & \textbf{6/6} \\
+\multicolumn{4}{l}{\textit{Large-Scale OGB}} \\
+ogbn-arxiv & 55.7\% & 44.3\% & +0.8\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Result} (Table~\ref{tab:budget_validation}): Every result in the audited subset satisfies the arithmetic headroom bound. Because the bound follows from accuracy being at most one, its empirical value is assessed through prediction and calibration rather than the absence of violations alone.
+\textbf{Interpretation} (Table~\ref{tab:budget_validation}): Every positive gain is below its arithmetic headroom because accuracy cannot exceed one. The check detects transcription or scale errors, but its absence of violations is not evidence that headroom predicts graph utility. Negative graph-model gaps are not bounded by this quantity.
 
-The previously generated Budget-correlation figure is omitted because it combines legacy experiment versions and displays the unreproduced $r=0.929$ statistic. A replacement should be generated only from the audited result manifest.
+The previously generated headroom-correlation figure is omitted because it combines legacy experiment versions and displays an unreproduced statistic. Section~\ref{sec:budget} reports the shared-term audit instead.
 
 \subsection{Structural Intervention: Edge Shuffle Experiment}
 
@@ -84,26 +83,9 @@ PubMed & 0.80 & +0.1\% & $-17.4$\% & 17.5\% \\
 \label{fig:shuffle}
 \end{figure}
 
-\subsection{Framework Prediction Accuracy}
+\subsection{Retrospective Selector Audit}
 
-\begin{table}[t]
-\centering
-\caption{Prediction Accuracy Across Validation Types}
-\label{tab:prediction}
-\begin{tabular}{@{}lcc@{}}
-\toprule
-Validation Type & Accuracy & 95\% CI \\
-\midrule
-CSBM synthetic (36 configs) & 88.9\% (32/36) & --- \\
-LODO selective accuracy & 100\% (12/12; 75\% coverage) & [73.5\%, 100\%] \\
-External held-out & 77.8\% (7/9) & [40.0\%, 97.2\%] \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\textbf{LODO (Leave-One-Dataset-Out).} For each dataset, we train the prediction rule on the remaining datasets and test on the held-out one. The rule is correct on all 12 decisive cases and abstains on 4 of 16 cases, yielding 100\% selective accuracy at 75\% coverage (75\% if abstentions are counted as incorrect).
-
-\textbf{External Validation.} On 9 datasets not used in model development, our framework correctly predicts GNN vs.\ MLP winner in 7/9 cases (77.8\%).
+Historical controlled, leave-one-dataset-out, and external summaries used different prediction targets, favorable tie or abstention scoring, and aggregate files that do not all retain paired seeds. We therefore do not pool their headline accuracies. In the audited six-dataset comparison with one target and matched scoring, the historical rule and an always-graph baseline make the same number of correct selections. This result demonstrates no incremental value for the rule in that comparison. A confirmatory selector evaluation requires a predeclared model set, tie margin, coverage policy, and per-seed outcomes.
 
 \subsection{Statistical Significance}
 

@@ -76,12 +76,30 @@ class RouteAClaimAuditTests(unittest.TestCase):
             safe = self.run_audit(root)
             self.assertEqual(safe.returncode, 0, safe.stdout + safe.stderr)
 
-    def test_current_manuscript_is_flagged_until_route_a_rewrite(self):
+    def test_false_information_and_absolute_gap_bounds_are_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "main.tex").write_text(
+                "Bayes error improvement is at most "
+                "\\frac{I(Y; G \\mid X)}{\\log C}.\n"
+                "\\mathcal{B}<5\\% \\Rightarrow |\\Delta|<5\\%.\n",
+                encoding="utf-8",
+            )
+
+            result = self.run_audit(root)
+
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertIn("main.tex:1:false_conditional_mi_error_bound", result.stdout)
+            self.assertIn("main.tex:2:headroom_absolute_gap_claim", result.stdout)
+
+    def test_current_manuscript_reports_only_remaining_route_a_work(self):
         result = self.run_audit(ROOT, "main_ieee_journal.tex")
 
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
-        self.assertIn("historical_selector_score_32_36", result.stdout)
-        self.assertIn("structure_information_bound", result.stdout)
+        self.assertNotIn("historical_selector_score_32_36", result.stdout)
+        self.assertNotIn("structure_information_bound", result.stdout)
+        self.assertNotIn("false_conditional_mi_error_bound", result.stdout)
+        self.assertIn("unverified_degree_preserving_claim", result.stdout)
         self.assertIn("architecture_independent_claim", result.stdout)
 
 

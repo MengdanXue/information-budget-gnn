@@ -36,6 +36,20 @@ LINE_RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
         "architecture_independent_claim",
         re.compile(r"regardless\s+of\s+architecture", re.IGNORECASE),
     ),
+    (
+        "false_conditional_mi_error_bound",
+        re.compile(
+            r"I\s*\(\s*Y\s*;\s*G\s*(?:\||\\mid)\s*X\s*\)[^\n]{0,80}\\log\s*C",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "headroom_absolute_gap_claim",
+        re.compile(
+            r"\\mathcal\s*\{B\}[^\n]{0,80}\\Rightarrow[^\n]{0,80}\|\s*\\Delta\s*\|",
+            re.IGNORECASE,
+        ),
+    ),
 )
 
 INPUT_PATTERN = re.compile(r"\\(?:input|include)\s*\{([^}]+)\}")

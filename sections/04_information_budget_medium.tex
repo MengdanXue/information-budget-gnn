@@ -1,55 +1,37 @@
 % ============================================================
-% Section 4: Information Budget (Medium length for TNNLS)
-% Target: ~2.5 pages
+% Section 4: Arithmetic accuracy headroom and its limitations
 % ============================================================
 
-\section{The Information Budget}
+\section{Accuracy Headroom Is Not a Structural Predictor}
 \label{sec:budget}
 
-We now formalize an empirical diagnostic framework for understanding when GNNs can improve over feature-only methods.
-
-\subsection{Core Definitions}
-
-\begin{definition}[Empirical Enhancement Ceiling]
-\label{def:budget}
-Given a node classification task with features $X$ and labels $Y$, under a fixed experimental protocol, we define the \textbf{Empirical Enhancement Ceiling} as:
+Accuracy imposes an immediate ceiling on positive improvement, but that ceiling contains no model of graph utility. Let
 \begin{equation}
-    \mathcal{B} = 1 - \text{Acc}_{\text{MLP}}^*(X, Y)
+    \widehat{\Delta}
+    = \widehat{\mathrm{Acc}}_{\mathrm{GNN}}
+    - \widehat{\mathrm{Acc}}_{\mathrm{MLP}}
 \end{equation}
-where $\text{Acc}_{\text{MLP}}^*$ is the best accuracy achievable using only node features.
-\end{definition}
-
-\textbf{Intuition}: The MLP accuracy represents the predictive power of features alone. The ceiling $\mathcal{B}$ quantifies the \textit{maximum room for improvement} that graph structure could potentially provide.
-
-\subsection{The Conditional Enhancement Bound}
-
-\begin{theorem}[Conditional Enhancement Bound]
-\label{thm:conditional_bound}
-Let $\mathcal{P}$ denote a fixed experimental protocol. If the following conditions hold:
-\begin{enumerate}
-    \item[(C1)] \textbf{Fair Comparison}: MLP and GNN trained with equivalent capacity
-    \item[(C2)] \textbf{Consistent Features}: Both use identical input features $X$
-    \item[(C3)] \textbf{Standard Aggregation}: GNN uses neighborhood aggregation without external signals
-\end{enumerate}
-Then the GNN improvement over MLP satisfies:
+denote the observed accuracy difference under one fixed data split, tuning protocol, and model set. Because accuracy is at most one,
 \begin{equation}
-    \text{Acc}_{\text{GNN}} - \text{Acc}_{\text{MLP}} \leq \mathcal{B} = 1 - \text{Acc}_{\text{MLP}}
+    \max(\widehat{\Delta},0)
+    \leq 1-\widehat{\mathrm{Acc}}_{\mathrm{MLP}}.
+    \label{eq:positive_headroom}
 \end{equation}
-\end{theorem}
+Equation~\eqref{eq:positive_headroom} is an arithmetic range statement. It does not require assumptions about model capacity, aggregation, or conditional graph information, and observing that experiments satisfy it is not an empirical validation.
 
-\begin{proof}
-Rearranging the claimed inequality gives $\text{Acc}_{\text{GNN}}\leq 1$, which holds by definition of accuracy. Conditions (C1)--(C3) are experimental comparability requirements, not mathematical requirements for this arithmetic ceiling.
-\end{proof}
+The one-sided form is essential. Positive headroom places no lower bound on $\widehat{\Delta}$ and therefore cannot bound aggregation damage. For example, an MLP accuracy of $0.9$ leaves positive headroom $0.1$, but a graph-model accuracy of $0$ gives $\widehat{\Delta}=-0.9$. Similarly, the ratio $\widehat{\Delta}/(1-\widehat{\mathrm{Acc}}_{\mathrm{MLP}})$ is at most one when its denominator is positive, but it need not be greater than or equal to $-1$. We therefore do not interpret this ratio as a bounded efficiency quantity.
 
-\subsection{Empirical Content Beyond the Arithmetic Bound}
+The notation also needs an operational distinction. The observed $\widehat{\mathrm{Acc}}_{\mathrm{MLP}}$ is a protocol-specific estimate from a tuned model and finite split; it is not the unknown best achievable feature-only accuracy. Throughout the empirical sections, ``MLP'' refers only to the declared architecture, search space, splits, and seeds. Claims about all feature-only classifiers would require a different estimand.
 
-The ceiling $\Delta \leq 1-\text{Acc}_{\text{MLP}}$ follows arithmetically from $\text{Acc}_{\text{GNN}} \leq 1$. Its scientific content therefore lies not in observing zero violations, but in testing whether headroom supports calibrated model-selection predictions.
+\subsection{Why Raw Headroom Correlations Are Misleading}
 
-\textbf{(1) Shared-Term Audit.} On the nine traceable external datasets, the correlation between $\mathcal{B}$ and best-candidate-GNN advantage is $r=-0.255$ ($R^2=0.065$; 95\% bootstrap CI $[-0.743,0.523]$). A null model that permutes GNN accuracies while retaining the shared $-\text{Acc}_{\text{MLP}}$ term produces mean $r=0.669$ (95\% interval $[0.327,0.897]$). Thus the previously reported large positive correlation is not reproduced by the audited external result set and is not used as evidence in this revision.
+Let $H=1-\widehat{\mathrm{Acc}}_{\mathrm{MLP}}$ and $\widehat{\Delta}=\widehat{\mathrm{Acc}}_{\mathrm{GNN}}-\widehat{\mathrm{Acc}}_{\mathrm{MLP}}$. Both quantities contain the shared term $-\widehat{\mathrm{Acc}}_{\mathrm{MLP}}$, so their raw correlation can be positive even when GNN accuracy is unrelated to MLP accuracy. This mathematical coupling must be audited before a correlation is interpreted as predictive evidence.
+
+On the nine traceable external datasets, the observed headroom--advantage correlation is $r=-0.255$ ($R^2=0.065$; 95\% bootstrap interval $[-0.743,0.523]$). A null calculation that permutes GNN accuracies while retaining the shared MLP term gives mean $r=0.669$ with a 95\% interval $[0.327,0.897]$ (Table~\ref{tab:predictive_comparison}). The previously reported large positive correlation is therefore not reproduced by the audited external result set and is not used as evidence.
 
 \begin{table}[t]
 \centering
-\caption{Shared-Term Audit on Nine External Datasets}
+\caption{Shared-Term Audit on Nine Traceable External Datasets}
 \label{tab:predictive_comparison}
 \begin{tabular}{@{}lcc@{}}
 \toprule
@@ -61,77 +43,6 @@ Shared-term null $r$ & $0.669$ (mean) & $[0.327,0.897]$ \\
 \end{tabular}
 \end{table}
 
-\textbf{Interpretation} (Table~\ref{tab:predictive_comparison}): The arithmetic ceiling remains valid, but the audited data do not support using raw Budget--advantage correlation as independent predictive evidence. Model selection must instead be evaluated directly on held-out datasets with a fixed prediction target.
+\subsection{Permitted Empirical Use}
 
-\textbf{(2) LODO Cross-Validation.} Leave-one-dataset-out validation gives 12/12 correct predictions among decisive cases (95\% CI: 73.5\%--100\%) at 75\% coverage (12/16); four cases are explicitly treated as abstentions.
-
-\textbf{(3) Structural Intervention.} Degree-preserving edge shuffle experiments show that disrupting the observed topology changes GNN advantage from $+12.6\%$ to $-34.8\%$ on Cora (47.4 point drop).
-
-\textbf{(4) Non-Vacuous Predictions.} Unlike vacuous bounds (e.g., ``$\text{Acc} \leq 1$''), the Budget enables actionable predictions: when $\mathcal{B} < 5\%$, all 7 high-MLP datasets show $|\Delta| < 5\%$ (Prediction 4 in Table~\ref{tab:predictions}).
-
-\subsection{Falsifiable Predictions}
-
-\begin{table}[t]
-\centering
-\caption{Four Falsifiable Predictions and Their Validation}
-\label{tab:predictions}
-\small
-\begin{tabular}{@{}p{0.4\linewidth}p{0.5\linewidth}@{}}
-\toprule
-Prediction & Validation \\
-\midrule
-P1: $\Delta \leq \mathcal{B}$ (arithmetic ceiling) & Audited subset satisfies \\
-P2: $\Delta$ correlates with $\mathcal{B}$ & Not supported on audited external set ($r=-0.255$) \\
-P3: Edge shuffle decreases $\Delta$ & Cora: $+12.6\% \to -34.8\%$ \\
-P4: $\mathcal{B} < 5\% \Rightarrow |\Delta| < 5\%$ & All 7 high-MLP datasets satisfy \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Ceiling-Efficiency Decomposition}
-
-The Information Budget enables a decomposition of GNN improvement:
-\begin{equation}
-    \text{GNN Advantage} = \underbrace{(1 - \text{Acc}_{\text{MLP}})}_{\text{Ceiling } \mathcal{B}} \times \underbrace{\eta(h, \kappa)}_{\text{Efficiency } \in [-1, 1]}
-\end{equation}
-where efficiency $\eta$ depends on graph properties (homophily $h$, SNR ratio $\kappa$).
-
-\begin{table}[t]
-\centering
-\caption{Efficiency Varies with Homophily (Cora, Fixed Budget)}
-\label{tab:efficiency}
-\begin{tabular}{@{}ccccc@{}}
-\toprule
-$h$ & MLP & Budget & GCN Adv. & Efficiency \\
-\midrule
-0.81 (original) & 75.1\% & 24.9\% & +12.7\% & \textbf{51.0\%} \\
-0.55 (rewired) & 75.1\% & 24.9\% & +3.0\% & 12.0\% \\
-0.35 (rewired) & 75.1\% & 24.9\% & $-9.2\%$ & $-36.9\%$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\textbf{Key Insight} (Table~\ref{tab:efficiency}): Same budget, vastly different outcomes. Homophily determines efficiency; features determine the ceiling.
-
-\subsection{Practical Implications}
-
-\begin{enumerate}
-    \item \textbf{Always train MLP first}: If $\text{Acc}_{\text{MLP}} > 95\%$, the budget is too small ($< 5\%$) for meaningful GNN improvement.
-
-    \item \textbf{Predict GNN potential}: High budget ($\mathcal{B} > 20\%$) combined with high homophily ($h > 0.7$) suggests significant GNN benefit.
-
-    \item \textbf{Diagnose failures}: When GNN underperforms MLP despite high budget, investigate graph quality (low $h$, noisy edges).
-\end{enumerate}
-
-\subsection{Information-Theoretic Justification}
-
-\begin{proposition}[Structure Information Bound]
-\label{prop:structure_bound}
-Let $P_e^{\text{MLP}}$ and $P_e^{\text{GNN}}$ denote the Bayes-optimal error rates. Then:
-\begin{equation}
-    P_e^{\text{MLP}} - P_e^{\text{GNN}} \leq \frac{I(Y; G | X)}{\log C}
-\end{equation}
-where $I(Y; G | X)$ is the conditional mutual information between labels and structure given features.
-\end{proposition}
-
-This formalizes why GNN improvement is bounded by information in the graph not already captured by features.
+We retain headroom for two limited purposes. First, it reports the maximum possible positive accuracy gain on the chosen scale. Second, it identifies ceiling effects when comparing improvements across datasets. It is not treated as conditional mutual information, a calibrated prediction of graph utility, or evidence that a graph model cannot underperform severely. Whether a diagnostic adds value must instead be tested against operational baselines using a fixed target, matched tie handling, regret, and coverage.

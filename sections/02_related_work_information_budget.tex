@@ -1,22 +1,22 @@
 % ============================================================
 % Section 2: Related Work
-% The Information Budget of Graph Neural Networks
+% Route A: aggregation discriminability and diagnostic limitations
 % ============================================================
 
 \section{Related Work}
 \label{sec:related}
 
-Our Information Budget framework relates to four research areas: GNN aggregation mechanisms, homophily and heterophily analysis, feature-structure relationships, and GNN expressiveness theory.
+Our analysis relates to four research areas: GNN aggregation mechanisms, homophily and heterophily, feature--structure relationships, and representation-level theory.
 
 \subsection{Graph Neural Networks and Aggregation}
 
-\textbf{Spectral methods}: GCN~\cite{kipf2017gcn} introduced efficient graph convolution via symmetric normalization. SGC~\cite{wu2019sgc} simplified this by removing nonlinearities. These methods use \textit{replace} aggregation, where the node's own features are overwritten by aggregated neighbors.
+\textbf{Spectral methods}: GCN~\cite{kipf2017gcn} uses a self-looped, symmetrically normalized adjacency operator followed by learned transformations. SGC~\cite{wu2019sgc} removes intermediate nonlinearities and collapses repeated propagation. Neither operator is identical to the fixed-degree neighbor-only average analyzed in Section~\ref{sec:snr}; the simplified operator is used to isolate one mechanism.
 
-\textbf{Spatial methods}: GraphSAGE~\cite{hamilton2017graphsage} uses neighborhood sampling with \textit{concatenation}---preserving the node's own features alongside aggregated information. GIN~\cite{xu2019gin} proved theoretical expressiveness bounds. Our ADR analysis (Section~\ref{sec:adr}) shows that the replace-vs-concatenate distinction is critical for robustness.
+\textbf{Spatial methods}: GraphSAGE~\cite{hamilton2017graphsage} can concatenate an ego representation with an aggregated neighborhood representation, while GIN~\cite{xu2019gin} studies expressive aggregation. Retaining an explicit ego channel can prevent forced information loss at the representation level, but this observation alone does not guarantee better finite-sample accuracy after optimization.
 
-\textbf{Attention mechanisms}: GAT~\cite{velivckovic2018gat} learns neighbor importance. GATv2~\cite{brody2022gatv2} improved dynamic attention. However, attention cannot prevent damage when neighbors are fundamentally misleading---a problem our ADR quantifies.
+\textbf{Attention mechanisms}: GAT~\cite{velivckovic2018gat} and GATv2~\cite{brody2022gatv2} learn data-dependent neighbor weights. Their behavior depends on both feature and structural noise, so results for an unweighted mean operator cannot be transferred to attention without a separate argument.
 
-\textbf{Scalability}: GraphSAINT~\cite{zeng2020graphsaint} and Cluster-GCN~\cite{chiang2019clustergcn} enable million-node training. Our OGB experiments (Section~\ref{sec:budget}) validate the Information Budget at this scale.
+\textbf{Scalability}: GraphSAINT~\cite{zeng2020graphsaint} and Cluster-GCN~\cite{chiang2019clustergcn} enable training on large graphs. Our current OGB evidence is limited to a three-seed ogbn-arxiv result and is reported descriptively; it does not establish million-node or cross-OGB validation.
 
 \subsection{Homophily and Heterophily}
 
@@ -24,34 +24,34 @@ Our Information Budget framework relates to four research areas: GNN aggregation
 
 \textbf{Heterophily-aware methods}: When $h$ is low, standard GNN performance is inconsistent. H2GCN~\cite{zhu2020beyond} uses 2-hop neighbors and ego-neighbor separation. LINKX~\cite{luan2022linkx} separates features from structure entirely. MixHop~\cite{abu2019mixhop} and GPR-GNN~\cite{chien2021gprgnn} use multi-hop aggregation with learnable coefficients. FAGCN~\cite{fagcn2021} introduces frequency-adaptive filtering to handle both homophily and heterophily. GloGNN~\cite{li2022glognn} discovers global homophily patterns even in locally heterophilous graphs. ACM-GCN~\cite{acmgcn2024} uses adaptive cross-hop message passing. Our recovery-ratio analysis (Section~\ref{sec:heterophily}) diagnoses whether label homophily increases at two hops without claiming that this statistic alone selects the optimal model.
 
-\textbf{Beyond binary homophily}: Recent work challenges the simple high/low dichotomy. Platonov et al.~\cite{platonov2023heterophily} show that homophily alone is insufficient for predicting GNN success. Ma et al.~\cite{ma2021homophily} introduce class-conditional homophily. Our Information Budget provides a complementary perspective: feature sufficiency determines the ceiling, regardless of $h$.
+\textbf{Beyond binary homophily}: Recent work challenges the simple high/low dichotomy. Platonov et al.~\cite{platonov2023heterophily} show that homophily alone is insufficient for predicting GNN success. Ma et al.~\cite{ma2021homophily} introduce class-conditional homophily. Our fixed-degree calculation complements this line by retaining both edge correlation and feature strength, while our empirical audit tests whether a two-hop statistic adds decision value.
 
 \subsection{Feature-Structure Relationships}
 
-\textbf{When features are enough}: Huang et al.~\cite{huang2021mlp} showed MLPs can match GNNs on some benchmarks. GAMLP~\cite{zhang2021gamlp} precomputes propagation then trains MLP. Our work formalizes this: when $\text{Acc}_{\text{MLP}}$ is high, there is insufficient \textbf{budget} for GNN improvement.
+\textbf{When features are strong}: Huang et al.~\cite{huang2021mlp} showed that MLPs can match GNNs on some benchmarks, while GAMLP~\cite{zhang2021gamlp} combines precomputed propagation with an MLP. High observed MLP accuracy leaves little arithmetic room for positive accuracy gain, but it does not determine whether aggregation will help or cause a large negative gap.
 
-\textbf{Feature quality metrics}: Node feature informativeness has been studied~\cite{shchur2018pitfalls}, but primarily as a data quality issue. We reconceptualize it as the \textbf{Information Budget}---a fundamental constraint on GNN improvement.
+\textbf{Feature quality metrics}: Node feature informativeness and evaluation pitfalls have been studied~\cite{shchur2018pitfalls}. We use the Gaussian-model quantity $s=\mu^\top\Sigma^{-1}\mu$ as a controlled discriminability parameter and keep observed MLP accuracy as a protocol-specific empirical baseline.
 
-\textbf{Over-smoothing}: Li et al.~\cite{li2018oversmoothing} identified representation collapse in deep GNNs. Chen et al.~\cite{chen2020oversmoothing} analyzed the spectral perspective. Our ADR provides a related but distinct insight: even \textit{one} layer of aggregation can damage information at mid-homophily.
+\textbf{Over-smoothing}: Li et al.~\cite{li2018oversmoothing} identified representation collapse in deep GNNs, and Chen et al.~\cite{chen2020oversmoothing} analyzed a spectral perspective. Our accuracy-difference diagnostic is descriptive and should not be conflated with a proof of over-smoothing or information destruction.
 
 \subsection{GNN Expressiveness Theory}
 
-\textbf{WL hierarchy}: Xu et al.~\cite{xu2019gin} proved GNNs are at most as expressive as 1-WL. Morris et al.~\cite{morris2019wl} extended this to higher-order WL. These results focus on \textit{distinguishing graphs}, not \textit{improving predictions}---a gap our framework addresses.
+\textbf{WL hierarchy}: Xu et al.~\cite{xu2019gin} relate message-passing expressiveness to 1-WL, and Morris et al.~\cite{morris2019wl} study higher-order variants. These results concern representational distinguishability rather than the class-conditional moment calculation studied here.
 
-\textbf{Information-theoretic bounds}: Wu et al.~\cite{wu2023infognn} analyzed information flow in GNNs. Oono and Suzuki~\cite{oono2020exponential} proved exponential information loss in deep GNNs. Our Information Budget is complementary: it bounds improvement from the \textit{task} perspective, not the \textit{architecture} perspective.
+\textbf{Information and depth}: Wu et al.~\cite{wu2023infognn} analyze information flow in GNNs, while Oono and Suzuki~\cite{oono2020exponential} study asymptotic loss of expressive power with depth. We do not derive an information-theoretic bound on classification-error improvement; our exact result is a one-hop Mahalanobis-moment ratio under explicit distributional assumptions.
 
-\textbf{Aggregation analysis}: Cai and Wang~\cite{cai2020note} showed mean aggregation has limitations. Hamilton~\cite{hamilton2020book} compared aggregators extensively. Our Theorem~\ref{thm:concat} provides theoretical grounding for concatenation's superiority.
+\textbf{Aggregation analysis}: Cai and Wang~\cite{cai2020note} study limitations of mean aggregation, and Hamilton~\cite{hamilton2020book} surveys aggregator choices. The mutual-information chain rule for concatenated representations shows only that an optimal observer cannot lose information when an ego channel is retained; it does not prove that a trained GraphSAGE model must outperform GCN.
 
 \subsection{Positioning of Our Work}
 
-Our contribution differs from prior work in three ways:
+Our positioning differs from stronger predictive or threshold claims in three ways:
 
 \begin{enumerate}
-    \item \textbf{Budget-first perspective}: Existing frameworks start from $h$ or structure. We start from MLP accuracy, establishing the ceiling before considering how to reach it.
+    \item \textbf{Restricted exact calculation}: We keep label-mixture covariance in a fixed-degree binary Gaussian model and state where the analyzed operator differs from practical GNN layers.
 
-    \item \textbf{Damage quantification}: ADR provides a scalar measure of aggregation harm, explaining GraphSAGE's robustness through feature preservation.
+    \item \textbf{Direct validation standard}: We distinguish tests of the derived moment ratio from downstream accuracy experiments and do not use arithmetic non-violations as empirical confirmation.
 
-    \item \textbf{Heterophily diagnostic}: Rather than treating low-$h$ as a single regime, we measure whether label homophily recovers at two hops and test, rather than assume, how this statistic relates to trained models.
+    \item \textbf{Negative diagnostic evaluation}: We test aggregation damage and two-hop recovery against operational baselines and retain their failures rather than presenting them as universal selectors.
 \end{enumerate}
 
-Together, these form a unified decision framework that predicts GNN outcomes more accurately than homophily alone.
+Together, these choices support a scoped mechanism study and define the evidence still required for any future model-selection claim.
