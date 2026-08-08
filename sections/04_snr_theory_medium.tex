@@ -1,12 +1,12 @@
 % ============================================================
-% Section 4: SNR Framework (Medium length for TNNLS)
+% Scoped aggregation discriminability analysis
 % Target: ~4 pages
 % ============================================================
 
-\section{Signal-to-Noise Ratio Framework}
+\section{Scoped Aggregation Discriminability Analysis}
 \label{sec:snr}
 
-We develop an information-theoretic framework that explains when graph structure helps or harms node classification, based on the Signal-to-Noise Ratio (SNR) of message passing.
+We isolate how a linear aggregation operator changes class-conditional first and second moments. The analysis is exact for the stated conditional-neighbor model, but it is not an information-theoretic error bound or a guarantee for a trained GNN.
 
 \begin{table}[t]
 \centering
@@ -17,56 +17,39 @@ We develop an information-theoretic framework that explains when graph structure
 \toprule
 \textbf{Symbol} & \textbf{Definition} \\
 \midrule
-$h$ & Edge homophily, $h = |\{(u,v) \in E : y_u = y_v\}| / |E|$ \\
-$\rho$ & Edge correlation coefficient, $\rho = 2h - 1 \in [-1, 1]$ \\
+$\rho$ & Conditional neighbor-label correlation, $\rho\in[-1,1]$ \\
 $d$ & Fixed number of aggregated neighbors \\
 $s$ & Feature strength, $s=\mu^\top\Sigma^{-1}\mu$ \\
 $\kappa$ & Exact discriminability ratio in Proposition~\ref{prop:fixed_degree} \\
-$\mathcal{D}(Z)$ & Discriminability of representation $Z$ \\
+$\alpha$ & Weight on the center-node feature, $\alpha\in[0,1]$ \\
+$\mathcal{D}(Z)$ & Moment-based Mahalanobis discriminability of $Z$ \\
 $\Delta_Z$ & Class separation, $\mathbb{E}[Z|Y=+1] - \mathbb{E}[Z|Y=-1]$ \\
 $\Sigma_Z$ & Within-class covariance, $\mathrm{Cov}(Z|Y)$ \\
-$\mathcal{B}$ & Information Budget, $\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$ \\
-$\rho_C$ & Effective correlation for $C$ classes, $\rho_C = (Ch-1)/(C-1)$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Problem Setup}
 
-\begin{definition}[Sparse Contextual Stochastic Block Model]
-\label{def:csbm}
-A sparse CSBM graph $G = (V, E)$ with $n$ nodes consists of:
-\begin{itemize}
-    \item Binary labels $Y_v \in \{-1, +1\}$ with $\mathbb{P}(Y_v = +1) = 1/2$
-    \item Features $X_v = Y_v \mu + \varepsilon_v$ where $\varepsilon_v \sim \mathcal{N}(0, \Sigma)$ i.i.d.
-    \item Edges: $\mathbb{P}((u,v) \in E | Y_u, Y_v) = \frac{a}{n}$ if $Y_u = Y_v$, else $\frac{b}{n}$
-    \item Homophily: $h = a/(a+b)$, average degree: $k = (a+b)/2$
-    \item Edge correlation: $\rho = 2h - 1 \in [-1, 1]$
-\end{itemize}
-\end{definition}
-
-The edge correlation $\rho$ measures the expected label agreement given an edge:
+Let the center label be $Y_v\in\{-1,+1\}$ with equal class prior and let
 \begin{equation}
-    \rho = \mathbb{E}[Y_u | (u,v) \in E, Y_v = +1] = \frac{a-b}{a+b}
+    X_v=Y_v\mu+\varepsilon_v,
+    \qquad \varepsilon_v\sim\mathcal{N}(0,\Sigma),
 \end{equation}
-When $h > 0.5$ ($\rho > 0$), neighbors tend to share labels (homophily). When $h < 0.5$ ($\rho < 0$), neighbors tend to have opposite labels (heterophily).
+where $\Sigma\succ0$, $\mu\neq0$, and noises are independent across nodes. Conditional on $Y_v=y$, the $d\geq1$ neighbor labels are independent and satisfy
+\begin{equation}
+    \mathbb{P}(Y_i=y\mid Y_v=y)=\frac{1+\rho}{2}.
+\end{equation}
+Thus $\mathbb{E}[Y_i\mid Y_v=y]=\rho y$ and $\operatorname{Var}(Y_i\mid Y_v=y)=1-\rho^2$. In a balanced binary graph with a uniform conditional neighbor mechanism, $\rho$ corresponds to $2h-1$; the derivation itself is conditional and does not replace a random graph degree by its mean.
 
-\begin{definition}[Discriminability]
+\begin{definition}[Moment-Based Discriminability]
 \label{def:discriminability}
-The discriminability of representation $Z$ is the squared Mahalanobis distance between class-conditional distributions:
+Suppose the two classes have the same nonsingular conditional covariance $\Sigma_Z$. We define the moment-based discriminability of representation $Z$ as
 \begin{equation}
     \mathcal{D}(Z) := \Delta_Z^\top \Sigma_Z^{-1} \Delta_Z
 \end{equation}
-where $\Delta_Z = \mathbb{E}[Z|Y=+1] - \mathbb{E}[Z|Y=-1]$ is the class separation and $\Sigma_Z = \mathrm{Cov}(Z|Y)$ is within-class covariance.
+where $\Delta_Z = \mathbb{E}[Z|Y=+1] - \mathbb{E}[Z|Y=-1]$. This quantity uses only the first two conditional moments. It is not, in general, a distance between the full class-conditional distributions.
 \end{definition}
-
-\begin{proposition}[Bayes Error]
-Under Gaussian assumptions, the Bayes-optimal error is:
-\begin{equation}
-    P_e = \Phi\left(-\frac{1}{2}\sqrt{\mathcal{D}}\right)
-\end{equation}
-where $\Phi$ is the standard normal CDF. Thus higher $\mathcal{D}$ implies lower error.
-\end{proposition}
 
 \subsection{Exact Fixed-Degree Calculation}
 
@@ -74,7 +57,7 @@ We first analyze a deliberately restricted model without replacing a random degr
 
 \begin{proposition}[Exact Fixed-Degree Discriminability]
 \label{prop:fixed_degree}
-For $s=\mu^\top\Sigma^{-1}\mu$, the conditional moments and discriminability ratio are
+For $s=\mu^\top\Sigma^{-1}\mu>0$, the conditional moments and discriminability ratio are
 \begin{align}
     \mathbb{E}[A_v\mid Y_v=y] &= \rho y\mu,\\
     \operatorname{Cov}(A_v\mid Y_v=y)
@@ -97,6 +80,54 @@ $\operatorname{Var}(Y_i\mid Y_v=y)=1-\rho^2$, independence gives the first two i
 Substitution yields the stated ratio.
 \end{proof}
 
+\subsection{Center-Feature and Neighbor Mixing}
+
+Neighbor-only averaging does not represent a self-looped GCN layer. To isolate the effect of retaining the center feature, consider the analyzable linear surrogate
+\begin{equation}
+    Z_{\alpha,v}=\alpha X_v+(1-\alpha)A_v,
+    \qquad \alpha\in[0,1].
+    \label{eq:self_neighbor_operator}
+\end{equation}
+The scalar $\alpha$ is a prescribed mixing weight; it is not identified with a learned GCN coefficient.
+
+\begin{proposition}[Exact Self--Neighbor Mixing Discriminability]
+\label{prop:self_neighbor_mixing}
+Under the fixed-degree model above, assume that the center-feature noise is conditionally independent of all neighbor labels and features. Define
+\begin{align}
+    m_\alpha &= \alpha+(1-\alpha)\rho,\\
+    c_\alpha &= \alpha^2+\frac{(1-\alpha)^2}{d},\\
+    q_\alpha &= \frac{(1-\alpha)^2(1-\rho^2)}{d}.
+\end{align}
+Then
+\begin{align}
+    \mathbb{E}[Z_{\alpha,v}\mid Y_v=y]
+        &=m_\alpha y\mu,\\
+    \operatorname{Cov}(Z_{\alpha,v}\mid Y_v=y)
+        &=c_\alpha\Sigma+q_\alpha\mu\mu^\top,
+\end{align}
+and the exact moment-based discriminability ratio is
+\begin{equation}
+    \kappa_\alpha(d,\rho,s)
+    :=\frac{\mathcal{D}(Z_\alpha)}{\mathcal{D}(X)}
+    =\frac{[\alpha+(1-\alpha)\rho]^2}
+    {\alpha^2+(1-\alpha)^2/d
+    +[(1-\alpha)^2/d](1-\rho^2)s}.
+    \label{eq:kappa_alpha}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Conditional independence makes the center and neighbor covariance contributions additive, which gives the stated mean and covariance. For
+$B=c_\alpha\Sigma+q_\alpha\mu\mu^\top$, the Sherman--Morrison identity gives
+\begin{equation}
+    \mu^\top B^{-1}\mu=\frac{s}{c_\alpha+q_\alpha s}.
+\end{equation}
+Since the class-mean difference is $2m_\alpha\mu$, we have
+$\mathcal{D}(Z_\alpha)=4m_\alpha^2s/(c_\alpha+q_\alpha s)$. Dividing by $\mathcal{D}(X)=4s$ proves~\eqref{eq:kappa_alpha}.
+\end{proof}
+
+The boundary cases provide checks on the formula. Setting $\alpha=0$ recovers Proposition~\ref{prop:fixed_degree}; setting $\alpha=1$ gives $\kappa_\alpha=1$; and $|\rho|=1$ removes label-mixture covariance. A negative $\rho$ can also cancel the center and neighbor class means when $m_\alpha=0$, showing why self-loops do not uniformly prevent damage.
+
 \begin{corollary}[Aggregation Threshold]
 \label{cor:threshold}
 In the fixed-degree model, aggregation improves Mahalanobis discriminability exactly when
@@ -115,7 +146,7 @@ Thus the transition depends on feature strength as well as degree and edge corre
 \toprule
 $(d,s)$ & Threshold $|2h-1|$ & Danger Zone ($h$) \\
 \midrule
-$(10,0)$ & 0.316 & (0.34, 0.66) \\
+$(10,0^+)$ & 0.316 & (0.34, 0.66) \\
 $(10,1)$ & 0.426 & (0.29, 0.71) \\
 $(10,4)$ & 0.598 & (0.20, 0.80) \\
 $(20,1)$ & 0.309 & (0.35, 0.65) \\
@@ -123,7 +154,7 @@ $(20,1)$ & 0.309 & (0.35, 0.65) \\
 \end{tabular}
 \end{table}
 
-\textbf{Interpretation} (Table~\ref{tab:threshold}): stronger self-feature separation increases the label-mixture penalty and widens the region in which neighbor-only aggregation loses discriminability. This is a property of the stated moment criterion, not a universal guarantee for a trained GNN.
+\textbf{Interpretation} (Table~\ref{tab:threshold}): The first row is the limit as $s\to0^+$ because the ratio itself is undefined when both class representations have zero discriminability. Stronger self-feature separation increases the label-mixture penalty and widens the region in which neighbor-only aggregation loses discriminability. This is a property of the stated moment criterion, not a universal guarantee for a trained GNN.
 
 \subsection{Approximation Regime}
 
@@ -132,25 +163,16 @@ The exact ratio satisfies
  \frac{\rho^2d}{1+\eta}\leq\kappa\leq\rho^2d,
  \qquad \eta=(1-\rho^2)s.
 \end{equation}
-Consequently, replacing $\kappa$ by $\rho^2d$ has relative error exactly $\eta/(1+\eta)$. This makes the required feature-noise-dominance regime explicit and does not invoke an asymptotic $o(1)$ term.
+Consequently, the exact ratio falls below the approximation by the fraction
+$(\rho^2d-\kappa)/(\rho^2d)=\eta/(1+\eta)$, while the approximation overstates the exact value by $(\rho^2d-\kappa)/\kappa=\eta$. This makes the required feature-noise-dominance regime explicit and does not invoke an asymptotic $o(1)$ term.
 
 \subsection{Multi-Layer Analysis}
 
 For broadcasting on a regular tree with forward branching factor $b$, the classical Kesten--Stigum quantity is $b\rho^2$ \cite{kesten1966additional,mossel2015reconstruction}. For a $q$-regular undirected tree, $b=q-1$; for a Poisson Galton--Watson limit with mean offspring $k$, $b=k$. We use this only to contextualize the one-hop calculation. We do not claim a multi-layer equality for ordinary GNN aggregation, whose reused neighborhoods, self-loops, nonlinearities, and learned transformations require a separate analysis.
 
-\subsection{Extension to Multi-Class Problems}
+\subsection{Extensions Not Claimed Here}
 
-For $C$-class problems with uniform within-class and between-class edge probabilities, we propose the following heuristic extension. The effective edge correlation becomes:
-\begin{equation}
-    \rho_C = \frac{Ch - 1}{C - 1}
-\end{equation}
-where $h$ is the homophily ratio. The threshold condition becomes $\rho_C^2 k > 1$.
-
-\textbf{Justification.} In the binary case ($C = 2$), we have $\rho_2 = (2h - 1)/(2-1) = 2h - 1 = \rho$, recovering the exact formula. For general $C$, this formula interpolates between the random baseline ($h = 1/C \Rightarrow \rho_C = 0$) and perfect homophily ($h = 1 \Rightarrow \rho_C = 1$). While a rigorous derivation for multi-class CSBM requires tensor analysis beyond the scope of this paper, empirical validation (Section~\ref{sec:experiments}) shows this heuristic accurately predicts GNN behavior on multi-class datasets.
-
-\begin{example}[Cora Dataset]
-Cora has $C = 7$ classes and $h = 0.81$. Thus $\rho_7 = (7 \times 0.81 - 1)/(7-1) = 0.78$. With average degree $k \approx 4$, we get $\kappa_7 = 0.78^2 \times 4 = 2.43 > 1$, predicting aggregation is beneficial.
-\end{example}
+A multi-class graph is described by a class-transition matrix rather than one scalar edge correlation. Collapsing that matrix to homophily can hide which class pairs are mixed and how their feature means are arranged. We therefore do not present a scalar multi-class threshold. Likewise, a practical GCN introduces variable degree, self-loop normalization, learned transformations, nonlinearities, and neighborhood reuse across layers. Proposition~\ref{prop:self_neighbor_mixing} isolates a prescribed self-feature weight but does not remove these remaining differences.
 
 \subsection{Scope and Random-Degree Extension}
 

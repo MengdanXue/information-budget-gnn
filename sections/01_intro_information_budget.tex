@@ -24,7 +24,7 @@ For completeness, $1-\mathrm{Acc}_{\mathrm{MLP}}$ is retained only as arithmetic
 
 The paper is organized around three contributions and evaluation targets:
 \begin{enumerate}
-    \item \textbf{Scoped aggregation discriminability analysis.} We derive the exact fixed-degree neighbor-averaging ratio above while retaining label-mixture covariance and state the assumptions under which the noise-dominated approximation is reasonable.
+    \item \textbf{Scoped aggregation discriminability analysis.} We derive exact fixed-degree ratios for neighbor-only averaging and a prescribed center--neighbor mixture while retaining label-mixture covariance, and state where these linear operators differ from practical GNN layers.
     \item \textbf{Direct validation target.} We define the required controlled comparison between empirical moment-based discriminability and the exact expression. Existing downstream accuracy sweeps are not presented as direct validation; the confirmatory parameter sweep is reported only after its frozen artifacts pass provenance checks.
     \item \textbf{Negative study of simple diagnostics.} Using audited paired results and matched scoring baselines, we show that aggregation damage and two-hop recovery are useful descriptions but insufficient model-selection rules. Historical aggregate-only results are treated as retrospective evidence rather than confirmatory validation.
 \end{enumerate}
