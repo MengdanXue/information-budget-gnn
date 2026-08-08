@@ -1,5 +1,8 @@
 *.log
 *.aux
 *.out
+__pycache__/
+*.py[cod]
+main_ieee_journal.pdf
 data/
 github_repo/

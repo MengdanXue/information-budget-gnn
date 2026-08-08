@@ -1,68 +1,32 @@
 % ============================================================
 % Section 1: Introduction
-% The Information Budget of Graph Neural Networks
+% Route A: Aggregation discriminability and diagnostic limitations
 % ============================================================
 
 \section{Introduction}
 \label{sec:intro}
 
-\IEEEPARstart{G}{raph} Neural Networks (GNNs) have achieved remarkable success in node classification by leveraging both node features and graph structure through message passing~\cite{kipf2017gcn,velivckovic2018gat,hamilton2017graphsage}. However, their performance varies dramatically across datasets: on some graphs, GNNs outperform feature-only methods (MLPs) by over 20\%; on others, they \textit{underperform} by similar margins. This inconsistency raises a fundamental question: \textbf{what determines whether graph structure helps or hurts?}
+\IEEEPARstart{G}{raph} Neural Networks (GNNs) combine node features with neighborhood information through message passing~\cite{kipf2017gcn,velivckovic2018gat,hamilton2017graphsage}. This operation can improve node classification when neighbors supply useful class information, but it can also dilute feature signal and underperform a feature-only multilayer perceptron (MLP). We study the mechanism behind this variation and ask a deliberately limited question: \textbf{when does a controlled aggregation operator improve class-conditional feature discriminability, and how far can simple graph statistics diagnose the same effect on real data?}
 
-The conventional explanation attributes GNN success to \textit{homophily}---the tendency of connected nodes to share labels. Under this view, high homophily enables effective label propagation, while low homophily (heterophily) causes aggregation to mix signals from different classes~\cite{zhu2020beyond}. However, this explanation is incomplete: datasets with identical homophily can show opposite GNN outcomes.
+Edge homophily alone cannot answer this question. Homophily records the fraction of same-label edges, whereas aggregation also depends on neighborhood size, feature strength, label-mixture variance, normalization, and retention of the center node's features. Consequently, graphs with similar homophily can exhibit different GNN--MLP gaps, and heterophilic graphs with similar one-hop statistics can favor different architectures~\cite{zhu2020beyond}. A scalar structural statistic may therefore describe one mechanism without being a reliable model selector.
 
-\textbf{Our Key Insight.} Homophily alone is insufficient: aggregation changes class discriminability through the joint effect of edge correlation and neighborhood size, while architecture determines how much of the original feature signal is retained. Consider two datasets with the same homophily $h = 0.81$:
-\begin{itemize}
-    \item \textbf{Cora}: MLP achieves 75.1\%, leaving 24.9\% ``room'' for GNN improvement. GCN gains \textbf{+12.7\%}.
-    \item \textbf{Coauthor-CS}: MLP achieves 94.4\%, leaving only 5.6\% ``room.'' GCN gains \textbf{-0.7\%}.
-\end{itemize}
-Same homophily, opposite outcomes. The difference? \textit{Feature sufficiency}---when features alone nearly solve the task, there is no budget for structure to help.
+We first isolate the effect of aggregation in a restricted probabilistic model. Nodes have binary labels and Gaussian class-conditional features; every center node has fixed degree $d$; and neighbor labels are conditionally independent with edge-label correlation $\rho$. For neighbor-only averaging, the exact ratio between aggregated and self-feature squared-Mahalanobis discriminability is
+\begin{equation}
+    \kappa=\frac{\rho^2d}{1+(1-\rho^2)s},
+    \qquad s=\mu^\top\Sigma^{-1}\mu.
+\end{equation}
+The denominator is the contribution of label-mixture covariance. Omitting it gives the familiar noise-dominated approximation $\rho^2d$, which can be inaccurate when features are already strong. The result is an exact moment calculation under the stated assumptions; it is not a Bayes-error expression, a threshold theorem for a stochastic block model, or a performance guarantee for a trained GNN.
 \IEEEpubidadjcol
 
-\textbf{The Information Budget Principle.} We formalize this insight as:
-\begin{equation}
-    \text{GNN Gain} \leq \underbrace{(1 - \text{Acc}_{\text{MLP}})}_{\text{Information Budget}}
-\end{equation}
-The Information Budget $\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$ represents the arithmetic headroom for improvement under the accuracy metric. It is a ceiling, not by itself a model of how much graph structure will help.
+We then examine two empirical quantities as descriptions rather than theories. The first is the absolute accuracy difference $\mathrm{Acc}_{\mathrm{MLP}}-\mathrm{Acc}_{\mathrm{GNN}}$, which records observed aggregation damage but does not identify its cause. The second is two-hop label recovery, which can reveal longer-range class structure in a heterophilic graph. Audited paired results show that strong two-hop recovery does not guarantee that a multi-hop graph model beats a tuned MLP, while absent recovery does not imply that graph structure is useless. These failures are central evidence against using either statistic as an automatic selector.
 
-\textbf{Empirical Role.} The ceiling is arithmetically immediate, so its usefulness must be assessed through held-out model-selection performance rather than violation counts or raw correlations that share the MLP term. We therefore report: (1) leave-one-dataset-out selective accuracy of 12/12 at 75\% coverage, (2) degree-preserving edge interventions showing 18--47 point changes in GNN advantage, and (3) external validation on 9 datasets (7/9 correct). A shared-term audit is reported in Section~\ref{sec:budget}.
+For completeness, $1-\mathrm{Acc}_{\mathrm{MLP}}$ is retained only as arithmetic positive-gain headroom: no classifier's accuracy can exceed one. This quantity cannot bound negative GNN damage, does not measure conditional graph information, and shares an MLP term with the observed GNN--MLP gap. We therefore do not treat headroom correlations or non-violation counts as evidence of structural predictiveness.
 
-\textbf{Aggregation Can Damage.} Beyond the budget constraint, we discover that aggregation can actively \textit{harm} performance. We introduce the \textbf{Aggregation Damage Ratio (ADR)}:
-\begin{equation}
-    \text{ADR} = \text{Acc}_{\text{MLP}} - \text{Acc}_{\text{GNN}}
-\end{equation}
-When ADR $> 0$, aggregation destroys information. Our experiments reveal that GCN exhibits ADR $\approx 0.19$ at mid-homophily ($h \approx 0.5$), meaning it loses nearly 19\% of the information that MLP captures. Crucially, \textbf{concatenation-based architectures} (GraphSAGE) reduce ADR to near zero, explaining their robustness.
-
-\textbf{Two-Hop Recovery Patterns.} Heterophilic graphs ($h < 0.3$) are not monolithic. We distinguish two descriptive patterns:
-\begin{itemize}
-    \item \textbf{Strong recovery}: Two-hop homophily is $>1.5\times$ one-hop homophily, as on Texas, Wisconsin, and Cornell. This indicates a longer-range label pattern but does not guarantee that H2GCN or LINKX beats MLP.
-    \item \textbf{Absent two-hop recovery}: The measured two-hop label ratio does not recover. This does not imply that structure is useless or that MLP must be optimal; H2GCN wins on Chameleon and GCN wins on Squirrel in the audited results.
-\end{itemize}
-
-\textbf{Unified Utility Formula.} Combining these insights, we propose:
-\begin{equation}
-    \text{GNN Utility} = \underbrace{\mathcal{B}}_{\text{Budget}} \times \underbrace{S(h)}_{\text{Signal}} - \underbrace{\text{Acc}_{\text{MLP}} \times D(h)}_{\text{Damage}}
-\end{equation}
-where $S(h)$ is structure signal strength and $D(h)$ is aggregation damage. This formula explains why high-MLP datasets fail even with high homophily: the damage term dominates when $\text{Acc}_{\text{MLP}}$ is large.
-
-\textbf{Key Notation.} Before proceeding, we establish core notation used throughout:
-\begin{itemize}
-    \item $h$: Edge homophily, $h = |\{(u,v) \in E : y_u = y_v\}| / |E|$
-    \item $\rho = 2h - 1$: Edge correlation coefficient, $\rho \in [-1, 1]$
-    \item $k$: Average node degree, $k = 2|E|/|V|$
-    \item $\kappa = \rho^2d/[1+(1-\rho^2)s]$: exact fixed-degree discriminability ratio
-    \item $\mathcal{D}(Z)$: Discriminability of representation $Z$ (squared Mahalanobis distance)
-    \item $\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$: Information Budget
-\end{itemize}
-The leading-order analysis predicts a transition near $\kappa = 1$; finite-graph and model effects can shift this boundary. A complete notation table is provided in Section~\ref{sec:snr}.
-
-\textbf{Contributions.} After removing arithmetic ceilings and descriptive metrics as standalone claims, our contributions are:
-
+The paper is organized around three contributions and evaluation targets:
 \begin{enumerate}
-    \item \textbf{Scoped Aggregation SNR Analysis}: Under an explicit fixed-degree conditional-neighbor model, we derive the exact one-hop ratio $\kappa=\rho^2d/[1+(1-\rho^2)s]$ and quantify when it reduces to $\rho^2d$. We use the Kesten--Stigum correspondence only as context, not as a new threshold theorem.
-
-    \item \textbf{Mechanism-Based Diagnostics}: We combine measured aggregation damage with two-hop recovery to distinguish feature destruction from recoverable heterophily. ADR and the recovery ratio are treated as diagnostics, not independent theoretical innovations or universal architecture selectors.
-
-    \item \textbf{Audited Diagnostic Evaluation}: We evaluate the combined diagnostic rule on controlled and external configurations, explicitly separating full-coverage accuracy, selective LODO accuracy, and failure cases. Claims based on legacy aggregate files remain descriptive until paired per-seed artifacts are available.
+    \item \textbf{Scoped aggregation discriminability analysis.} We derive the exact fixed-degree neighbor-averaging ratio above while retaining label-mixture covariance and state the assumptions under which the noise-dominated approximation is reasonable.
+    \item \textbf{Direct validation target.} We define the required controlled comparison between empirical moment-based discriminability and the exact expression. Existing downstream accuracy sweeps are not presented as direct validation; the confirmatory parameter sweep is reported only after its frozen artifacts pass provenance checks.
+    \item \textbf{Negative study of simple diagnostics.} Using audited paired results and matched scoring baselines, we show that aggregation damage and two-hop recovery are useful descriptions but insufficient model-selection rules. Historical aggregate-only results are treated as retrospective evidence rather than confirmatory validation.
 \end{enumerate}
 
-The rest of this paper reviews related work, presents the motivating observations and SNR analysis, studies accuracy headroom and aggregation damage, evaluates two-hop recovery as a heterophily diagnostic, and concludes with limitations.
+The remainder of the paper reviews related work, presents the motivating observations and scoped discriminability analysis, separates arithmetic headroom from structural prediction, evaluates the descriptive diagnostics and their failures, and concludes with the limits of the current evidence.
