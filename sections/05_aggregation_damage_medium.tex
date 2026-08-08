@@ -1,26 +1,25 @@
 % ============================================================
-% Section 5: Aggregation Damage Ratio (Medium length for TNNLS)
+% Section 5: Aggregation accuracy difference (Medium length for TNNLS)
 % Target: ~1.5 pages
 % ============================================================
 
 \section{Aggregation Damage Analysis}
 \label{sec:adr}
 
-When aggregation \textit{harms} classification ($\kappa < 1$), we need metrics to quantify the damage and identify protective architectures.
+We compare graph models with a feature-only reference using a signed accuracy difference. This empirical quantity is separate from the moment ratio $\kappa$ and does not identify why two trained models differ.
 
-\subsection{Aggregation Damage Ratio}
+\subsection{Aggregation Difference Relative to MLP}
 
-\begin{definition}[Aggregation Damage Ratio]
-For a GNN model, we define:
+\begin{definition}[Aggregation Difference Relative to MLP]
+For estimates obtained on the same evaluation protocol, we retain the acronym ADR and define the absolute difference
 \begin{equation}
-    \text{ADR} = \text{Acc}_{\text{MLP}} - \text{Acc}_{\text{GNN}}
+    \text{ADR} = 100\bigl(\widehat{\mathrm{Acc}}_{\mathrm{MLP}}
+    - \widehat{\mathrm{Acc}}_{\mathrm{GNN}}\bigr)
 \end{equation}
-ADR $> 0$ indicates aggregation destroys information; ADR $< 0$ indicates enhancement.
+in percentage points. ADR $>0$ means the MLP has higher recorded accuracy; ADR $<0$ means the graph model has higher recorded accuracy. Neither sign alone attributes the difference to aggregation, because architecture, tuning, optimization, and sampling also differ.
 \end{definition}
 
-\begin{observation}[ADR Peaks at Mid-Homophily]
-ADR empirically follows an inverted U-shape, peaking near $h = 0.5$, where the fixed-degree discriminability ratio is zero because $\rho = 2h-1 = 0$.
-\end{observation}
+In the controlled sweep summarized below, ADR is largest near $h=0.5$ for GCN. The fixed-degree neighbor-only calculation also has zero class-mean separation at $\rho=2h-1=0$, but this correspondence is mechanistic context rather than a causal decomposition of trained-model accuracy.
 
 \begin{table}[t]
 \centering
@@ -37,7 +36,7 @@ GraphSAGE & Concat & 0.1 points \\
 \end{tabular}
 \end{table}
 
-\textbf{Key Finding} (Table~\ref{tab:adr}): In this controlled configuration, GraphSAGE reduces the observed loss relative to MLP from 18.9 percentage points for GCN to 0.1 points. We report absolute differences because ratios with a near-zero denominator are unstable and exaggerate the comparison.
+\textbf{Descriptive result} (Table~\ref{tab:adr}): In this controlled configuration, the MLP--GraphSAGE difference is 0.1 percentage points, compared with 18.9 points for GCN. We report differences rather than ratios because ratio summaries can be unstable and obscure the accuracy scale.
 
 \subsection{Why Concatenation Helps}
 
@@ -85,16 +84,16 @@ GraphSAGE & Concat & \textbf{0.75\%} \\
 \end{tabular}
 \end{table}
 
-\textbf{Result} (Table~\ref{tab:ushape_amplitude}): GraphSAGE shows minimal U-shape (0.75\% amplitude vs 19.35\% for GCN), confirming that concatenation protects against aggregation damage.
+\textbf{Result} (Table~\ref{tab:ushape_amplitude}): GraphSAGE has the smallest recorded amplitude in this sweep (0.75 percentage points versus 19.35 for GCN). This is consistent with, but does not by itself confirm, a protective effect of retaining an ego channel.
 
-\subsection{Practical Recommendation}
+\subsection{Reporting and Model Comparison}
 
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Architecture Selection Guideline]
-When homophily is uncertain ($0.3 < h < 0.7$), prefer \textbf{concatenation-based architectures} to minimize aggregation damage risk:
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Matched Comparison Checklist]
+For each candidate architecture:
 \begin{itemize}
-    \item GraphSAGE with mean aggregation
-    \item GCN with skip connections
-    \item APPNP with initial residual
+    \item train the MLP and graph model on matched splits and seeds;
+    \item report ADR in percentage points with paired uncertainty; and
+    \item describe the architecture and tuning differences before attributing a gap to aggregation.
 \end{itemize}
 \end{tcolorbox}
 
@@ -109,12 +108,12 @@ When homophily is uncertain ($0.3 < h < 0.7$), prefer \textbf{concatenation-base
 \toprule
 Dataset & $h$ & GCN ADR & SAGE ADR \\
 \midrule
-Cora & 0.81 & $-0.126$ & $-0.102$ \\
-CiteSeer & 0.74 & $-0.027$ & $-0.018$ \\
-Actor & 0.22 & $+0.069$ & $+0.003$ \\
-Chameleon & 0.24 & $-0.156$ & $-0.010$ \\
+Cora & 0.81 & $-12.6$ & $-10.2$ \\
+CiteSeer & 0.74 & $-2.7$ & $-1.8$ \\
+Actor & 0.22 & $+6.9$ & $+0.3$ \\
+Chameleon & 0.24 & $-15.6$ & $-1.0$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-In this table, GraphSAGE has a smaller absolute ADR than GCN. These protocol-specific point estimates motivate robustness testing but do not establish a universal architecture ordering without repeated-run uncertainty estimates.
+All ADR entries in Table~\ref{tab:adr_real} are percentage points. GraphSAGE has a smaller absolute point estimate than GCN in these four rows, but the legacy source does not retain matched uncertainty for this exact table. The comparison therefore does not establish a universal architecture ordering.

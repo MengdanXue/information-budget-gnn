@@ -108,45 +108,19 @@ Budget--best-GNN advantage & Pearson $r = -0.255$ & CI crosses zero \\
     \item Legacy Wilcoxon, Friedman, and Mann--Whitney values are omitted because the current audited artifact does not retain the paired per-seed samples needed to reproduce those tests under a single protocol.
 \end{itemize}
 
-\subsection{Dual Heterophily Validation}
+\subsection{Two-Hop Diagnostic Audit}
 
-\begin{table}[t]
-\centering
-\caption{2-Hop Recovery Distinguishes Heterophily Types}
-\label{tab:2hop_validation}
-\begin{tabular}{@{}lccccl@{}}
-\toprule
-Dataset & $h_1$ & $h_2$ & $R$ & Type & Best Model \\
-\midrule
-\input{tables/generated/dual_heterophily_rows}%
-\end{tabular}
-\end{table}
+Table~\ref{tab:2hop} reports the archived structural point estimates. The result file does not retain the class counts or resampled node pairs needed to reconstruct the class-prior agreement baseline or uncertainty for $h_1$, $h_2$, and $\Delta h$. We therefore do not attach significance language to the structural differences.
 
-\textbf{Strong recovery} (Texas, Wisconsin, Cornell): $R > 1.5$ identifies strong two-hop label recovery. Across 10 paired seeds, H2GCN improves over GCN on all three, but its H2GCN--MLP advantage is clear only on Texas.
+The paired model outcomes tell a different and useful negative story. H2GCN--MLP mean differences (95\% paired bootstrap intervals) are +6.3 points [1.3, 11.1] on Texas, $-0.8$ [$-4.3$, 2.5] on Wisconsin, +1.3 [$-2.6$, 5.0] on Cornell, +14.1 [12.2, 15.9] on Chameleon, and +10.0 [8.1, 11.8] on Squirrel. The ordering of these intervals does not follow the ordering of $R$ or $\Delta h$, so the archived evidence does not support a two-hop-only selector.
 
-\textbf{Absent recovery} (Chameleon, Squirrel): $R \leq 1$ indicates no measured two-hop homophily recovery, yet H2GCN is strongest on Chameleon and GCN is strongest on Squirrel. This shows that $R$ alone is not a complete utility criterion.
+\subsection{Diagnostic Reporting Checklist}
 
-\subsection{Decision Algorithm}
-
-\begin{algorithm}[t]
-\caption{Diagnostic Workflow for Candidate Model Evaluation}
-\label{alg:decision}
-\begin{algorithmic}[1]
-\REQUIRE Graph $G$, features $X$, labels $Y$
-\STATE Train MLP; compute Budget $\mathcal{B} = 1 - \text{Acc}_{\text{MLP}}$
-\STATE Compute homophily $h$ and SNR ratio $\kappa = (2h-1)^2 k$
-\STATE Always retain MLP as the feature-only reference
-\IF{$h < 0.3$}
-    \STATE Compute 2-hop ratio $R = h_2/h_1$
-    \IF{$R > 1.5$}
-        \STATE Flag strong two-hop recovery; benchmark MLP and multi-hop models
-    \ELSE
-        \STATE Flag absent two-hop recovery; do not infer that structure is useless
-    \ENDIF
-\ENDIF
-\STATE Evaluate candidate graph models on identical splits and seeds
-\STATE Report paired differences and uncertainty; abstain from selection when evidence is inconclusive
-\end{algorithmic}
-\end{algorithm}
-
-Algorithm~\ref{alg:decision} summarizes the diagnostic measurements and candidate-evaluation protocol. The previously frozen binary GNN-versus-MLP rule attained 88.9\% accuracy on the controlled CSBM configurations and 77.8\% on the nine-dataset external set; these finite-sample results do not validate automatic architecture selection.
+The revised artifact uses the following reporting checklist rather than an automatic selector:
+\begin{enumerate}
+    \item report feature-only and graph-model accuracies on identical splits and seeds;
+    \item report ADR as a paired percentage-point difference with uncertainty;
+    \item report $h_0$, $h_1$, $h_2$, $\Delta h$, and any optional ratio with its denominator;
+    \item mark unavailable provenance or uncertainty instead of imputing it; and
+    \item evaluate any future decision rule prospectively against simple baselines with a predeclared target and tie policy.
+\end{enumerate}

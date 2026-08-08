@@ -6,7 +6,7 @@
 \section{Two-Hop Recovery as a Heterophily Diagnostic}
 \label{sec:heterophily}
 
-Low-homophily datasets exhibit puzzling inconsistency: graph models improve strongly on Chameleon and Squirrel ($h \approx 0.22$), while GCN degrades sharply on Texas and Wisconsin ($h < 0.2$). We test two-hop recovery as one possible explanatory mechanism.
+Low-homophily datasets exhibit inconsistent graph-model outcomes. We report two-hop label agreement as one descriptive view of longer-range structure, not as a model-selection variable.
 
 \subsection{The Heterophily Puzzle}
 
@@ -19,47 +19,50 @@ Traditional wisdom suggests GNNs fail on heterophilic graphs because neighbors h
 
 Both have similar homophily, yet opposite outcomes. Low homophily alone cannot explain this.
 
-\subsection{2-Hop Recovery Ratio}
+\subsection{Two-Hop Quantities}
 
 \begin{definition}[2-Hop Homophily]
 \label{def:2hop}
-Let $h_1$ denote standard (1-hop) homophily and $h_2$ denote 2-hop homophily:
+Let $h_1$ denote one-hop label agreement and $h_2$ denote two-hop label agreement:
 \begin{equation}
     h_2 = \mathbb{P}(Y_v = Y_u \mid \text{dist}(u, v) = 2)
 \end{equation}
-The \textbf{2-hop recovery ratio} is:
+We report the absolute change and, secondarily, the ratio
+\begin{align}
+    \Delta h &= h_2-h_1, \\
+    R &= \frac{h_2}{h_1}.
+\end{align}
+For empirical class proportions $\widehat p_c$, the class-prior agreement baseline is
 \begin{equation}
-    R = \frac{h_2}{h_1}
+    h_0=\sum_c \widehat p_c^2.
 \end{equation}
 \end{definition}
 
-\textbf{Intuition}: When $h_1$ is low (direct neighbors differ), high $R$ indicates 2-hop neighbors are likely same-class---information can be recovered via longer paths.
+The absolute change $\Delta h$ remains on the probability scale. By contrast, $R$ is unstable when $h_1$ is near zero and can look large even when $h_2$ is modest. Neither quantity measures improvement relative to chance unless it is also compared with $h_0$.
 
-\begin{definition}[Two-Hop Recovery Patterns]
-\label{def:types}
-Based on the recovery ratio $R$:
-\begin{itemize}
-    \item \textbf{Strong recovery (legacy Type A)} ($R > 1.5$): 2-hop neighbors are more likely same-class than 1-hop neighbors, indicating a longer-range label pattern.
-
-    \item \textbf{Absent recovery (legacy Type B)} ($R \leq 1.0$): No observed two-hop homophily recovery. This describes the statistic only and does not imply that graph models underperform MLP.
-\end{itemize}
-\end{definition}
+\textbf{Evidence availability}: The audited 10-seed result retains point estimates of $h_1$ and $h_2$ and paired model accuracies. It does not retain class counts or resampled one-hop/two-hop pairs. Consequently, the empirical class-prior baseline $h_0$ and uncertainty intervals for the structural point estimates are \emph{not archived}; they are shown as unavailable rather than reconstructed from an assumed class balance. Performance uncertainty is reported separately below.
 
 \subsection{Empirical Validation}
 
 \begin{table}[t]
 \centering
-\caption{Two-Hop Recovery Patterns and Protocol-Specific Best Models}
+\caption{Audited Two-Hop Point Estimates. A dash means the class-prior baseline was not archived; structural uncertainty intervals are also unavailable.}
 \label{tab:2hop}
-\begin{tabular}{@{}lccccl@{}}
+\small
+\begin{tabular}{@{}lccccc@{}}
 \toprule
-Dataset & $h_1$ & $h_2$ & $R$ & Type & Best Model \\
+Dataset & $h_0$ & $h_1$ & $h_2$ & $\Delta h$ & $R$ \\
 \midrule
-\input{tables/generated/dual_heterophily_rows}%
+Texas & -- & 0.087 & 0.571 & +0.484 & 6.56 \\
+Wisconsin & -- & 0.192 & 0.425 & +0.233 & 2.21 \\
+Cornell & -- & 0.127 & 0.392 & +0.264 & 3.07 \\
+Chameleon & -- & 0.231 & 0.230 & $-0.001$ & 1.00 \\
+Squirrel & -- & 0.222 & 0.197 & $-0.026$ & 0.88 \\
+\bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Key Finding} (Table~\ref{tab:2hop}): Large recovery ratios identify datasets where two-hop models substantially repair GCN degradation, but they do not guarantee that H2GCN beats a tuned MLP or every competing GNN.
+\textbf{Descriptive result} (Table~\ref{tab:2hop}): Texas, Wisconsin, and Cornell have positive point estimates of $\Delta h$, while Chameleon and Squirrel do not. Because structural uncertainty and $h_0$ are unavailable, the table supports only a comparison of the archived point estimates.
 
 \subsection{H2GCN Performance Analysis}
 
@@ -70,33 +73,24 @@ H2GCN \cite{zhu2020beyond} is designed for heterophilic graphs, using:
     \item Combination of intermediate representations
 \end{enumerate}
 
-\textbf{Protocol-specific result}:
+\textbf{Protocol-specific performance result}: Across 10 paired seeds, H2GCN--MLP mean differences (95\% paired bootstrap intervals) are +6.3 points [1.3, 11.1] on Texas, $-0.8$ [$-4.3$, 2.5] on Wisconsin, +1.3 [$-2.6$, 5.0] on Cornell, +14.1 [12.2, 15.9] on Chameleon, and +10.0 [8.1, 11.8] on Squirrel. Thus positive $\Delta h$ does not imply that H2GCN clearly exceeds MLP, and non-positive $\Delta h$ does not imply that it fails to do so.
+
+The architecture comparison is also not isolated to two-hop aggregation: H2GCN includes ego-neighbor separation and combines intermediate representations. The paired results therefore evaluate the complete trained model, not the causal effect of the two-hop channel alone.
+
+\subsection{What the Statistic Does Not Establish}
+
+The sign of $\Delta h$ does not identify an edge-formation mechanism, feature utility, or the best architecture. In particular, similar values can arise from different class-transition matrices, and the global statistic discards which class pairs contribute to agreement. Claims about class-independent edge formation require a separate generative or causal analysis.
+
+\subsection{Descriptive Reporting Checklist}
+
+\begin{tcolorbox}[colback=green!5!white,colframe=green!75!black,title=Two-Hop Diagnostic Report]
+For every dataset:
 \begin{itemize}
-    \item \textbf{Strong recovery}: H2GCN substantially repairs GCN degradation on Texas, Wisconsin, and Cornell, but exceeds MLP clearly only on Texas in the 10-seed paired analysis.
-
-    \item \textbf{Absent recovery}: H2GCN is best on Chameleon and GCN is best on Squirrel despite recovery ratios at or below one. Thus $R$ is not a sufficient model-selection statistic.
+    \item report $h_0$, $h_1$, $h_2$, and $\Delta h$ on the probability scale;
+    \item if $R$ is included, show $h_1$ beside it and warn about near-zero instability;
+    \item report sampling or bootstrap uncertainty when the required pairs are retained, otherwise mark it unavailable; and
+    \item compare candidate models on matched splits and seeds without mapping a cutoff to a winning family.
 \end{itemize}
-
-\subsection{Why Type B Exists}
-
-Type B heterophily arises when edge formation is \textbf{class-independent}:
-\begin{itemize}
-    \item \textbf{Actor network}: Co-appearance in films is determined by casting decisions, not actor attributes
-    \item \textbf{Wikipedia pages}: Links reflect topic coverage, not page categories
-\end{itemize}
-
-In these cases, measured two-hop homophily does not recover the one-hop label disagreement. Other structural signals or architectures remain useful, as shown by H2GCN on Chameleon and GCN on Squirrel in the audited protocol.
-
-\subsection{Practical Diagnostic Checklist}
-
-\begin{tcolorbox}[colback=green!5!white,colframe=green!75!black,title=Heterophilic Dataset Diagnostic]
-For datasets with $h < 0.3$:
-\begin{enumerate}
-    \item Compute 2-hop recovery ratio $R = h_2/h_1$ as a descriptive graph statistic
-    \item Use $R>1.5$ to flag strong two-hop recovery, then compare models empirically rather than selecting one from $R$
-    \item If $R \leq 1.0$: Treat two-hop recovery as absent and compare MLP with non-two-hop graph baselines
-    \item If $1.0 < R < 1.5$: Empirically compare both
-\end{enumerate}
 \end{tcolorbox}
 
-This checklist is descriptive rather than a selection rule. In the audited five-dataset heterophily subset, the recovery statistic does not identify the single best model.
+The archived results do not support fixed ``strong'' or ``absent'' recovery thresholds for automatic selection.

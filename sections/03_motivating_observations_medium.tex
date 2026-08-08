@@ -6,7 +6,7 @@
 \section{Motivating Observations}
 \label{sec:observation}
 
-Before developing our theoretical framework, we present key empirical observations that motivate the Information Budget framework. These observations reveal puzzles that homophily alone cannot explain.
+Before presenting the scoped calculation, we summarize empirical observations that motivate separate analyses of aggregation, feature-only performance, and longer-range label structure. These examples are descriptive and do not establish a universal decision rule.
 
 \subsection{The U-Shape Pattern}
 
@@ -15,7 +15,7 @@ We conduct controlled synthetic experiments on the Contextual Stochastic Block M
 \begin{figure}[!t]
 \centering
 \includegraphics[width=0.95\columnwidth]{u_shape_pub}
-\caption{GNN accuracy forms a U-shape as homophily varies, while MLP remains constant. The valley at $h=0.5$ represents maximum aggregation damage.}
+\caption{Recorded accuracy across the synthetic homophily sweep. In this configuration, the largest MLP--GNN accuracy gap occurs near $h=0.5$.}
 \label{fig:ushape}
 \end{figure}
 
@@ -34,14 +34,14 @@ GraphSAGE & Concat & $-0.10\%$ & $+0.65\%$ & \textbf{0.75\%} \\
 \end{tabular}
 \end{table}
 
-\textbf{Key Finding 1} (Figure~\ref{fig:ushape}, Table~\ref{tab:ushape}): GNN performance follows a U-shape with minimum at $h=0.5$. The amplitude varies dramatically by architecture:
+\textbf{Observation 1} (Figure~\ref{fig:ushape}, Table~\ref{tab:ushape}): In this controlled configuration, the recorded GNN curves have a U-shape with a minimum near $h=0.5$. The measured amplitude differs by architecture:
 \begin{itemize}
-    \item \textbf{GCN}: 19.35\% amplitude---aggregation severely damages performance at mid-homophily
-    \item \textbf{GAT}: 5.85\% amplitude---attention reduces but does not eliminate damage
-    \item \textbf{GraphSAGE}: 0.75\% amplitude---concatenation nearly eliminates the U-shape
+    \item \textbf{GCN}: 19.35 percentage points;
+    \item \textbf{GAT}: 5.85 percentage points; and
+    \item \textbf{GraphSAGE}: 0.75 percentage points.
 \end{itemize}
 
-This suggests the critical factor is \textit{whether the model preserves original features}. GCN replaces node features with aggregated neighbors, while GraphSAGE concatenates, preserving access to original information.
+The ordering is consistent with the hypothesis that retaining an ego channel can reduce sensitivity to harmful neighborhood mixing. The sweep does not isolate concatenation from attention, normalization, parameterization, or optimization, so it cannot establish that design choice as the unique cause.
 
 \subsection{Same Homophily, Opposite Outcomes}
 
@@ -62,13 +62,13 @@ PubMed & 0.80 & 4.5 & 87.6\% & 12.4\% & +0.2\% \\
 \end{tabular}
 \end{table}
 
-\textbf{Key Finding 2} (Table~\ref{tab:same_h}): Datasets with identical or similar homophily show vastly different GNN outcomes:
+\textbf{Observation 2} (Table~\ref{tab:same_h}): Within their recorded protocols, datasets with similar homophily show different GNN outcomes:
 \begin{itemize}
     \item Cora ($h=0.81$): GCN gains +12.7\%
     \item Coauthor-CS ($h=0.81$): GCN \textit{loses} 0.7\%
 \end{itemize}
 
-The difference is \textit{feature sufficiency}: Cora's MLP achieves 75.1\%, leaving 24.9\% ``budget'' for improvement. Coauthor-CS's MLP achieves 94.4\%, leaving only 5.6\% budget. When features nearly solve the task, there is little room for structure to help.
+The arithmetic positive-gain headroom differs: Cora's MLP accuracy leaves 24.9 percentage points below perfect accuracy, whereas Coauthor-CS leaves 5.6 points. This identity limits positive improvement but does not explain the sign or magnitude of the graph-model gap.
 
 \textbf{Descriptive Observation}: The Cora/Coauthor-CS comparison motivates feature headroom as a diagnostic, but the audited nine-dataset external set does not show a reliable linear correlation between Budget and best-GNN advantage ($r=-0.255$, bootstrap CI crosses zero). We therefore treat this pair as motivation rather than population-level statistical evidence.
 
@@ -89,7 +89,7 @@ Chameleon & 0.24 & 49.0\% & 64.6\% & 63.6\% & GCN \\
 \end{tabular}
 \end{table}
 
-\textbf{Key Finding 3} (Table~\ref{tab:heterophily_paradox}): Heterophilic datasets behave inconsistently:
+\textbf{Observation 3} (Table~\ref{tab:heterophily_paradox}): Heterophilic datasets behave inconsistently:
 \begin{itemize}
     \item \textbf{Texas}: H2GCN is 6.3 percentage points above MLP (paired bootstrap 95\% CI: 1.3--11.1 points), while GCN underperforms
     \item \textbf{Actor}: MLP wins, all GNNs fail
@@ -98,7 +98,7 @@ Chameleon & 0.24 & 49.0\% & 64.6\% & 63.6\% & GCN \\
 
 This paradox cannot be explained by homophily alone. Section~\ref{sec:heterophily} tests two-hop recovery as one descriptive mechanism, while showing that it does not resolve model selection by itself.
 
-\subsection{Summary: Three Puzzles Motivating Our Framework}
+\subsection{Summary: Three Questions Motivating the Analysis}
 
 These observations reveal three puzzles that homophily alone cannot explain:
 
@@ -110,9 +110,9 @@ These observations reveal three puzzles that homophily alone cannot explain:
     \item \textbf{Heterophily Puzzle}: Why do some low-$h$ datasets benefit from GNNs while others don't? Why does H2GCN help on Texas but not Actor?
 \end{enumerate}
 
-The Information Budget framework (Sections~\ref{sec:snr}--\ref{sec:heterophily}) provides unified answers:
+Sections~\ref{sec:snr}--\ref{sec:heterophily} examine three narrower mechanisms without claiming complete answers:
 \begin{itemize}
-    \item \textbf{U-Shape}: The exact fixed-degree ratio is zero at $h=0.5$ ($\rho=0$), predicting maximal loss of neighbor-label signal
-    \item \textbf{Same-$h$}: Feature sufficiency determines the ceiling; structure can only utilize what features leave unexplained
-    \item \textbf{Heterophily}: two-hop recovery describes longer-range label structure but does not determine whether MLP or a particular graph model wins
+    \item \textbf{U-shape}: the exact fixed-degree ratio is zero at $h=0.5$ ($\rho=0$), giving a mechanism for loss of neighbor-label mean separation under the stated model;
+    \item \textbf{Same-$h$}: feature-only accuracy supplies an arithmetic reference but not a structural-utility predictor; and
+    \item \textbf{Heterophily}: two-hop recovery describes longer-range label structure but does not determine whether MLP or a particular graph model wins.
 \end{itemize}
